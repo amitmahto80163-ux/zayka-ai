@@ -1,5 +1,5 @@
 // ============================================
-// ZAYKA AI — Firebase Configuration
+// ZAYKA AI - Firebase Configuration
 // ============================================
 
 import { initializeApp, getApps } from 'firebase/app';
@@ -16,10 +16,18 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Prevent duplicate initialization
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+let app;
+try {
+  // Only initialize if we have a real API key (not the dummy one)
+  if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'your_firebase_api_key') {
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  }
+} catch (error) {
+  console.warn('Firebase initialization failed:', error);
+}
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+// Export mock objects if Firebase is not configured yet so the app doesn't crash
+export const auth = app ? getAuth(app) : {} as any;
+export const db = app ? getFirestore(app) : {} as any;
+export const storage = app ? getStorage(app) : {} as any;
 export default app;
