@@ -42,7 +42,7 @@ export default function CookingMode() {
       toast('AR Mode band kiya', { icon: '🛑' });
     } else {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        let stream; try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); } catch(e) { stream = await navigator.mediaDevices.getUserMedia({ video: true }); }
         if (videoRef.current) videoRef.current.srcObject = stream;
         setIsCameraActive(true);
         toast.success('AR Live! Chef is watching your pan 👀');
@@ -107,7 +107,7 @@ export default function CookingMode() {
         {/* Camera */}
         {isCameraActive && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: '#000' }}>
-            <video ref={videoRef} autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.88 }} />
+            <video ref={videoRef} autoPlay playsInline muted style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.88 }} />
             {/* Focus Frame */}
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 200, height: 200, border: '2px dashed rgba(249,115,22,0.5)', borderRadius: 24, pointerEvents: 'none' }}>
               {['tl', 'tr', 'bl', 'br'].map(corner => (
@@ -210,3 +210,4 @@ export default function CookingMode() {
     </div>
   );
 }
+
