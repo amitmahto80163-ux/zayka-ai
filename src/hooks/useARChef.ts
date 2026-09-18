@@ -16,7 +16,6 @@ export function useARChef({ videoRef, currentStepDescription, isActive }: UseARC
   const audioElRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Create a hidden audio element to play the AI's voice
     if (typeof window !== 'undefined' && !audioElRef.current) {
       const audioEl = document.createElement('audio');
       audioEl.autoplay = true;
@@ -36,26 +35,21 @@ export function useARChef({ videoRef, currentStepDescription, isActive }: UseARC
     setIsThinking(true);
 
     try {
-      // 1. Get an ephemeral token from our backend
       const tokenResponse = await fetch('/api/session');
       const data = await tokenResponse.json();
       const EPHEMERAL_KEY = data.client_secret.value;
 
-      // 2. Create PeerConnection
       const pc = new RTCPeerConnection();
       peerConnectionRef.current = pc;
 
-      // Play the AI's voice when the audio track arrives
       pc.ontrack = e => {
         if (audioElRef.current) {
           audioElRef.current.srcObject = e.streams[0];
         }
       };
 
-      // 3. Add local video/audio tracks
       let stream = videoRef.current.srcObject as MediaStream;
       if (!stream) {
-        // Fallback if not already active
         try {
           stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: true });
         } catch {
@@ -63,31 +57,28 @@ export function useARChef({ videoRef, currentStepDescription, isActive }: UseARC
         }
         videoRef.current.srcObject = stream;
       } else {
-        // Make sure audio is also requested if missing
         if (stream.getAudioTracks().length === 0) {
           const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
           stream.addTrack(audioStream.getAudioTracks()[0]);
         }
       }
 
-      pc.addTrack(stream.getAudioTracks()[0]); // Add mic
-      pc.addTrack(stream.getVideoTracks()[0]); // Add camera
+      pc.addTrack(stream.getAudioTracks()[0]);
+      pc.addTrack(stream.getVideoTracks()[0]);
 
-      // 4. Data channel for sending events (like updating instructions)
       const dc = pc.createDataChannel('oai-events');
       dataChannelRef.current = dc;
 
-      // 5. Create Offer & connect to OpenAI
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
       const baseUrl = 'https://api.openai.com/v1/realtime';
       const model = 'gpt-4o-realtime-preview-2024-12-17';
-      const sdpResponse = await fetch(\\?model=\\, {
+      const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
         method: 'POST',
         body: offer.sdp,
         headers: {
-          Authorization: \Bearer \\,
+          Authorization: `Bearer ${EPHEMERAL_KEY}`,
           'Content-Type': 'application/sdp'
         },
       });
@@ -118,7 +109,6 @@ export function useARChef({ videoRef, currentStepDescription, isActive }: UseARC
     setArPhase('idle');
   }, []);
 
-  // Sync active state
   useEffect(() => {
     if (isActive && arPhase === 'idle') {
       initLiveAI();
