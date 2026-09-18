@@ -22,13 +22,10 @@ export default function AuthPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   useEffect(() => {
-    // Initialize reCAPTCHA
     if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
-        callback: () => {
-          // reCAPTCHA solved
-        }
+        callback: () => {}
       });
     }
   }, []);
@@ -60,7 +57,6 @@ export default function AuthPage() {
       const result = await confirmationResult.confirm(otp);
       const user = result.user;
 
-      // Check if user exists in Firestore
       const userRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(userRef);
 
@@ -68,7 +64,6 @@ export default function AuthPage() {
       if (docSnap.exists()) {
         userData = docSnap.data();
       } else {
-        // Create new user profile
         userData = {
           id: user.uid,
           name: 'Zayka Chef',
@@ -94,7 +89,6 @@ export default function AuthPage() {
   return (
     <div style={{ minHeight: '100vh', background: W.bg, display: 'flex', flexDirection: 'column' }}>
       <div id="recaptcha-container"></div>
-      {/* Hero */}
       <div style={{ background: 'linear-gradient(160deg, #F97316 0%, #FB923C 50%, #FBBF24 100%)', padding: '80px 24px 60px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -40, right: -40, width: 180, height: 180, borderRadius: '50%', background: 'rgba(255,255,255,0.12)' }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -103,7 +97,6 @@ export default function AuthPage() {
         </div>
       </div>
 
-      {/* Form */}
       <div style={{ flex: 1, padding: '32px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <AnimatePresence mode="wait">
           {step === 'phone' ? (
@@ -112,7 +105,7 @@ export default function AuthPage() {
                 <h2 style={{ fontSize: 24, fontWeight: 900, color: W.heading, marginBottom: 6 }}>Login / Sign Up</h2>
                 <p style={{ fontSize: 14, color: W.muted, fontWeight: 600 }}>Enter your phone number</p>
               </div>
-              <div style={{ background: W.card, border: 1.5px solid , borderRadius: 20, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 20, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: W.saffron }}>🇮🇳 +91</span>
                 <input type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit number" style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 16, fontFamily: 'Nunito, sans-serif', fontWeight: 700, color: W.heading }} />
                 <Phone style={{ width: 18, height: 18, color: '#C4A882' }} />
@@ -124,7 +117,7 @@ export default function AuthPage() {
           ) : (
             <motion.div key="otp" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button onClick={() => setStep('phone')} style={{ width: 36, height: 36, borderRadius: '50%', background: W.card, border: 1.5px solid , display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <button onClick={() => setStep('phone')} style={{ width: 36, height: 36, borderRadius: '50%', background: W.card, border: `1.5px solid ${W.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <ArrowLeft style={{ width: 16, height: 16, color: W.heading }} />
                 </button>
                 <div>
@@ -132,7 +125,7 @@ export default function AuthPage() {
                   <p style={{ fontSize: 13, color: W.muted, fontWeight: 600 }}>Sent to +91 {phone}</p>
                 </div>
               </div>
-              <div style={{ background: W.card, border: 1.5px solid , borderRadius: 20, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 20, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Lock style={{ width: 18, height: 18, color: '#C4A882' }} />
                 <input type="number" value={otp} onChange={e => setOtp(e.target.value.slice(0, 6))} placeholder="6-digit OTP" style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: 20, fontFamily: 'Nunito, sans-serif', fontWeight: 900, color: W.heading, letterSpacing: '0.3em' }} />
               </div>
