@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -48,8 +48,8 @@ export default function AuthPage() {
       setStep('otp');
       toast.success('OTP sent successfully!');
     } catch (error: any) {
-      console.error(error);
-      toast.error('Failed to send OTP. Please try again.');
+      console.error('Firebase OTP Error:', error);
+      toast.error(`Error: ${error.message || 'Failed to send OTP'}`);
       if (window.recaptchaVerifier) window.recaptchaVerifier.render().then((id: any) => window.grecaptcha.reset(id));
     } finally {
       setIsLoading(false);
