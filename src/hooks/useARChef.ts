@@ -4,33 +4,23 @@ import toast from 'react-hot-toast';
 
 interface UseARChefProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
   currentStepDescription: string;
   isActive: boolean;
 }
 
-export function useARChef({ videoRef, currentStepDescription, isActive }: UseARChefProps) {
+export function useARChef({ videoRef, audioRef, currentStepDescription, isActive }: UseARChefProps) {
   const [isThinking, setIsThinking] = useState(false);
   const [arPhase, setArPhase] = useState<'idle' | 'connecting' | 'cooking'>('idle');
+  const [micLevel, setMicLevel] = useState(0);
+  
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
-  const audioElRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !audioElRef.current) {
-      const audioEl = document.createElement('audio');
-      audioEl.autoplay = true;
-      document.body.appendChild(audioEl);
-      audioElRef.current = audioEl;
-    }
-    return () => {
-      if (audioElRef.current) {
-        audioElRef.current.remove();
-      }
-    };
-  }, []);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const animationFrameRef = useRef<number>(0);
 
   const initLiveAI = useCallback(async () => {
-    if (!videoRef.current || !audioElRef.current) return;
+    if (!videoRef.current || !audioRef.current) return;
     setArPhase('connecting');
     setIsThinking(true);
 
@@ -42,33 +32,56 @@ export function useARChef({ videoRef, currentStepDescription, isActive }: UseARC
       const pc = new RTCPeerConnection();
       peerConnectionRef.current = pc;
 
+      // Play AI Audio instantly when stream arrives
       pc.ontrack = e => {
-        if (audioElRef.current) {
-          audioElRef.current.srcObject = e.streams[0];
+        if (audioRef.current && e.track.kind === 'audio') {
+          audioRef.current.srcObject = e.streams[0];
+          // Force play to overcome some browser policies
+          audioRef.current.play().catch(err => console.error("Autoplay blocked:", err));
         }
       };
 
+      // Get Mic & Camera
       let stream = videoRef.current.srcObject as MediaStream;
       if (!stream) {
-        try {
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: true });
-        } catch {
-          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        }
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: true });
         videoRef.current.srcObject = stream;
-      } else {
-        if (stream.getAudioTracks().length === 0) {
-          const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.addTrack(audioStream.getAudioTracks()[0]);
-        }
+      } else if (stream.getAudioTracks().length === 0) {
+        const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.addTrack(audioStream.getAudioTracks()[0]);
       }
 
-      pc.addTrack(stream.getAudioTracks()[0]);
-      pc.addTrack(stream.getVideoTracks()[0]);
+      // Add tracks to WebRTC
+      stream.getTracks().forEach(track => {
+        pc.addTrack(track, stream);
+      });
 
+      // --- AUDIO VISUALIZER LOGIC ---
+      if (!audioContextRef.current) {
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = audioCtx;
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        const source = audioCtx.createMediaStreamSource(stream);
+        source.connect(analyser);
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const updateMicLevel = () => {
+          analyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for(let i = 0; i < dataArray.length; i++) { sum += dataArray[i]; }
+          const average = sum / dataArray.length;
+          setMicLevel(average); // 0 to ~128
+          animationFrameRef.current = requestAnimationFrame(updateMicLevel);
+        };
+        updateMicLevel();
+      }
+
+      // Data channel for events
       const dc = pc.createDataChannel('oai-events');
       dataChannelRef.current = dc;
 
+      // Connect to OpenAI
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
@@ -91,7 +104,7 @@ export function useARChef({ videoRef, currentStepDescription, isActive }: UseARC
 
       setArPhase('cooking');
       setIsThinking(false);
-      toast.success('Live AI Connected! Start talking to the Chef.');
+      toast.success('Chef is listening! Say Hello! YZ');
 
     } catch (error) {
       console.error('WebRTC Error:', error);
@@ -99,13 +112,21 @@ export function useARChef({ videoRef, currentStepDescription, isActive }: UseARC
       setArPhase('idle');
       setIsThinking(false);
     }
-  }, [videoRef]);
+  }, [videoRef, audioRef]);
 
   const stopLiveAI = useCallback(() => {
     if (peerConnectionRef.current) {
       peerConnectionRef.current.close();
       peerConnectionRef.current = null;
     }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    setMicLevel(0);
     setArPhase('idle');
   }, []);
 
@@ -120,6 +141,7 @@ export function useARChef({ videoRef, currentStepDescription, isActive }: UseARC
   return {
     isThinking,
     arPhase,
-    lastFeedback: arPhase === 'connecting' ? 'Connecting to live brain...' : arPhase === 'cooking' ? 'Chef is watching & listening...' : null
+    micLevel,
+    lastFeedback: arPhase === 'connecting' ? 'Connecting to live brain...' : arPhase === 'cooking' ? 'Chef is watching & listening... Speak now!' : null
   };
 }
