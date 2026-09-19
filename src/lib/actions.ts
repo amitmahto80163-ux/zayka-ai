@@ -14,7 +14,12 @@ export async function analyzeFrameAction(imageBase64: string, currentStep: strin
 }
 
 export async function scanFridgeAction(imageBase64: string, language: AppLanguage) {
-  try { return { success: true, data: await routeFridgeScanToGemini(imageBase64, language) }; } 
+  try { 
+    const rawString = await routeFridgeScanToGemini(imageBase64, language);
+    // Split by comma and clean up spaces to return a string array
+    const dataArray = rawString.split(',').map(s => s.trim()).filter(Boolean);
+    return { success: true, data: dataArray }; 
+  } 
   catch { return { success: false, error: "AI failed to scan fridge." }; }
 }
 

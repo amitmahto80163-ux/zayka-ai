@@ -1,5 +1,5 @@
 ﻿'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Phone, ChevronRight, Lock } from 'lucide-react';
@@ -8,6 +8,13 @@ import toast from 'react-hot-toast';
 import { auth, db } from '@/lib/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+
+declare global {
+  interface Window {
+    recaptchaVerifier: any;
+    grecaptcha: any;
+  }
+}
 
 const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
 

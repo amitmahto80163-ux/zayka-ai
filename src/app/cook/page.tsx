@@ -24,9 +24,6 @@ export default function CookingMode() {
   const { isThinking: isARThinking, lastFeedback: arFeedback } = useARChef({
     videoRef,
     currentStepDescription: currentRecipe?.steps[currentStep]?.description || '',
-    ingredients: currentRecipe?.ingredients || [],
-    chefId: selectedChef,
-    language,
     isActive: isCameraActive
   });
 
