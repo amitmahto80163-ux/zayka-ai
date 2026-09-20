@@ -103,7 +103,7 @@ export default function HomePage() {
     <div className="min-h-screen safe-bottom" style={{ backgroundColor: '#FFF8F3' }}>
 
       {/* ===== STICKY HEADER ===== */}
-      <div className="glass sticky top-0 z-50 px-4 pt-10 pb-3">
+      <div className="glass sticky top-0 z-50 px-6 pt-10 pb-3">
         <div className="flex items-center justify-between mb-3">
           <div>
             <p style={{ color: '#92745A', fontSize: '13px', fontWeight: 600 }}>Namaste {userName} 👋</p>
@@ -152,7 +152,7 @@ export default function HomePage() {
       </div>
 
       {/* ===== CONTENT ===== */}
-      <div className="px-4 pt-5 space-y-7">
+      <div className="px-6 pt-5 space-y-7">
 
         {/* ===== WEATHER CARD ===== */}
         {weather && (
