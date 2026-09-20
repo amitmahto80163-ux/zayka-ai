@@ -191,7 +191,7 @@ export default function HomePage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <h2 className="section-title">Quick AI Tools ⚡</h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
             {QUICK_TOOLS.map((tool) => (
               <Link key={tool.href} href={tool.href}>
                 <motion.div
@@ -249,7 +249,7 @@ export default function HomePage() {
           </div>
 
           {/* Recipe Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 14 }}>
             <AnimatePresence mode="wait">
               {filtered.map((recipe, i) => (
                 <motion.div
@@ -301,10 +301,10 @@ export default function HomePage() {
                       </div>
                       {/* Text */}
                       <div style={{ padding: '10px 12px 12px' }}>
-                        <h3 style={{ fontSize: 13, fontWeight: 900, color: '#1C1009', lineHeight: 1.2 }}>
+                        <h3 style={{ fontSize: 13, fontWeight: 900, color: '#1C1009', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {recipe.name}
                         </h3>
-                        <p style={{ fontSize: 11, color: '#92745A', marginTop: 2, fontWeight: 600 }}>
+                        <p style={{ fontSize: 11, color: '#92745A', marginTop: 2, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {recipe.nameHindi}
                         </p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
