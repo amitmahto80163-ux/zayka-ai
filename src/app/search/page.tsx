@@ -39,7 +39,7 @@ export default function SearchPage() {
 function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { selectedChef, language } = useZaykaStore();
+  const { selectedChef, language, setCurrentRecipe } = useZaykaStore();
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [servings, setServings] = useState(2);
   const [isListening, setIsListening] = useState(false);
@@ -278,7 +278,7 @@ function SearchContent() {
               )}
 
               {/* Cook Button */}
-              <button onClick={() => { toast.success('Cooking mode shuru!'); router.push('/cook'); }}
+              <button onClick={() => { setCurrentRecipe(generatedRecipe); toast.success('Cooking mode shuru!'); router.push('/cook'); }}
                 style={{ background: 'linear-gradient(135deg, #F97316, #FB923C)', color: 'white', border: 'none', borderRadius: 18, padding: '16px', fontFamily: 'Nunito, sans-serif', fontSize: 16, fontWeight: 900, cursor: 'pointer', width: '100%', boxShadow: '0 8px 24px rgba(249,115,22,0.35)' }}>
                 🍳 Start AR Cooking Mode
               </button>

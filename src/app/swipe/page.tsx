@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,9 +15,9 @@ const FOOD_CARDS = [
   { id: 'f2', name: 'Margherita Pizza', cuisine: 'Italian 🇮🇹', emoji: '🍕', color: '#CE2B37', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400&q=80' },
   { id: 'f3', name: 'Ramen', cuisine: 'Japanese 🇯🇵', emoji: '🍜', color: '#BC002D', img: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=400&q=80' },
   { id: 'f4', name: 'Tacos', cuisine: 'Mexican 🇲🇽', emoji: '🌮', color: '#006847', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400&q=80' },
-  { id: 'f5', name: 'Pad Thai', cuisine: 'Thai 🇹🇭', emoji: '🍝', color: '#A51931', img: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=400&q=80' },
-  { id: 'f6', name: 'Biryani', cuisine: 'Indian 🇮🇳', emoji: '🍚', color: '#FF6B35', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=400&q=80' },
-  { id: 'f7', name: 'Sushi', cuisine: 'Japanese 🇯🇵', emoji: '🍣', color: '#BC002D', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f5', name: 'Pad Thai', cuisine: 'Thai 🇹🇭', emoji: '🥘', color: '#A51931', img: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f6', name: 'Biryani', cuisine: 'Indian 🇮🇳', emoji: '🍲', color: '#FF6B35', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f7', name: 'Sushi', cuisine: 'Japanese 🇯🇵', emoji: '🍣', color: '#BC002D', img: 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=400&q=80' },
   { id: 'f8', name: 'Pasta Arrabbiata', cuisine: 'Italian 🇮🇹', emoji: '🍝', color: '#009246', img: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=400&q=80' },
 ];
 
@@ -36,7 +36,7 @@ export default function SwipePage() {
     setSwipeDir(dir);
     if (dir === 'right') {
       setLiked(prev => [...prev, top.name]);
-      toast(top.name + ' ❤️', { icon: '🔥', style: { background: '#FFEDD5', color: W.heading, fontWeight: 700 } });
+      toast(top.name + ' â¤ï¸', { icon: 'ðŸ”¥', style: { background: '#FFEDD5', color: W.heading, fontWeight: 700 } });
     }
     setTimeout(() => {
       setCards(prev => prev.slice(1));
@@ -63,7 +63,7 @@ export default function SwipePage() {
 
   const handleDeckEmpty = () => {
     if (liked.length > 0) generateFusion(liked);
-    else { toast('Kuch toh like karo!', { icon: '😅' }); resetDeck(); }
+    else { toast('Kuch toh like karo!', { icon: 'ðŸ˜…' }); resetDeck(); }
   };
 
   const resetDeck = () => { setCards(FOOD_CARDS); setLiked([]); setFusion(null); setStage('swipe'); };
@@ -79,8 +79,8 @@ export default function SwipePage() {
           <ArrowLeft style={{ width: 18, height: 18, color: W.heading }} />
         </button>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 900, color: W.heading }}>Food Tinder 🔥</h1>
-          <p style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>Like karo → AI Fusion recipe banayega!</p>
+          <h1 style={{ fontSize: 20, fontWeight: 900, color: W.heading }}>Food Tinder ðŸ”¥</h1>
+          <p style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>Like karo â†’ AI Fusion recipe banayega!</p>
         </div>
         <button onClick={resetDeck} style={{ marginLeft: 'auto', width: 38, height: 38, borderRadius: '50%', background: W.card, border: `1.5px solid ${W.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
           <RefreshCw style={{ width: 16, height: 16, color: W.muted }} />
@@ -99,7 +99,7 @@ export default function SwipePage() {
               {liked.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
                   {liked.map(f => (
-                    <span key={f} style={{ background: '#FFEDD5', border: '1.5px solid #FED7AA', borderRadius: 50, padding: '4px 12px', fontSize: 11, fontWeight: 800, color: W.saffron }}>❤️ {f}</span>
+                    <span key={f} style={{ background: '#FFEDD5', border: '1.5px solid #FED7AA', borderRadius: 50, padding: '4px 12px', fontSize: 11, fontWeight: 800, color: W.saffron }}>â¤ï¸ {f}</span>
                   ))}
                 </div>
               )}
@@ -133,11 +133,11 @@ export default function SwipePage() {
                 </div>
               ) : (
                 <div style={{ width: '100%', height: 340, background: W.card, border: `1.5px dashed ${W.border}`, borderRadius: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                  <span style={{ fontSize: 48 }}>🎴</span>
+                  <span style={{ fontSize: 48 }}>ðŸŽ´</span>
                   <p style={{ fontSize: 16, fontWeight: 800, color: W.muted }}>Sab dekh liya!</p>
                   <button onClick={handleDeckEmpty}
                     style={{ background: 'linear-gradient(135deg, #F97316, #FB923C)', color: 'white', border: 'none', borderRadius: 16, padding: '12px 24px', fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 14, cursor: 'pointer' }}>
-                    {liked.length > 0 ? '✨ Fusion Recipe Generate Karo' : 'Reset Cards'}
+                    {liked.length > 0 ? 'âœ¨ Fusion Recipe Generate Karo' : 'Reset Cards'}
                   </button>
                 </div>
               )}
@@ -158,7 +158,7 @@ export default function SwipePage() {
 
               {/* Counter */}
               <p style={{ fontSize: 13, color: W.muted, fontWeight: 700 }}>
-                {cards.length} cards left • {liked.length} liked ❤️
+                {cards.length} cards left â€¢ {liked.length} liked â¤ï¸
               </p>
             </motion.div>
           )}
@@ -168,7 +168,7 @@ export default function SwipePage() {
             <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, padding: '60px 20px' }}>
               <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
-                style={{ fontSize: 56 }}>🧬</motion.div>
+                style={{ fontSize: 56 }}>ðŸ§¬</motion.div>
               <div style={{ textAlign: 'center' }}>
                 <p style={{ fontSize: 20, fontWeight: 900, color: W.heading }}>AI Fusion Bana Raha Hai...</p>
                 <p style={{ fontSize: 13, color: W.muted, fontWeight: 600, marginTop: 6 }}>{liked.join(' + ')} ko fuse kar raha hoon!</p>
@@ -185,14 +185,14 @@ export default function SwipePage() {
               <div style={{ background: 'linear-gradient(135deg, #7C3AED, #06B6D4)', borderRadius: 28, padding: '28px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', inset: 0, backgroundImage: "radial-gradient(circle at 30% 70%, rgba(255,255,255,0.1) 0%, transparent 50%)" }} />
                 <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>AI Fusion Creation</p>
-                <div style={{ fontSize: 52, marginBottom: 10 }}>{fusion.emoji || '🧬'}</div>
-                <h2 style={{ fontSize: 26, fontWeight: 900, color: 'white', marginBottom: 6 }}>{fusion.name}</h2>
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>{fusion.tagline}</p>
+                <div style={{ fontSize: 52, marginBottom: 10 }}>{'ðŸ§¬'}</div>
+                <h2 style={{ fontSize: 26, fontWeight: 900, color: 'white', marginBottom: 6 }}>{fusion.name || 'Fusion Dish'}</h2>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>{fusion.tagline || ''}</p>
               </div>
 
               {fusion.ingredients?.length > 0 && (
                 <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 20 }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginBottom: 12 }}>🥘 Key Ingredients</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginBottom: 12 }}>ðŸ¥˜ Key Ingredients</h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {fusion.ingredients.map((ing: string, i: number) => (
                       <span key={i} style={{ background: '#FFEDD5', border: '1px solid #FED7AA', borderRadius: 50, padding: '6px 14px', fontSize: 12, fontWeight: 700, color: W.saffron }}>{ing}</span>
@@ -203,7 +203,7 @@ export default function SwipePage() {
 
               {fusion.instructions && (
                 <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 20 }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginBottom: 10 }}>📋 How to Make</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginBottom: 10 }}>ðŸ“‹ How to Make</h3>
                   <p style={{ fontSize: 13, color: '#3D2B1F', lineHeight: 1.7, fontWeight: 600 }}>{fusion.instructions}</p>
                 </div>
               )}
@@ -219,3 +219,6 @@ export default function SwipePage() {
     </div>
   );
 }
+
+
+

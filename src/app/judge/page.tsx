@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import { Camera, ArrowLeft, Star, Share2, Award, Flame } from 'lucide-react';
@@ -40,7 +40,7 @@ export default function JudgePage() {
         } else {
           setResult({
             score: 0,
-            feedback: "Oops! AI unbale to process image.",
+            feedback: "Oops! AI unable to judge this image. Please try again.",
             shareCaption: "Tried Zayka AI but got an error."
           });
         }
@@ -90,7 +90,7 @@ export default function JudgePage() {
             </div>
             
             <p className="absolute top-28 text-center text-white/80 font-medium px-8 text-lg z-10">
-              Apne bane hue khane ki ek<br/>badiya si photo click karein 📸
+              Apne bane hue khane ki ek<br/>badiya si photo click karein ðŸ“¸
             </p>
 
             {/* Capture Button */}
@@ -118,7 +118,7 @@ export default function JudgePage() {
             <div className="relative w-32 h-32 mb-8">
               <div className="absolute inset-0 border-4 border-yellow-400/20 rounded-full"></div>
               <div className="absolute inset-0 border-4 border-yellow-400 rounded-full border-t-transparent animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center text-5xl">🤔</div>
+              <div className="absolute inset-0 flex items-center justify-center text-5xl">ðŸ¤”</div>
             </div>
             <h2 className="text-2xl font-black mb-2 text-yellow-400 tracking-wider">AI IS JUDGING...</h2>
             <p className="text-white/50 text-center px-8 font-medium animate-pulse">Checking presentation, colors,<br/>aur plating ka style!</p>
@@ -163,7 +163,7 @@ export default function JudgePage() {
               <div className="mb-auto">
                 <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Instagram Ready Caption</h4>
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 relative">
-                  <p className="text-gray-700">{result.shareCaption}</p>
+                  <p className="text-gray-700">{result.shareCaption || 'Cooked with Zayka AI! #ZaykaAI #HomeCooking'}</p>
                 </div>
               </div>
 
@@ -180,3 +180,4 @@ export default function JudgePage() {
     </div>
   );
 }
+

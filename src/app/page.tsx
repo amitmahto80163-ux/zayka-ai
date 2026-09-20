@@ -106,7 +106,7 @@ export default function HomePage() {
       <div className="glass sticky top-0 z-50 px-4 pt-10 pb-3">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p style={{ color: '#92745A', fontSize: '13px', fontWeight: 600 }}>Namaste 👋</p>
+            <p style={{ color: '#92745A', fontSize: '13px', fontWeight: 600 }}>Namaste {userName} 👋</p>
             <h1 style={{ fontSize: '26px', fontWeight: 900, lineHeight: 1.1 }}>
               <span className="gradient-text">Zayka AI</span>
             </h1>

@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Camera, CheckCircle2, Timer, Flame, BrainCircuit, Mic } from 'lucide-react';
 import { useZaykaStore } from '@/store';
 import { useARChef } from '@/hooks/useARChef';
-import ChefChat from '@/components/cook/ChefChat';
+import ChefChat from '@/components/chat/ChefChat';
 
 const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
 
@@ -59,8 +59,8 @@ export default function CookPage() {
       {/* Header */}
       <div style={{ background: 'white', padding: '16px 20px', borderBottom: `1px solid ${W.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 20 }}>
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 900, color: W.heading }}>{currentRecipe?.title}</h1>
-          <p style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>Step {currentStep + 1} of {currentRecipe?.steps.length}</p>
+          <h1 style={{ fontSize: 18, fontWeight: 900, color: W.heading }}>{currentRecipe?.name || 'AR Cooking'}</h1>
+          <p style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>Step {currentStep + 1} of {currentRecipe?.steps?.length || 1}</p>
         </div>
         <button onClick={() => setShowChat(!showChat)} style={{ background: showChat ? W.saffron : '#FFF0E6', color: showChat ? 'white' : W.saffron, border: 'none', borderRadius: 20, padding: '8px 16px', fontSize: 13, fontWeight: 800, transition: 'all 0.2s' }}>
           {showChat ? 'Close Chat' : 'Ask Chef'}

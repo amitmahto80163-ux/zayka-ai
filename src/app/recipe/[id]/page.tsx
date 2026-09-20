@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Clock, Users, Flame, Heart, Share2, ChefHat, Play, Camera, Star } from 'lucide-react';
 import { useZaykaStore } from '@/store';
-import ChefChat from '@/components/cook/ChefChat';
+import ChefChat from '@/components/chat/ChefChat';
 import toast from 'react-hot-toast';
 
 const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
@@ -124,8 +124,8 @@ const DUMMY_RECIPES: Record<string, any> = {
 export default function RecipeDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params.id as string;
-  const { isFavourite, addFavourite, removeFavourite, setCurrentRecipe, savedRecipes } = useZaykaStore();
+  const id = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
+  const { isFavourite, addFavourite, removeFavourite, setCurrentRecipe, savedRecipes } = useZaykaStore() as any;
   
   const [recipe, setRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -133,8 +133,10 @@ export default function RecipeDetailPage() {
   const isFav = isFavourite(id);
 
   useEffect(() => {
+    if (!id) return; // Wait for router to be ready
+    
     // Check if it's a dynamically generated recipe
-    const generated = savedRecipes?.find(r => r.id === id);
+    const generated = savedRecipes?.find((r: any) => r.id === id);
     
     if (generated) {
       setRecipe(generated);
@@ -143,7 +145,7 @@ export default function RecipeDetailPage() {
     }
 
     // Load from dummy catalog
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       const data = DUMMY_RECIPES[id] || {
         ...DUMMY_RECIPES['1'],
         name: 'Custom Recipe',
@@ -152,6 +154,8 @@ export default function RecipeDetailPage() {
       setRecipe({ id, ...data });
       setLoading(false);
     }, 500);
+    
+    return () => clearTimeout(timer);
   }, [id, savedRecipes]);
 
   const toggleFav = () => {
