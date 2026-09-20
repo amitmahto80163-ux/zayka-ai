@@ -299,7 +299,7 @@ export default function RecipeDetailPage() {
         </AnimatePresence>
       </div>
 
-      <div style={{ position: 'fixed', bottom: 20, left: 16, right: 16, zIndex: 40 }}>
+      <div style={{ position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', width: 'calc(100% - 32px)', maxWidth: 408, zIndex: 40 }}>
         <button onClick={startCooking} style={{ width: '100%', background: 'linear-gradient(135deg, #F97316, #FB923C)', padding: 18, borderRadius: 24, border: 'none', color: 'white', fontSize: 16, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, boxShadow: '0 12px 30px rgba(249,115,22,0.3)', cursor: 'pointer' }}>
           <ChefHat style={{ width: 20, height: 20 }} /> Start Cooking AR
         </button>

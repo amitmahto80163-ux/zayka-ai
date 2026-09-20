@@ -96,8 +96,10 @@ a img { border: none !important; }
 .bottom-nav {
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
+  max-width: 440px;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -105,7 +107,8 @@ a img { border: none !important; }
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 10px 8px 24px 8px;
+  padding: 12px 16px;
+  padding-bottom: env(safe-area-inset-bottom, 12px);
   z-index: 100;
   box-shadow: 0 -8px 32px rgba(60, 40, 20, 0.06);
 }
