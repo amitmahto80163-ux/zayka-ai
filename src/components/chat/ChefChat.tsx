@@ -7,6 +7,19 @@ import { useZaykaStore } from '@/store';
 import { CHEF_PROFILES } from '@/data/chefs';
 import toast from 'react-hot-toast';
 
+const W = { 
+  bg: '#FFF8F3', 
+  primary: '#F97316', 
+  card: '#FFFFFF', 
+  text: '#1C1009', 
+  muted: '#92745A', 
+  border: '#F0E6DC',
+  userBubble: '#F97316',
+  userText: '#FFFFFF',
+  chefBubble: '#FFFFFF',
+  chefText: '#1C1009'
+};
+
 export default function ChefChat({ context = 'general', recipeData = null }: { context?: string, recipeData?: any }) {
   const { selectedChef, language, chatHistory, addChatMessage } = useZaykaStore();
   const [message, setMessage] = useState('');
@@ -24,18 +37,12 @@ export default function ChefChat({ context = 'general', recipeData = null }: { c
   // Voice Synthesis Function
   const speakResponse = useCallback((text: string) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    
-    // Stop any currently playing audio
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(text);
-    // Set language based on app settings
     utterance.lang = language === 'english' ? 'en-US' : 'hi-IN';
-    
-    // Adjust pitch based on selected chef to give them distinct voices
-    utterance.rate = 1.05; // Slightly faster for natural conversation
+    utterance.rate = 1.05; 
     utterance.pitch = chef.id === 'ananya' || chef.id === 'priya' || chef.id === 'savita' ? 1.2 : 0.9;
-    
     window.speechSynthesis.speak(utterance);
   }, [language, chef.id]);
 
@@ -45,12 +52,10 @@ export default function ChefChat({ context = 'general', recipeData = null }: { c
     const userMsg = message.trim();
     setMessage('');
     
-    // Stop speaking if user interrupts by sending a new message
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
     
-    // Add user message to store
     addChatMessage({
       id: Date.now().toString(),
       role: 'user',
@@ -70,7 +75,7 @@ export default function ChefChat({ context = 'general', recipeData = null }: { c
           chefId: selectedChef,
           language,
           currentRecipe: recipeData,
-          chatHistory: chatHistory.slice(-10) // Send last 10 messages for context
+          chatHistory: chatHistory.slice(-10) 
         }),
       });
 
@@ -84,10 +89,7 @@ export default function ChefChat({ context = 'general', recipeData = null }: { c
           timestamp: new Date(),
           language
         });
-        
-        // SPEAK THE RESPONSE OUT LOUD! 🔊
         speakResponse(data.response);
-        
       } else {
         toast.error('Chef is busy right now! Try again.');
       }
@@ -100,79 +102,138 @@ export default function ChefChat({ context = 'general', recipeData = null }: { c
   };
 
   return (
-    <div className="flex flex-col h-[400px] bg-[#ffffff] border border-[#e5e7eb] rounded-2xl overflow-hidden shadow-lg">
+    <div style={{ 
+      display: 'flex', flexDirection: 'column', height: 450, 
+      background: W.bg, border: `1px solid ${W.border}`, borderRadius: 24, overflow: 'hidden',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.04)' 
+    }}>
       
       {/* Header */}
-      <div className="bg-[#e5e7eb] p-3 border-b border-[#e5e7eb] flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF5A5F]/20 to-[#FF5A5F]/5 flex items-center justify-center text-xl overflow-hidden border border-[#FF5A5F]">
-          👨‍🍳
+      <div style={{ 
+        background: 'white', padding: '16px', borderBottom: `1px solid ${W.border}`, 
+        display: 'flex', alignItems: 'center', gap: 12 
+      }}>
+        <div style={{ 
+          width: 44, height: 44, borderRadius: '50%', background: '#FFF0E6', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', 
+          fontSize: 22, border: `2px solid ${W.primary}`
+        }}>
+          👩‍🍳
         </div>
         <div>
-          <h3 className="font-bold text-[#FF5A5F] text-sm">{chef.name}</h3>
-          <p className="text-xs text-gray-500">Online • Ready to help</p>
+          <h3 style={{ fontWeight: 800, color: W.text, fontSize: 16 }}>{chef.name}</h3>
+          <p style={{ fontSize: 12, color: W.primary, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: W.primary, display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
+            Online • Ready to help
+          </p>
         </div>
       </div>
 
       {/* Chat Area */}
       <div 
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar"
+        style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}
+        className="no-scrollbar"
       >
         {/* Initial Greeting */}
         {chatHistory.length === 0 && (
-          <div className="chat-bubble-chef text-sm">
-            {context === 'cooking' && recipeData 
-              ? `Hum ${recipeData.name} bana rahe hain! Koi doubt ho to poocho. 🔥` 
-              : chef.greeting}
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div style={{ 
+              background: W.chefBubble, color: W.chefText, padding: '12px 16px', 
+              borderRadius: '16px 16px 16px 4px', fontSize: 14, fontWeight: 600, 
+              border: `1px solid ${W.border}`, boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+              maxWidth: '85%', lineHeight: 1.5
+            }}>
+              {context === 'cooking' && recipeData 
+                ? `Hum ${recipeData.name} bana rahe hain! Koi doubt ho to poocho. 🔥` 
+                : chef.greeting}
+            </div>
           </div>
         )}
 
         {/* Chat History */}
-        {chatHistory.map((msg, idx) => (
-          <div 
-            key={msg.id} 
-            className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
-          >
-            <div className={`text-sm ${msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-chef'}`}>
-              {msg.content}
-            </div>
-          </div>
-        ))}
+        {chatHistory.map((msg, idx) => {
+          const isUser = msg.role === 'user';
+          return (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              key={msg.id} 
+              style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start' }}
+            >
+              <div style={{ 
+                background: isUser ? W.userBubble : W.chefBubble, 
+                color: isUser ? W.userText : W.chefText, 
+                padding: '12px 16px', 
+                borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px', 
+                fontSize: 14, fontWeight: isUser ? 700 : 600, 
+                border: isUser ? 'none' : `1px solid ${W.border}`, 
+                boxShadow: isUser ? '0 4px 12px rgba(249,115,22,0.2)' : '0 2px 8px rgba(0,0,0,0.02)',
+                maxWidth: '85%', lineHeight: 1.5
+              }}>
+                {msg.content}
+              </div>
+            </motion.div>
+          );
+        })}
 
         {/* Typing Indicator */}
         {isTyping && (
-          <div className="flex items-start">
-            <div className="chat-bubble-chef text-sm flex gap-1 items-center">
-              <span className="w-1.5 h-1.5 bg-[#FF5A5F] rounded-full animate-bounce"></span>
-              <span className="w-1.5 h-1.5 bg-[#FF5A5F] rounded-full animate-bounce delay-100"></span>
-              <span className="w-1.5 h-1.5 bg-[#FF5A5F] rounded-full animate-bounce delay-200"></span>
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div style={{ 
+              background: W.chefBubble, padding: '12px 16px', 
+              borderRadius: '16px 16px 16px 4px', border: `1px solid ${W.border}`,
+              display: 'flex', gap: 4, alignItems: 'center'
+            }}>
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} style={{ width: 6, height: 6, background: W.primary, borderRadius: '50%' }} />
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} style={{ width: 6, height: 6, background: W.primary, borderRadius: '50%' }} />
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} style={{ width: 6, height: 6, background: W.primary, borderRadius: '50%' }} />
             </div>
           </div>
         )}
       </div>
 
       {/* Input Area */}
-      <div className="p-3 bg-[#e5e7eb] border-t border-[#e5e7eb] flex items-center gap-2">
-        <button className="p-2 text-gray-500 hover:text-[#FF5A5F] transition-colors rounded-full bg-[#e5e7eb]">
-          <Mic className="w-4 h-4" />
+      <div style={{ 
+        padding: '12px 16px', background: 'white', borderTop: `1px solid ${W.border}`, 
+        display: 'flex', alignItems: 'center', gap: 10 
+      }}>
+        <button style={{ 
+          padding: 10, background: '#FFF0E6', color: W.primary, 
+          borderRadius: '50%', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <Mic size={18} />
         </button>
-        <input 
-          type="text" 
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="Chef se poocho..." 
-          className="flex-1 bg-transparent text-sm text-gray-900 outline-none px-2 placeholder-[#a0a0a0]"
-        />
-        <button 
-          onClick={handleSendMessage}
-          disabled={!message.trim() || isTyping}
-          className={`p-2 rounded-full transition-colors ${
-            message.trim() && !isTyping ? 'bg-[#FF5A5F]/20 text-gray-900' : 'bg-[#e5e7eb] text-gray-500'
-          }`}
-        >
-          {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-        </button>
+        <div style={{ 
+          flex: 1, background: W.bg, border: `1px solid ${W.border}`, 
+          borderRadius: 100, display: 'flex', alignItems: 'center', padding: '4px 4px 4px 16px' 
+        }}>
+          <input 
+            type="text" 
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            placeholder="Chef se poocho..." 
+            style={{ 
+              flex: 1, background: 'transparent', border: 'none', outline: 'none', 
+              fontSize: 14, color: W.text, fontWeight: 600 
+            }}
+          />
+          <motion.button 
+            whileTap={{ scale: 0.9 }}
+            onClick={handleSendMessage}
+            disabled={!message.trim() || isTyping}
+            style={{ 
+              padding: 10, borderRadius: '50%', border: 'none', 
+              background: message.trim() && !isTyping ? W.primary : W.border, 
+              color: message.trim() && !isTyping ? 'white' : W.muted,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: message.trim() && !isTyping ? 'pointer' : 'default',
+              transition: 'all 0.2s'
+            }}
+          >
+            {isTyping ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+          </motion.button>
+        </div>
       </div>
     </div>
   );
