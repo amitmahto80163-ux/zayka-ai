@@ -94,6 +94,31 @@ export async function scanFridgeAction(imageBase64: string, language: AppLanguag
   }
 }
 
+// ==========================================
+// ZAYKA AI - REALISTIC PRICING ENGINE
+// ==========================================
+function getRealisticPrice(itemName: string, budget: number): number {
+  const name = itemName.toLowerCase();
+  
+  // Real Indian Grocery Prices Database (Approximate for small meal portions)
+  const priceDB: Record<string, number> = {
+    paneer: 40, chicken: 60, mutton: 90, egg: 7, eggs: 14, 
+    milk: 15, curd: 15, yogurt: 15, cheese: 25, butter: 15,
+    rice: 20, basmati: 25, dal: 20, lentil: 20, chickpeas: 25, chole: 25,
+    atta: 10, flour: 10, maida: 10, bread: 20, maggi: 14, noodles: 15, pasta: 20,
+    onion: 10, tomato: 10, potato: 10, aloo: 10, capsicum: 15, carrot: 10, peas: 15, matar: 15,
+    garlic: 5, ginger: 5, chilli: 5, coriander: 5, lemon: 5,
+    oil: 10, ghee: 20, masala: 5, spices: 5, salt: 2, sugar: 5
+  };
+
+  for (const key in priceDB) {
+    if (name.includes(key)) return priceDB[key];
+  }
+  
+  // If not found in DB, return a generic small cost based on budget
+  return Math.max(5, Math.floor(budget * 0.15));
+}
+
 export async function generateBudgetMealAction(budget: number, language: AppLanguage) {
   try {
     const prompt = `Aap ek master Indian Chef ho (Zayka AI). Neeche diye gaye sawal ka best desi jawab do.\n\n### Instruction:\nBhai ek ${budget} rupees ke andar Indian student budget meal batao.\n\n### Output:\n`;
@@ -119,10 +144,13 @@ export async function generateBudgetMealAction(budget: number, language: AppLang
     
     if (ingredientsMatch) {
       const items = ingredientsMatch[1].split(',');
-      ingredientsList = items.map((item: any) => ({
-        name: item.trim(),
-        estimatedCost: Math.floor(budget / items.length)
-      }));
+      ingredientsList = items.map((item: any) => {
+        const cleanName = item.trim().replace(/^[-*•]\s*/, '').replace(/^[A-Za-z0-9]+ (tbsp|tsp|cup|grams|g|ml) /i, '');
+        return {
+          name: cleanName,
+          estimatedCost: getRealisticPrice(cleanName, budget)
+        };
+      });
     } else {
       ingredientsList = [{ name: "Zayka Ingredients", estimatedCost: budget }];
     }
@@ -133,9 +161,20 @@ export async function generateBudgetMealAction(budget: number, language: AppLang
     const sentences = rawRecipe.split('. ').filter((s: string) => s.trim().length > 3);
     const formattedRecipe = sentences.map((s: string, i: number) => `Step ${i + 1}: ${s.trim()}`).join('\n');
     
+    // Scale prices if total exceeds user budget
+    let totalCost = ingredientsList.reduce((acc: any, curr: any) => acc + (curr.estimatedCost || 0), 0);
+    if (totalCost > budget && ingredientsList.length > 0) {
+      const scaleFactor = budget / totalCost;
+      ingredientsList = ingredientsList.map(ing => ({
+        ...ing,
+        estimatedCost: Math.max(2, Math.floor(ing.estimatedCost * scaleFactor))
+      }));
+      totalCost = ingredientsList.reduce((acc: any, curr: any) => acc + (curr.estimatedCost || 0), 0);
+    }
+    
     const data = {
       dishName: dishName,
-      totalCost: ingredientsList.reduce((acc: any, curr: any) => acc + (curr.estimatedCost || 0), 0) || budget,
+      totalCost: totalCost || budget,
       ingredients: ingredientsList,
       quickRecipe: formattedRecipe
     };
