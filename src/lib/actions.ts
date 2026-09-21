@@ -139,12 +139,16 @@ export async function generateBudgetMealAction(budget: number, language: AppLang
     const parsedData = JSON.parse(cleanText);
     
     return { success: true, data: parsedData };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Dual-Agent Budget Error:", error);
+    
+    // Inject exact error into the UI so we can debug without Vercel logs
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
     return { 
       success: true, 
       data: {
-        dishName: "Royal Masala Poha & Irani Chai",
+        dishName: "System Error!",
         totalCost: budget > 5 ? budget - 5 : budget,
         ingredients: [
           { name: "Poha (Flattened Rice)", estimatedCost: 20 },
@@ -152,7 +156,7 @@ export async function generateBudgetMealAction(budget: number, language: AppLang
           { name: "Onion & Green Chilli", estimatedCost: 10 },
           { name: "Milk & Tea Leaves", estimatedCost: 30 }
         ],
-        quickRecipe: "Step 1: Wash poha.\nStep 2: Roast peanuts and temper onions.\nStep 3: Mix everything with turmeric.\nStep 4: Brew thick Irani chai."
+        quickRecipe: "Step 1: WE NEED TO DEBUG THIS.\nStep 2: Exact Error: " + errorMessage + "\nStep 3: Please screenshot this for the AI."
       }
     };
   }
