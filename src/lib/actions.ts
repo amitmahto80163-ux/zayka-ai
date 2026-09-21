@@ -128,13 +128,15 @@ export async function generateBudgetMealAction(budget: number, language: AppLang
     Return ONLY JSON matching this structure:
     {
       "dishName": "Extracted Dish Name",
-      "totalCost": <number>,
-      "ingredients": [ { "name": "Item 1", "estimatedCost": <number> } ],
+      "totalCost": 150,
+      "ingredients": [ { "name": "Item 1", "estimatedCost": 50 } ],
       "quickRecipe": "Step 1: ...\\nStep 2: ..."
     }`;
 
     const parserResult = await parserModel.generateContent(parserPrompt);
-    const parsedData = JSON.parse(parserResult.response.text());
+    const rawText = parserResult.response.text();
+    const cleanText = rawText.replace(/```json|```/gi, '').trim();
+    const parsedData = JSON.parse(cleanText);
     
     return { success: true, data: parsedData };
   } catch (error) {
@@ -196,7 +198,9 @@ export async function generateFusionRecipeAction(likedFoods: string[], language:
     }`;
 
     const parserResult = await parserModel.generateContent(parserPrompt);
-    const parsedData = JSON.parse(parserResult.response.text());
+    const rawText = parserResult.response.text();
+    const cleanText = rawText.replace(/```json|```/gi, '').trim();
+    const parsedData = JSON.parse(cleanText);
     
     return { success: true, data: parsedData };
   } catch (error) {
