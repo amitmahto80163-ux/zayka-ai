@@ -26,9 +26,9 @@ const DUMMY_RECIPES: Record<string, any> = {
       { stepNumber: 2, title: 'Make Gravy', description: 'Heat butter, add tomato puree and cook until oil separates (10 mins).', duration: 10 },
       { stepNumber: 3, title: 'Combine & Serve', description: 'Add chicken, cream, and kasuri methi. Simmer for 10 mins.', duration: 10 },
     ],
-    nutrition: { protein: 28, carbs: 12, fat: 22 },
+    nutrition: { protein: 28, carbs: 12, fat: 22, calories: 380 },
   },
-  'sushi': { // Phase 1 Showcase Recipe
+  'sushi': {
     name: 'Veggie Sushi Roll',
     description: 'Japanese classic re-imagined with ingredients you can find in any Indian kirana store.',
     cuisine: 'japanese', prepTime: 20, cookTime: 20, servings: 2,
@@ -36,7 +36,6 @@ const DUMMY_RECIPES: Record<string, any> = {
     image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=800',
     isGlobalWithDesiOptions: true,
     desiSubstituteNote: 'Instead of expensive Nori sheets and Sushi rice, we use thinly rolled spinach paratha and regular sticky rice!',
-    // Desi Jugaad Version
     ingredients: [
       { id: 'd1', name: 'Spinach Paratha (Very thin)', amount: 2, unit: 'pcs', cost: 20 },
       { id: 'd2', name: 'Sticky Jeera Rice', amount: 1, unit: 'cup', cost: 30 },
@@ -44,11 +43,10 @@ const DUMMY_RECIPES: Record<string, any> = {
       { id: 'd4', name: 'Spicy Mayo (Desi Dip)', amount: 2, unit: 'tbsp', cost: 10 },
     ],
     steps: [
-      { stepNumber: 1, title: 'Prep the Roll Base', description: 'Take a very thin spinach paratha. Spread sticky rice evenly over it.' },
-      { stepNumber: 2, title: 'Add Veggies', description: 'Place cucumber and carrot strips horizontally in the middle.' },
-      { stepNumber: 3, title: 'Roll it Up', description: 'Roll it tightly just like a frankie, slice it into sushi-sized rounds, and serve with spicy mayo.' },
+      { stepNumber: 1, title: 'Prep the Roll Base', description: 'Take a very thin spinach paratha. Spread sticky rice evenly over it.', duration: 5 },
+      { stepNumber: 2, title: 'Add Veggies', description: 'Place cucumber and carrot strips horizontally in the middle.', duration: 2 },
+      { stepNumber: 3, title: 'Roll it Up', description: 'Roll it tightly just like a frankie, slice it into sushi-sized rounds, and serve with spicy mayo.', duration: 3 },
     ],
-    // Authentic Version
     authenticIngredients: [
       { id: 'a1', name: 'Nori Seaweed Sheets', amount: 2, unit: 'pcs', cost: 150 },
       { id: 'a2', name: 'Japanese Sushi Rice', amount: 1, unit: 'cup', cost: 200 },
@@ -56,11 +54,11 @@ const DUMMY_RECIPES: Record<string, any> = {
       { id: 'a4', name: 'Soy Sauce & Wasabi', amount: 2, unit: 'tbsp', cost: 80 },
     ],
     authenticSteps: [
-      { stepNumber: 1, title: 'Prep the Rice', description: 'Cook Japanese sushi rice and mix with a little rice vinegar.' },
-      { stepNumber: 2, title: 'Assemble on Nori', description: 'Place Nori sheet on a bamboo mat. Spread rice evenly.' },
-      { stepNumber: 3, title: 'Roll & Cut', description: 'Add avocado/cucumber, roll tightly using the mat, and cut with a wet knife.' },
+      { stepNumber: 1, title: 'Prep the Rice', description: 'Cook Japanese sushi rice and mix with a little rice vinegar.', duration: 15 },
+      { stepNumber: 2, title: 'Assemble on Nori', description: 'Place Nori sheet on a bamboo mat. Spread rice evenly.', duration: 5 },
+      { stepNumber: 3, title: 'Roll & Cut', description: 'Add avocado/cucumber, roll tightly using the mat, and cut with a wet knife.', duration: 5 },
     ],
-    nutrition: { protein: 8, carbs: 45, fat: 12 },
+    nutrition: { protein: 8, carbs: 45, fat: 12, calories: 310 },
   },
   'fallback': {
     name: 'Special Recipe', nameHindi: 'खास रेसिपी',
@@ -75,7 +73,8 @@ const DUMMY_RECIPES: Record<string, any> = {
     steps: [
       { stepNumber: 1, title: 'Prep', description: 'Chop everything nicely.', duration: 10 },
       { stepNumber: 2, title: 'Cook', description: 'Cook until delicious.', duration: 20 },
-    ]
+    ],
+    nutrition: { protein: 5, carbs: 30, fat: 10, calories: 250 },
   }
 };
 
@@ -83,12 +82,15 @@ export default function RecipeDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
-  const { isFavourite, addFavourite, removeFavourite, setCurrentRecipe, savedRecipes } = useZaykaStore() as any;
+  const { isFavourite, addFavourite, removeFavourite, setCurrentRecipe, savedRecipes, memory } = useZaykaStore() as any;
   
   const [recipe, setRecipe] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'ingredients' | 'steps' | 'chef'>('ingredients');
-  // Phase 1 Toggle
   const [recipeVersion, setRecipeVersion] = useState<'desi' | 'authentic'>('desi');
+  
+  // Phase A: Servings and Timer State
+  const [servings, setServings] = useState(2);
+  const [activeTimer, setActiveTimer] = useState<{stepIndex: number, remaining: number} | null>(null);
 
   const isFav = isFavourite(id);
 
@@ -97,10 +99,30 @@ export default function RecipeDetailPage() {
     const generated = savedRecipes?.find((r: any) => r.id === id);
     if (generated) {
       setRecipe(generated);
+      setServings(generated.servings || 2);
     } else {
-      setRecipe(DUMMY_RECIPES[id] || DUMMY_RECIPES['fallback']);
+      const r = DUMMY_RECIPES[id] || DUMMY_RECIPES['fallback'];
+      setRecipe(r);
+      setServings(r.servings || 2);
     }
   }, [id, savedRecipes]);
+
+  // Phase A3: Timer Tick
+  useEffect(() => {
+    if (!activeTimer || activeTimer.remaining <= 0) return;
+    const interval = setInterval(() => {
+      setActiveTimer(t => t ? { ...t, remaining: t.remaining - 1 } : null);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeTimer]);
+
+  useEffect(() => {
+    if (activeTimer?.remaining === 0) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(500);
+      toast.success('Timer done! ✅');
+      setActiveTimer(null);
+    }
+  }, [activeTimer?.remaining]);
 
   if (!recipe) return <div style={{ background: W.bg, minHeight: '100vh' }}></div>;
 
@@ -128,9 +150,9 @@ export default function RecipeDetailPage() {
   };
 
   const startCooking = () => {
-    // Save version preference into the recipe state
     const cookingRecipe = {
       ...recipe,
+      servings, // scaled servings
       ingredients: recipeVersion === 'authentic' ? (recipe.authenticIngredients || recipe.ingredients) : recipe.ingredients,
       steps: recipeVersion === 'authentic' ? (recipe.authenticSteps || recipe.steps) : recipe.steps
     };
@@ -140,6 +162,27 @@ export default function RecipeDetailPage() {
 
   const displayedIngredients = recipeVersion === 'authentic' ? (recipe.authenticIngredients || recipe.ingredients) : recipe.ingredients;
   const displayedSteps = recipeVersion === 'authentic' ? (recipe.authenticSteps || recipe.steps) : recipe.steps;
+  const baseServings = recipe.servings || 2;
+
+  const totalCost = Math.round(displayedIngredients?.reduce((sum: number, ing: any) => sum + ((ing.cost || 0) * (servings / baseServings)), 0));
+
+  // Phase A4: Copy Shopping List
+  const handleCopyShoppingList = () => {
+    const list = displayedIngredients?.map((ing: any) => {
+      const displayAmount = Math.round(((ing.amount / baseServings) * servings) * 10) / 10;
+      return `• ${ing.name} — ${displayAmount} ${ing.unit}`;
+    }).join('\n');
+    const text = `🛒 Shopping List for ${recipe.name} (${servings} log)\n\n${list}\n\nEst. Cost: ₹${totalCost}`;
+    navigator.clipboard.writeText(text);
+    toast.success('Shopping list copied! 📋');
+  };
+
+  // Phase A5: Chef Note
+  const chefNote = memory?.allergies?.length
+    ? `⚠️ Bhai, teri ${memory.allergies.join(', ')} allergy hai. Maine check kiya — yeh recipe safe hai!`
+    : memory?.isVegetarian && !recipe.isVeg
+    ? `⚠️ Yeh recipe non-veg hai. Neeche 'Desi Jugaad' tab mein veg version dekho!`
+    : null;
 
   return (
     <div style={{ minHeight: '100vh', background: W.bg, paddingBottom: 100 }}>
@@ -196,13 +239,32 @@ export default function RecipeDetailPage() {
       </div>
 
       <div style={{ padding: '24px 20px' }}>
+        
+        {/* Phase A2: Nutrition Info Card */}
+        {recipe.nutrition && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 20 }}>
+            {[
+              { label: 'Cal', val: Math.round(((recipe.nutrition.calories || 0) / baseServings) * servings), unit: 'kcal', color: '#F97316', bg: '#FFF7ED' },
+              { label: 'Protein', val: Math.round(((recipe.nutrition.protein || 0) / baseServings) * servings), unit: 'g', color: '#10B981', bg: '#F0FDF4' },
+              { label: 'Carbs', val: Math.round(((recipe.nutrition.carbs || 0) / baseServings) * servings), unit: 'g', color: '#3B82F6', bg: '#EFF6FF' },
+              { label: 'Fat', val: Math.round(((recipe.nutrition.fat || 0) / baseServings) * servings), unit: 'g', color: '#8B5CF6', bg: '#F5F3FF' },
+            ].map(n => (
+              <div key={n.label} style={{ background: n.bg, borderRadius: 14, padding: '10px 8px', textAlign: 'center' }}>
+                <p style={{ fontSize: 18, fontWeight: 900, color: n.color }}>{n.val}</p>
+                <p style={{ fontSize: 9, fontWeight: 800, color: W.muted, textTransform: 'uppercase' }}>{n.label}</p>
+                <p style={{ fontSize: 10, color: W.muted }}>{n.unit}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
         {recipe.description && (
           <p style={{ color: W.muted, fontSize: 15, lineHeight: 1.5, fontWeight: 500, marginBottom: 24 }}>
             {recipe.description}
           </p>
         )}
 
-        {/* Global vs Desi Toggle (Phase 1 AI Feature) */}
+        {/* Global vs Desi Toggle */}
         {recipe.isGlobalWithDesiOptions && (
           <div style={{ background: '#FFF1F2', border: '1.5px solid #FECDD3', borderRadius: 20, padding: 16, marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -223,6 +285,19 @@ export default function RecipeDetailPage() {
             </div>
           </div>
         )}
+
+        {/* Phase A1: Servings Adjuster */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: W.card, border: `1px solid ${W.border}`, borderRadius: 20, padding: '16px 20px', marginBottom: 20 }}>
+          <div>
+            <p style={{ fontSize: 12, fontWeight: 800, color: W.muted, textTransform: 'uppercase' }}>Kitne Logon Ke Liye?</p>
+            <p style={{ fontSize: 22, fontWeight: 900, color: W.text }}>{servings} {servings === 1 ? 'Person' : 'Log'}</p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button onClick={() => setServings(s => Math.max(1, s - 1))} style={{ width: 36, height: 36, borderRadius: '50%', background: W.border, border: 'none', fontSize: 20, fontWeight: 900, cursor: 'pointer', color: W.text }}>−</button>
+            <span style={{ fontSize: 20, fontWeight: 900, color: W.primary, minWidth: 24, textAlign: 'center' }}>{servings}</span>
+            <button onClick={() => setServings(s => Math.min(20, s + 1))} style={{ width: 36, height: 36, borderRadius: '50%', background: W.primary, border: 'none', fontSize: 20, fontWeight: 900, cursor: 'pointer', color: 'white' }}>+</button>
+          </div>
+        </div>
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 8, background: W.border, padding: 4, borderRadius: 100, marginBottom: 24 }}>
@@ -245,17 +320,40 @@ export default function RecipeDetailPage() {
             
             {activeTab === 'ingredients' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {displayedIngredients?.map((ing: any, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: W.card, padding: '16px', borderRadius: 16, border: `1px solid ${W.border}` }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: 16, fontWeight: 800, color: W.text }}>{ing.name}</span>
-                      <span style={{ fontSize: 13, color: W.muted, fontWeight: 600, marginTop: 4 }}>{ing.amount} {ing.unit}</span>
-                    </div>
-                    {ing.cost && (
-                      <span style={{ fontSize: 15, fontWeight: 800, color: W.primary }}>₹{ing.cost}</span>
-                    )}
+                
+                {/* Phase A5: Chef Note */}
+                {chefNote && (
+                  <div style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: 16, padding: '12px 16px', marginBottom: 4, fontSize: 14, color: '#92400E', fontWeight: 600 }}>
+                    {chefNote}
                   </div>
-                ))}
+                )}
+
+                {displayedIngredients?.map((ing: any, i: number) => {
+                  const displayAmount = Math.round(((ing.amount / baseServings) * servings) * 10) / 10;
+                  const displayCost = Math.round(((ing.cost || 0) / baseServings) * servings);
+                  return (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: W.card, padding: '16px', borderRadius: 16, border: `1px solid ${W.border}` }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: 16, fontWeight: 800, color: W.text }}>{ing.name}</span>
+                        <span style={{ fontSize: 13, color: W.muted, fontWeight: 600, marginTop: 4 }}>{displayAmount} {ing.unit}</span>
+                      </div>
+                      {ing.cost && (
+                        <span style={{ fontSize: 15, fontWeight: 800, color: W.primary }}>₹{displayCost}</span>
+                      )}
+                    </div>
+                  );
+                })}
+
+                <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 16, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+                  <span style={{ fontWeight: 800, color: '#92400E' }}>Total Estimated Cost</span>
+                  <span style={{ fontWeight: 900, color: W.primary, fontSize: 18 }}>
+                    ₹{totalCost}
+                  </span>
+                </div>
+
+                <button onClick={handleCopyShoppingList} style={{ width: '100%', background: W.card, border: `1.5px dashed ${W.border}`, padding: '14px', borderRadius: 16, color: W.muted, fontWeight: 800, cursor: 'pointer', fontSize: 14, marginTop: 8 }}>
+                  📋 Copy Shopping List
+                </button>
               </div>
             )}
 
@@ -271,9 +369,22 @@ export default function RecipeDetailPage() {
                         <div style={{ width: 2, flex: 1, background: W.border, marginTop: 8 }} />
                       )}
                     </div>
-                    <div style={{ paddingBottom: index === (displayedSteps.length - 1) ? 0 : 20 }}>
+                    <div style={{ paddingBottom: index === (displayedSteps.length - 1) ? 0 : 20, flex: 1 }}>
                       <h3 style={{ fontSize: 16, fontWeight: 800, color: W.text, marginBottom: 6 }}>{step.title || `Step ${index + 1}`}</h3>
                       <p style={{ fontSize: 15, color: W.muted, lineHeight: 1.5, fontWeight: 500 }}>{step.description}</p>
+                      
+                      {/* Phase A3: Step Timer */}
+                      {step.duration && (
+                        <button onClick={() => setActiveTimer({ stepIndex: index, remaining: step.duration * 60 })}
+                          style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6, background: activeTimer?.stepIndex === index ? '#FEF2F2' : '#EFF6FF', border: 'none', borderRadius: 100, padding: '6px 14px', cursor: 'pointer' }}>
+                          <Clock size={14} color={activeTimer?.stepIndex === index ? '#EF4444' : '#3B82F6'} />
+                          <span style={{ fontSize: 13, fontWeight: 700, color: activeTimer?.stepIndex === index ? '#EF4444' : '#3B82F6' }}>
+                            {activeTimer?.stepIndex === index
+                              ? `${Math.floor(activeTimer.remaining / 60)}:${String(activeTimer.remaining % 60).padStart(2, '0')}`
+                              : `${step.duration} min`}
+                          </span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
