@@ -1,5 +1,5 @@
-// ============================================
-// ZAYKA AI — Type Definitions
+﻿// ============================================
+// ZAYKA AI - Type Definitions
 // ============================================
 
 export interface Recipe {
@@ -13,8 +13,15 @@ export interface Recipe {
   prepTime: number; // minutes
   cookTime: number; // minutes
   servings: number;
-  ingredients: Ingredient[];
-  steps: CookingStep[];
+  
+  // Phase 1: Dual Option Engine (Global vs Desi)
+  isGlobalWithDesiOptions?: boolean;
+  ingredients: Ingredient[]; // Acts as 'Desi/Default' ingredients
+  steps: CookingStep[];      // Acts as 'Desi/Default' steps
+  authenticIngredients?: Ingredient[]; // Original foreign ingredients
+  authenticSteps?: CookingStep[];      // Original foreign steps
+  desiSubstituteNote?: string;         // E.g. "Nori sheets ki jagah patla paratha use kiya hai"
+
   nutrition: NutritionInfo;
   tags: string[];
   imageUrl?: string;
@@ -50,48 +57,18 @@ export interface CookingStep {
 
 export interface NutritionInfo {
   calories: number;
-  protein: number; // grams
-  carbs: number; // grams
-  fat: number; // grams
+  protein: number;
+  carbs: number;
+  fat: number;
   fiber?: number;
   sugar?: number;
 }
 
-export type CuisineType =
-  | 'indian-north'
-  | 'indian-south'
-  | 'indian-punjabi'
-  | 'indian-bengali'
-  | 'indian-gujarati'
-  | 'indian-street'
-  | 'chinese'
-  | 'japanese'
-  | 'thai'
-  | 'korean'
-  | 'italian'
-  | 'mexican'
-  | 'american'
-  | 'french'
-  | 'mediterranean'
-  | 'other';
-
-export type CategoryType =
-  | 'breakfast'
-  | 'lunch'
-  | 'dinner'
-  | 'snacks'
-  | 'dessert'
-  | 'drinks'
-  | 'healthy'
-  | 'quick'
-  | 'party'
-  | 'kids';
-
+export type CuisineType = 'indian-north' | 'indian-south' | 'indian-punjabi' | 'indian-bengali' | 'indian-gujarati' | 'indian-street' | 'chinese' | 'japanese' | 'thai' | 'korean' | 'italian' | 'mexican' | 'american' | 'french' | 'mediterranean' | 'other';
+export type CategoryType = 'breakfast' | 'lunch' | 'dinner' | 'snacks' | 'dessert' | 'drinks' | 'healthy' | 'quick' | 'party' | 'kids';
 export type DifficultyLevel = 'beginner' | 'intermediate' | 'expert';
-
-// ============================================
-// USER TYPES
-// ============================================
+export type AppLanguage = 'hindi' | 'english' | 'hinglish' | 'punjabi' | 'tamil' | 'telugu' | 'bengali' | 'gujarati';
+export type HealthGoal = 'weight-loss' | 'muscle-gain' | 'healthy' | 'diabetic-friendly' | 'heart-healthy' | 'none';
 
 export interface User {
   id: string;
@@ -120,24 +97,6 @@ export interface UserPreferences {
   dietaryRestrictions: string[];
 }
 
-export type HealthGoal =
-  | 'weight-loss'
-  | 'muscle-gain'
-  | 'healthy'
-  | 'diabetic-friendly'
-  | 'heart-healthy'
-  | 'none';
-
-export type AppLanguage =
-  | 'hindi'
-  | 'english'
-  | 'hinglish'
-  | 'punjabi'
-  | 'tamil'
-  | 'telugu'
-  | 'bengali'
-  | 'gujarati';
-
 export interface UserStats {
   totalRecipesMade: number;
   currentStreak: number;
@@ -157,17 +116,7 @@ export interface Badge {
   earnedAt: Date;
 }
 
-// ============================================
-// CHEF AVATAR TYPES
-// ============================================
-
-export type ChefId =
-  | 'rohan' // Young male (20s)
-  | 'arjun' // Mid male (30s)
-  | 'rajan' // Senior male (40s)
-  | 'ananya' // Young female (20s)
-  | 'priya' // Mid female (30s)
-  | 'savita'; // Senior female (40s)
+export type ChefId = 'rohan' | 'arjun' | 'rajan' | 'ananya' | 'priya' | 'savita';
 
 export interface ChefProfile {
   id: ChefId;
@@ -180,12 +129,8 @@ export interface ChefProfile {
   warnings: string[];
   humor: string[];
   avatarUrl: string;
-  voiceId: string; // ElevenLabs voice ID
+  voiceId: string;
 }
-
-// ============================================
-// CHAT TYPES
-// ============================================
 
 export interface ChatMessage {
   id: string;
@@ -194,10 +139,6 @@ export interface ChatMessage {
   timestamp: Date;
   language: AppLanguage;
 }
-
-// ============================================
-// CHALLENGE TYPES
-// ============================================
 
 export interface ChallengeDay {
   day: number;
@@ -220,10 +161,6 @@ export interface Challenge {
   weekTheme?: string;
 }
 
-// ============================================
-// INGREDIENT ADAPTER TYPES
-// ============================================
-
 export interface IngredientCheck {
   available: Ingredient[];
   missing: Ingredient[];
@@ -234,10 +171,6 @@ export interface SubstituteMap {
   [ingredientName: string]: string[];
 }
 
-// ============================================
-// API RESPONSE TYPES
-// ============================================
-
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -245,46 +178,39 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// ============================================
-// ZAYKA MEMORY � Personalization Types
-// ============================================
-
 export interface ZaykaMemory {
-  // Taste Profile (set during onboarding)
   isVegetarian: boolean;
   isVegan: boolean;
-  allergies: string[];           // e.g. ['peanuts', 'dairy', 'gluten']
+  allergies: string[];
   spiceLevel: 'mild' | 'medium' | 'spicy' | 'very-spicy';
   skillLevel: 'beginner' | 'intermediate' | 'expert';
-  cuisineTypes: string[];        // e.g. ['indian', 'chinese']
-  goals: string[];               // e.g. ['weight-loss', 'muscle-gain']
-  budgetPerMeal: number;         // in INR e.g. 100
-
-  // Behavioral Memory (updated automatically by app)
+  cuisineTypes: string[];
+  goals: string[];
+  budgetPerMeal: number;
   cookingHistory: CookingHistoryEntry[];
-  preferredCookTime: number;     // avg cook time they prefer in minutes
-  favoriteTags: string[];        // most-used tags e.g. ['quick', 'spicy']
-  lastActiveDate: string;        // ISO string
-  weeklyGoal: number;            // how many meals/week
-  weeklyCompleted: number;       // meals cooked this week
+  preferredCookTime: number;
+  favoriteTags: string[];
+  lastActiveDate: string;
+  weeklyGoal: number;
+  weeklyCompleted: number;
 }
 
 export interface CookingHistoryEntry {
   recipeId: string;
   recipeName: string;
-  cookedAt: string;              // ISO date string
-  rating: number | null;         // 1-5, null if not rated
-  note: string;                  // user note e.g. "added extra chili"
-  imageUrl?: string;             // photo they took
+  cookedAt: string;
+  rating: number | null;
+  note: string;
+  imageUrl?: string;
 }
 
 export interface FamilyRecipe {
   id: string;
   title: string;
   description: string;
-  origin: string;                // e.g. "Nani ki recipe, 1985"
-  ingredients: string[];         // raw text list
-  steps: string[];               // raw text list
+  origin: string;
+  ingredients: string[];
+  steps: string[];
   isPrivate: boolean;
-  createdAt: string;             // ISO date string
+  createdAt: string;
 }

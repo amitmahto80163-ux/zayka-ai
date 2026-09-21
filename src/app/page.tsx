@@ -44,6 +44,12 @@ const MOODS = [
 
 const SAMPLE_RECIPES = [
   {
+    id: 'sushi', name: 'Veggie Sushi Roll', nameHindi: 'वेज सुशी',
+    cuisine: 'japanese', time: 20, isVeg: true, calories: 310, rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=600&h=800',
+    tags: ['quick', 'healthy', 'japanese'],
+  },
+  {
     id: '1', name: 'Butter Chicken', nameHindi: 'बटर चिकन',
     cuisine: 'indian', time: 45, isVeg: false, calories: 380, rating: 4.8,
     image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800',

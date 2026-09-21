@@ -1,17 +1,16 @@
 'use client';
-
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Clock, Heart, Share2, ChefHat, Play, Star } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, Share2, Heart, Star, Clock, Play, Globe, MapPin } from 'lucide-react';
 import { useZaykaStore } from '@/store';
-import ChefChat from '@/components/chat/ChefChat';
 import toast from 'react-hot-toast';
+import ChefChat from '@/components/chat/ChefChat';
 
 const W = { bg: '#FFF8F3', primary: '#F97316', card: '#FFFFFF', text: '#1C1009', muted: '#92745A', border: '#F0E6DC' };
 
 const DUMMY_RECIPES: Record<string, any> = {
-  '1': {
+  'butter-chicken': {
     name: 'Butter Chicken', nameHindi: 'बटर चिकन',
     description: 'Creamy, rich, authentic Punjabi style butter chicken.',
     cuisine: 'indian', prepTime: 30, cookTime: 45, servings: 4,
@@ -29,8 +28,42 @@ const DUMMY_RECIPES: Record<string, any> = {
     ],
     nutrition: { protein: 28, carbs: 12, fat: 22 },
   },
+  'sushi': { // Phase 1 Showcase Recipe
+    name: 'Veggie Sushi Roll',
+    description: 'Japanese classic re-imagined with ingredients you can find in any Indian kirana store.',
+    cuisine: 'japanese', prepTime: 20, cookTime: 20, servings: 2,
+    isVeg: true, calories: 310, rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=800',
+    isGlobalWithDesiOptions: true,
+    desiSubstituteNote: 'Instead of expensive Nori sheets and Sushi rice, we use thinly rolled spinach paratha and regular sticky rice!',
+    // Desi Jugaad Version
+    ingredients: [
+      { id: 'd1', name: 'Spinach Paratha (Very thin)', amount: 2, unit: 'pcs', cost: 20 },
+      { id: 'd2', name: 'Sticky Jeera Rice', amount: 1, unit: 'cup', cost: 30 },
+      { id: 'd3', name: 'Cucumber & Carrot Strips', amount: 1, unit: 'cup', cost: 15 },
+      { id: 'd4', name: 'Spicy Mayo (Desi Dip)', amount: 2, unit: 'tbsp', cost: 10 },
+    ],
+    steps: [
+      { stepNumber: 1, title: 'Prep the Roll Base', description: 'Take a very thin spinach paratha. Spread sticky rice evenly over it.' },
+      { stepNumber: 2, title: 'Add Veggies', description: 'Place cucumber and carrot strips horizontally in the middle.' },
+      { stepNumber: 3, title: 'Roll it Up', description: 'Roll it tightly just like a frankie, slice it into sushi-sized rounds, and serve with spicy mayo.' },
+    ],
+    // Authentic Version
+    authenticIngredients: [
+      { id: 'a1', name: 'Nori Seaweed Sheets', amount: 2, unit: 'pcs', cost: 150 },
+      { id: 'a2', name: 'Japanese Sushi Rice', amount: 1, unit: 'cup', cost: 200 },
+      { id: 'a3', name: 'Avocado & Cucumber', amount: 1, unit: 'cup', cost: 120 },
+      { id: 'a4', name: 'Soy Sauce & Wasabi', amount: 2, unit: 'tbsp', cost: 80 },
+    ],
+    authenticSteps: [
+      { stepNumber: 1, title: 'Prep the Rice', description: 'Cook Japanese sushi rice and mix with a little rice vinegar.' },
+      { stepNumber: 2, title: 'Assemble on Nori', description: 'Place Nori sheet on a bamboo mat. Spread rice evenly.' },
+      { stepNumber: 3, title: 'Roll & Cut', description: 'Add avocado/cucumber, roll tightly using the mat, and cut with a wet knife.' },
+    ],
+    nutrition: { protein: 8, carbs: 45, fat: 12 },
+  },
   'fallback': {
-    name: 'Special Recipe', nameHindi: 'स्पेशल रेसिपी',
+    name: 'Special Recipe', nameHindi: 'खास रेसिपी',
     description: 'A delicious Zayka AI special recipe generated just for you.',
     cuisine: 'indian', prepTime: 10, cookTime: 20, servings: 2,
     isVeg: true, calories: 250, rating: 4.5,
@@ -54,6 +87,9 @@ export default function RecipeDetailPage() {
   
   const [recipe, setRecipe] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'ingredients' | 'steps' | 'chef'>('ingredients');
+  // Phase 1 Toggle
+  const [recipeVersion, setRecipeVersion] = useState<'desi' | 'authentic'>('desi');
+
   const isFav = isFavourite(id);
 
   useEffect(() => {
@@ -84,28 +120,35 @@ export default function RecipeDetailPage() {
         title: recipe.name,
         text: `Zayka AI par ${recipe.name} ki recipe dekho!`,
         url: window.location.href,
-      }).catch(() => toast.error('Sharing failed'));
+      }).catch(() => {});
     } else {
       navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied to clipboard!');
+      toast.success('Link copied!');
     }
   };
 
   const startCooking = () => {
-    setCurrentRecipe(recipe);
+    // Save version preference into the recipe state
+    const cookingRecipe = {
+      ...recipe,
+      ingredients: recipeVersion === 'authentic' ? (recipe.authenticIngredients || recipe.ingredients) : recipe.ingredients,
+      steps: recipeVersion === 'authentic' ? (recipe.authenticSteps || recipe.steps) : recipe.steps
+    };
+    setCurrentRecipe(cookingRecipe);
     router.push('/cook');
   };
 
+  const displayedIngredients = recipeVersion === 'authentic' ? (recipe.authenticIngredients || recipe.ingredients) : recipe.ingredients;
+  const displayedSteps = recipeVersion === 'authentic' ? (recipe.authenticSteps || recipe.steps) : recipe.steps;
+
   return (
     <div style={{ minHeight: '100vh', background: W.bg, paddingBottom: 100 }}>
-      {/* Top Image & Floating Header */}
-      <div style={{ position: 'relative', width: '100%', height: 320 }}>
-        <img src={recipe.image || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800'} alt={recipe.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        
-        {/* Gradient Overlay for Text */}
+      {/* Hero Image Section */}
+      <div style={{ position: 'relative', height: 320, width: '100%', background: '#ccc' }}>
+        <img src={recipe.image || recipe.imageUrl} alt={recipe.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 40%, rgba(0,0,0,0.8) 100%)',
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 40%, rgba(28,16,9,0.9) 100%)',
           display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '24px 20px'
         }}>
           {/* Top Floating Buttons */}
@@ -132,7 +175,7 @@ export default function RecipeDetailPage() {
             </div>
           </div>
 
-          {/* Title & Tags over Image */}
+          {/* Title & Tags */}
           <div style={{ paddingBottom: 10 }}>
             <h1 style={{ color: 'white', fontSize: 32, fontWeight: 900, lineHeight: 1.1, marginBottom: 8 }}>
               {recipe.name}
@@ -152,12 +195,33 @@ export default function RecipeDetailPage() {
         </div>
       </div>
 
-      {/* Content area */}
       <div style={{ padding: '24px 20px' }}>
         {recipe.description && (
           <p style={{ color: W.muted, fontSize: 15, lineHeight: 1.5, fontWeight: 500, marginBottom: 24 }}>
             {recipe.description}
           </p>
+        )}
+
+        {/* Global vs Desi Toggle (Phase 1 AI Feature) */}
+        {recipe.isGlobalWithDesiOptions && (
+          <div style={{ background: '#FFF1F2', border: '1.5px solid #FECDD3', borderRadius: 20, padding: 16, marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 900, color: '#BE123C' }}>🌍 Zayka AI: Global Dish, Desi Dil</h3>
+            </div>
+            {recipeVersion === 'desi' && recipe.desiSubstituteNote && (
+              <p style={{ fontSize: 13, color: '#9F1239', fontWeight: 600, marginBottom: 12 }}>
+                💡 <b>Chef says:</b> {recipe.desiSubstituteNote}
+              </p>
+            )}
+            <div style={{ display: 'flex', background: 'white', borderRadius: 100, padding: 4, border: '1px solid #FECDD3' }}>
+              <button onClick={() => setRecipeVersion('desi')} style={{ flex: 1, padding: '10px', borderRadius: 100, border: 'none', background: recipeVersion === 'desi' ? '#E11D48' : 'transparent', color: recipeVersion === 'desi' ? 'white' : '#BE123C', fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s' }}>
+                <MapPin size={16} /> Desi Jugaad
+              </button>
+              <button onClick={() => setRecipeVersion('authentic')} style={{ flex: 1, padding: '10px', borderRadius: 100, border: 'none', background: recipeVersion === 'authentic' ? '#E11D48' : 'transparent', color: recipeVersion === 'authentic' ? 'white' : '#BE123C', fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s' }}>
+                <Globe size={16} /> Authentic
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Tabs */}
@@ -177,11 +241,11 @@ export default function RecipeDetailPage() {
         </div>
 
         <AnimatePresence mode="wait">
-          <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+          <motion.div key={activeTab + recipeVersion} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
             
             {activeTab === 'ingredients' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {recipe.ingredients?.map((ing: any, i: number) => (
+                {displayedIngredients?.map((ing: any, i: number) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: W.card, padding: '16px', borderRadius: 16, border: `1px solid ${W.border}` }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontSize: 16, fontWeight: 800, color: W.text }}>{ing.name}</span>
@@ -197,17 +261,17 @@ export default function RecipeDetailPage() {
 
             {activeTab === 'steps' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                {recipe.steps?.map((step: any, index: number) => (
+                {displayedSteps?.map((step: any, index: number) => (
                   <div key={index} style={{ display: 'flex', gap: 16 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       <div style={{ width: 32, height: 32, borderRadius: '50%', background: W.primary, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14 }}>
                         {step.stepNumber || (index + 1)}
                       </div>
-                      {index !== (recipe.steps.length - 1) && (
+                      {index !== (displayedSteps.length - 1) && (
                         <div style={{ width: 2, flex: 1, background: W.border, marginTop: 8 }} />
                       )}
                     </div>
-                    <div style={{ paddingBottom: index === (recipe.steps.length - 1) ? 0 : 20 }}>
+                    <div style={{ paddingBottom: index === (displayedSteps.length - 1) ? 0 : 20 }}>
                       <h3 style={{ fontSize: 16, fontWeight: 800, color: W.text, marginBottom: 6 }}>{step.title || `Step ${index + 1}`}</h3>
                       <p style={{ fontSize: 15, color: W.muted, lineHeight: 1.5, fontWeight: 500 }}>{step.description}</p>
                     </div>
