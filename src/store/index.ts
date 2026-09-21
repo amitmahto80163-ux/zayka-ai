@@ -1,10 +1,13 @@
 // ============================================
-// ZAYKA AI — Global State (Zustand Store)
+// ZAYKA AI - Global State (Zustand Store)
 // ============================================
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User, Recipe, ChatMessage, AppLanguage, ChefId } from '@/types';
+import { 
+  User, Recipe, ChatMessage, AppLanguage, ChefId, 
+  ZaykaMemory, CookingHistoryEntry, FamilyRecipe 
+} from '@/types';
 
 interface ZaykaStore {
   // User state
@@ -51,6 +54,26 @@ interface ZaykaStore {
   // Loading states
   isChefThinking: boolean;
   setChefThinking: (val: boolean) => void;
+
+  // Zayka Memory
+  memory: ZaykaMemory | null;
+  setMemory: (memory: ZaykaMemory) => void;
+  updateMemory: (partial: Partial<ZaykaMemory>) => void;
+  addCookingHistoryEntry: (entry: CookingHistoryEntry) => void;
+
+  // Saved/Generated recipes
+  savedRecipes: any[];
+  addSavedRecipe: (recipe: any) => void;
+
+  // Family Recipes
+  familyRecipes: FamilyRecipe[];
+  addFamilyRecipe: (recipe: FamilyRecipe) => void;
+  deleteFamilyRecipe: (id: string) => void;
+
+  // Streak
+  currentStreak: number;
+  lastCookDate: string | null;
+  updateStreak: () => void;
 }
 
 export const useZaykaStore = create<ZaykaStore>()(
@@ -109,6 +132,47 @@ export const useZaykaStore = create<ZaykaStore>()(
       // Loading
       isChefThinking: false,
       setChefThinking: (isChefThinking) => set({ isChefThinking }),
+
+      // Zayka Memory
+      memory: null,
+      setMemory: (memory) => set({ memory }),
+      updateMemory: (partial) => set((state) => ({
+        memory: state.memory ? { ...state.memory, ...partial } : null
+      })),
+      addCookingHistoryEntry: (entry) => set((state) => ({
+        memory: state.memory ? {
+          ...state.memory,
+          cookingHistory: [entry, ...state.memory.cookingHistory].slice(0, 100)
+        } : null
+      })),
+
+      // Saved Recipes
+      savedRecipes: [],
+      addSavedRecipe: (recipe) => set((state) => ({
+        savedRecipes: [recipe, ...state.savedRecipes.filter(r => r.id !== recipe.id)].slice(0, 50)
+      })),
+
+      // Family Recipes
+      familyRecipes: [],
+      addFamilyRecipe: (recipe) => set((state) => ({
+        familyRecipes: [recipe, ...state.familyRecipes]
+      })),
+      deleteFamilyRecipe: (id) => set((state) => ({
+        familyRecipes: state.familyRecipes.filter(r => r.id !== id)
+      })),
+
+      // Streak
+      currentStreak: 0,
+      lastCookDate: null,
+      updateStreak: () => set((state) => {
+        const today = new Date().toDateString();
+        const last = state.lastCookDate;
+        if (last === today) return {}; // Already counted today
+        
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        const newStreak = last === yesterday ? state.currentStreak + 1 : 1;
+        return { currentStreak: newStreak, lastCookDate: today };
+      }),
     }),
     {
       name: 'zayka-ai-store',
@@ -117,6 +181,11 @@ export const useZaykaStore = create<ZaykaStore>()(
         selectedChef: state.selectedChef,
         favourites: state.favourites,
         user: state.user,
+        memory: state.memory,
+        savedRecipes: state.savedRecipes,
+        familyRecipes: state.familyRecipes,
+        currentStreak: state.currentStreak,
+        lastCookDate: state.lastCookDate,
       }),
     }
   )

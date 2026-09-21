@@ -11,13 +11,20 @@ const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316
 
 export default function CookPage() {
   const router = useRouter();
-  const { currentRecipe } = useZaykaStore();
+  const { currentRecipe, addCookingHistoryEntry, updateMemory, memory, updateStreak } = useZaykaStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  
+  // Phase 2 states
+  const [showDoneModal, setShowDoneModal] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+
+  // Phase 5 states
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null); // NEW: Explicit audio tag for WebRTC
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const step = currentRecipe?.steps[currentStep];
   const isLastStep = currentStep === (currentRecipe?.steps.length || 1) - 1;
@@ -30,9 +37,57 @@ export default function CookPage() {
     isActive: isCameraActive
   });
 
+  // Phase 5: Voice Commands Logic
   useEffect(() => {
-    // Removed automatic redirect so we can show an empty state instead
-  }, []);
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'hi-IN';
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+      if (transcript.includes('next') || transcript.includes('aage') || transcript.includes('agla')) {
+        nextStep();
+      } else if (transcript.includes('back') || transcript.includes('peeche') || transcript.includes('wapas')) {
+        prevStep();
+      } else if (transcript.includes('repeat') || transcript.includes('dobara') || transcript.includes('phir se')) {
+        speakStep();
+      }
+    };
+
+    recognition.onstart = () => setIsVoiceActive(true);
+    recognition.onend = () => {
+      // automatically restart listening unless unmounted or manually stopped
+      // But for safety and not being annoying, we won't auto-restart here. Just let user click a mic if they want it.
+      // Wait, Masterplan says "Add voice command listener" and start it.
+      setIsVoiceActive(false);
+      try { recognition.start(); } catch (e) {} 
+    };
+
+    try {
+      recognition.start();
+    } catch (e) {
+      console.error(e);
+    }
+    
+    return () => {
+      recognition.onend = null;
+      recognition.stop();
+    };
+  }, [currentStep]); // Restart on step change
+
+  const speakStep = () => {
+    if (!step) return;
+    const text = `Step ${currentStep + 1}: ${step.title || 'Next'}. ${step.description}`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'hi-IN';
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  };
 
   const toggleCamera = async () => {
     if (isCameraActive) {
@@ -45,16 +100,34 @@ export default function CookPage() {
     }
   };
 
+  // Phase 2: Show done modal instead of redirect
   const nextStep = () => {
     if (isLastStep) {
-      router.push('/'); // Or a celebration screen in the future
+      setShowDoneModal(true);
     } else {
       setCurrentStep(s => s + 1);
     }
   };
   const prevStep = () => currentStep > 0 && setCurrentStep(s => s - 1);
 
-  // Dynamic scale for the visualizer (1.0 to ~1.5 based on volume)
+  // Phase 2: Save to memory and handle gamification
+  const handleMarkCooked = () => {
+    if (currentRecipe) {
+      addCookingHistoryEntry({
+        recipeId: currentRecipe.id,
+        recipeName: currentRecipe.name,
+        cookedAt: new Date().toISOString(),
+        rating: userRating || null,
+        note: '',
+      });
+      if (memory) {
+        updateMemory({ weeklyCompleted: memory.weeklyCompleted + 1 });
+      }
+      updateStreak();
+    }
+    router.push('/');
+  };
+
   const visualizerScale = 1 + (micLevel / 150);
 
   if (!currentRecipe) {
@@ -71,9 +144,21 @@ export default function CookPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: W.bg, display: 'flex', flexDirection: 'column' }}>
-      {/* Hidden Audio Element to play OpenAI's voice */}
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: W.bg }}>
       <audio ref={audioRef} autoPlay playsInline style={{ display: 'none' }} />
+
+      {/* Voice Active Indicator (Phase 5) */}
+      {isVoiceActive && (
+        <div style={{
+          position: 'absolute', top: 16, right: 16, background: 'rgba(249,115,22,0.1)',
+          border: '1px solid rgba(249,115,22,0.3)', borderRadius: 100,
+          padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, zIndex: 100
+        }}>
+          <motion.div animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}
+            style={{ width: 8, height: 8, borderRadius: '50%', background: W.saffron }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: W.saffron }}>Listening...</span>
+        </div>
+      )}
 
       {/* Header */}
       <div style={{ background: 'white', padding: '16px 20px', borderBottom: `1px solid ${W.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 20 }}>
@@ -88,14 +173,11 @@ export default function CookPage() {
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
         
-        {/* AR Camera Mode */}
         {isCameraActive && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 0, background: '#000' }}>
             <video ref={videoRef} autoPlay playsInline muted style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.88 }} />
             
-            {/* AUDIO VISUALIZER (Center Pulse) */}
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-               
                <motion.div 
                  animate={{ scale: visualizerScale }} 
                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -103,15 +185,13 @@ export default function CookPage() {
                >
                  <Mic style={{ width: 40, height: 40, color: 'rgba(255,255,255,0.9)' }} />
                </motion.div>
-               
                <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', padding: '8px 16px', borderRadius: 20 }}>
                  <p style={{ color: 'white', fontWeight: 800, fontSize: 14 }}>
-                   {micLevel > 10 ? "Listening... \uD83C\uDF99\uFE0F" : "Speak to Chef!"}
+                   {micLevel > 10 ? "Listening... 🎙️" : "Speak to Chef!"}
                  </p>
                </div>
             </div>
 
-            {/* AR Status */}
             <div style={{ position: 'absolute', top: 16, left: 16, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', borderRadius: 50, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: isARThinking ? '#FBBF24' : '#10B981', animation: 'pulse 1s infinite' }} />
               <span style={{ fontSize: 10, fontWeight: 800, color: 'white', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
@@ -177,6 +257,55 @@ export default function CookPage() {
           {isLastStep ? (<><CheckCircle2 style={{ width: 16, height: 16 }} /> Done!</>) : (<>Next <ChevronRight style={{ width: 16, height: 16 }} /></>)}
         </button>
       </div>
+
+      {/* ===== DONE MODAL (Phase 2) ===== */}
+      <AnimatePresence>
+        {showDoneModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+              display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 100
+            }}
+          >
+            <motion.div
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25 }}
+              style={{
+                width: '100%', background: W.bg, borderRadius: '24px 24px 0 0',
+                padding: '32px 24px 48px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20
+              }}
+            >
+              <span style={{ fontSize: 64 }}>🎉</span>
+              <h2 style={{ fontSize: 24, fontWeight: 900, color: W.heading }}>Dish Ready!</h2>
+              <p style={{ fontSize: 15, color: W.muted, textAlign: 'center' }}>
+                {currentRecipe?.name} ban gaya! Rate your experience:
+              </p>
+
+              {/* Star Rating */}
+              <div style={{ display: 'flex', gap: 12 }}>
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button key={star} onClick={() => setUserRating(star)} style={{
+                    fontSize: 36, background: 'none', border: 'none', cursor: 'pointer',
+                    filter: userRating >= star ? 'none' : 'grayscale(100%)'
+                  }}>⭐</button>
+                ))}
+              </div>
+
+              <button
+                onClick={handleMarkCooked}
+                style={{
+                  width: '100%', background: W.saffron, color: 'white', border: 'none',
+                  padding: '18px', borderRadius: 100, fontSize: 18, fontWeight: 900, cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(249,115,22,0.3)'
+                }}
+              >
+                Save & Go Home 🏠
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -91,15 +91,21 @@ const QUICK_TOOLS = [
 ];
 
 export default function HomePage() {
-  const { user } = useZaykaStore();
+  const { user, memory, currentStreak } = useZaykaStore();
   const [activeCategory, setActiveCategory] = useState('all');
 
   const userName = user?.name?.split(' ')[0] || 'Dost';
-  const streak = user?.stats?.currentStreak || 0;
+  const streak = currentStreak || 0;
 
   const filtered = SAMPLE_RECIPES.filter(r =>
     activeCategory === 'all' || r.cuisine === activeCategory || r.tags.includes(activeCategory)
   );
+
+  const recommendedRecipes = SAMPLE_RECIPES.filter(r => {
+    if (memory?.isVegetarian && !r.isVeg) return false;
+    if (memory?.budgetPerMeal && memory.budgetPerMeal < 80 && r.calories > 400) return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen safe-bottom" style={{ backgroundColor: W.bg }}>
@@ -114,7 +120,15 @@ export default function HomePage() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            {streak > 0 && <div className="streak-badge">🔥 {streak} din</div>}
+            {currentStreak > 0 && (
+              <motion.div whileTap={{ scale: 0.9 }} style={{
+                display: 'flex', alignItems: 'center', gap: 6, background: '#FFF0E6',
+                border: '1px solid #FED7AA', borderRadius: 100, padding: '6px 12px'
+              }}>
+                <span style={{ fontSize: 16 }}>🔥</span>
+                <span style={{ fontSize: 14, fontWeight: 800, color: W.primary }}>{currentStreak} din</span>
+              </motion.div>
+            )}
             <Link href="/profile">
               <div style={{
                 width: 44, height: 44, borderRadius: '50%',
@@ -195,6 +209,35 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+
+        {/* ===== FOR YOU ===== */}
+        {memory && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: W.text }}>🎯 For You</h2>
+              <span style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>Based on your taste</span>
+            </div>
+            <div className="no-scrollbar" style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 4 }}>
+              {recommendedRecipes.slice(0, 5).map(recipe => (
+                <Link href={`/recipe/${recipe.id}`} key={`rec-${recipe.id}`}>
+                  <motion.div whileTap={{ scale: 0.95 }} style={{
+                    width: 160, height: 180, borderRadius: 16, position: 'relative', overflow: 'hidden', flexShrink: 0
+                  }}>
+                    <img src={recipe.image} alt={recipe.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)',
+                      padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'
+                    }}>
+                      <h3 style={{ color: 'white', fontWeight: 800, fontSize: 13, lineHeight: 1.2 }}>{recipe.name}</h3>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>{recipe.time}m</span>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ===== CATEGORIES ===== */}
         <div className="no-scrollbar" style={{ display: 'flex', gap: 10, overflowX: 'auto' }}>

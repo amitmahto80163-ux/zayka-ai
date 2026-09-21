@@ -63,6 +63,24 @@ export default function OnboardingPage() {
       }
     } as any);
 
+    const { setMemory } = useZaykaStore.getState();
+    setMemory({
+      isVegetarian: form.diet === 'veg' || form.diet === 'vegan',
+      isVegan: form.diet === 'vegan',
+      allergies: [],
+      spiceLevel: 'medium',
+      skillLevel: form.skill as 'beginner' | 'intermediate' | 'expert',
+      cuisineTypes: ['indian'],
+      goals: [form.goal],
+      budgetPerMeal: 150,
+      cookingHistory: [],
+      preferredCookTime: 30,
+      favoriteTags: [],
+      lastActiveDate: new Date().toISOString(),
+      weeklyGoal: 3,
+      weeklyCompleted: 0,
+    });
+
     toast.success(`Welcome, ${form.name}! Zayka AI mein aapka swagat hai! 🎉`);
     router.push('/');
   };

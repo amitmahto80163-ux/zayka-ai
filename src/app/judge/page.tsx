@@ -13,11 +13,38 @@ const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316
 
 export default function JudgePage() {
   const router = useRouter();
-  const { language } = useZaykaStore();
+  const { language, addCookingHistoryEntry } = useZaykaStore();
   const [stage, setStage] = useState<'camera' | 'judging' | 'result'>('camera');
   const [result, setResult] = useState<any>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleShare = () => {
+    if (navigator.share && result) {
+      navigator.share({
+        title: 'My Dish Rating by Zayka AI',
+        text: `Zayka AI gave my dish a ${result.score}/10! 👨‍🍳🔥\n\n"${result.feedback}"\n\n${result.shareCaption}`,
+        url: window.location.href,
+      }).catch(() => toast.error('Sharing failed'));
+    } else {
+      navigator.clipboard.writeText(`Zayka AI gave my dish a ${result?.score}/10! 👨‍🍳🔥`);
+      toast.success('Caption copied to clipboard!');
+    }
+  };
+
+  const handleSaveHistory = () => {
+    if (result) {
+      addCookingHistoryEntry({
+        recipeId: `roast-${Date.now()}`,
+        recipeName: 'My Roasted Dish',
+        cookedAt: new Date().toISOString(),
+        rating: Math.round(result.score / 2), // Map 10 to 5 stars
+        note: `AI Score: ${result.score}/10. ${result.feedback}`,
+        imageUrl: imageUrl || undefined,
+      });
+      toast.success('Saved to your Cooking History! 🏆');
+    }
+  };
 
   const handleCaptureClick = () => {
     fileInputRef.current?.click();
@@ -176,9 +203,17 @@ export default function JudgePage() {
                 <p style={{ fontSize: 13, color: W.heading, fontWeight: 600 }}>{result.shareCaption}</p>
               </div>
 
-              <button onClick={reset} style={{ width: '100%', background: 'white', border: `1.5px solid ${W.border}`, padding: 18, borderRadius: 20, color: W.heading, fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16 }}>
-                <RefreshCw style={{ width: 18, height: 18 }} /> Scan Another Dish
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
+                <button onClick={handleShare} style={{ width: '100%', background: 'linear-gradient(135deg, #10B981, #059669)', padding: 18, borderRadius: 20, color: 'white', fontSize: 16, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(16,185,129,0.3)' }}>
+                  <Share2 style={{ width: 18, height: 18 }} /> Share Result
+                </button>
+                <button onClick={handleSaveHistory} style={{ width: '100%', background: W.saffron, padding: 18, borderRadius: 20, color: 'white', fontSize: 16, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(249,115,22,0.3)' }}>
+                  <Award style={{ width: 18, height: 18 }} /> Save to History
+                </button>
+                <button onClick={reset} style={{ width: '100%', background: 'transparent', padding: 16, borderRadius: 20, color: W.muted, fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: `1.5px solid ${W.border}`, cursor: 'pointer' }}>
+                  <RefreshCw style={{ width: 18, height: 18 }} /> Scan Another Dish
+                </button>
+              </div>
             </motion.div>
           )}
 

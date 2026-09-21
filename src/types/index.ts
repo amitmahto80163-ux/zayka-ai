@@ -244,3 +244,47 @@ export interface ApiResponse<T> {
   error?: string;
   message?: string;
 }
+
+// ============================================
+// ZAYKA MEMORY — Personalization Types
+// ============================================
+
+export interface ZaykaMemory {
+  // Taste Profile (set during onboarding)
+  isVegetarian: boolean;
+  isVegan: boolean;
+  allergies: string[];           // e.g. ['peanuts', 'dairy', 'gluten']
+  spiceLevel: 'mild' | 'medium' | 'spicy' | 'very-spicy';
+  skillLevel: 'beginner' | 'intermediate' | 'expert';
+  cuisineTypes: string[];        // e.g. ['indian', 'chinese']
+  goals: string[];               // e.g. ['weight-loss', 'muscle-gain']
+  budgetPerMeal: number;         // in INR e.g. 100
+
+  // Behavioral Memory (updated automatically by app)
+  cookingHistory: CookingHistoryEntry[];
+  preferredCookTime: number;     // avg cook time they prefer in minutes
+  favoriteTags: string[];        // most-used tags e.g. ['quick', 'spicy']
+  lastActiveDate: string;        // ISO string
+  weeklyGoal: number;            // how many meals/week
+  weeklyCompleted: number;       // meals cooked this week
+}
+
+export interface CookingHistoryEntry {
+  recipeId: string;
+  recipeName: string;
+  cookedAt: string;              // ISO date string
+  rating: number | null;         // 1-5, null if not rated
+  note: string;                  // user note e.g. "added extra chili"
+  imageUrl?: string;             // photo they took
+}
+
+export interface FamilyRecipe {
+  id: string;
+  title: string;
+  description: string;
+  origin: string;                // e.g. "Nani ki recipe, 1985"
+  ingredients: string[];         // raw text list
+  steps: string[];               // raw text list
+  isPrivate: boolean;
+  createdAt: string;             // ISO date string
+}
