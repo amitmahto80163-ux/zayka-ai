@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useZaykaStore } from '@/store';
@@ -10,18 +10,11 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // BYPASS LOGIN FOR MVP / TESTING
-    setUser({
-      id: 'demo-user-123',
-      name: 'Startup Judge',
-      phone: '+919999999999',
-      isPremium: true,
-      preferences: { isVegetarian: false, spiceLevel: 'medium', skillLevel: 'beginner', cuisineTypes: [], allergies: [], goals: [], budgetPerMeal: 100 },
-      stats: { totalRecipesMade: 0, currentStreak: 0, longestStreak: 0, badges: [], points: 0, level: 1, weeklyGoal: 3, weeklyCompleted: 0, dailyChallengesCompleted: 0 }
-    } as any);
-    
-    setLoading(false);
-  }, [setUser]);
+    // Rely on Zustand persist state or future Firebase integration
+    // Removed the forced overwrite that was breaking authentication
+    const timer = setTimeout(() => setLoading(false), 500); // Small delay to let hydration finish
+    return () => clearTimeout(timer);
+  }, []);
 
   if (loading) {
     return (

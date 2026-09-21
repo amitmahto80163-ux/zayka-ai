@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, Camera, CheckCircle2, Timer, Flame, BrainCircuit, Mic } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Camera, CheckCircle2, Timer, Flame, BrainCircuit, Mic, ChefHat } from 'lucide-react';
 import { useZaykaStore } from '@/store';
 import { useARChef } from '@/hooks/useARChef';
 import ChefChat from '@/components/chat/ChefChat';
@@ -31,8 +31,8 @@ export default function CookPage() {
   });
 
   useEffect(() => {
-    if (!currentRecipe) router.push('/');
-  }, [currentRecipe, router]);
+    // Removed automatic redirect so we can show an empty state instead
+  }, []);
 
   const toggleCamera = async () => {
     if (isCameraActive) {
@@ -45,11 +45,30 @@ export default function CookPage() {
     }
   };
 
-  const nextStep = () => !isLastStep && setCurrentStep(s => s + 1);
+  const nextStep = () => {
+    if (isLastStep) {
+      router.push('/'); // Or a celebration screen in the future
+    } else {
+      setCurrentStep(s => s + 1);
+    }
+  };
   const prevStep = () => currentStep > 0 && setCurrentStep(s => s - 1);
 
   // Dynamic scale for the visualizer (1.0 to ~1.5 based on volume)
   const visualizerScale = 1 + (micLevel / 150);
+
+  if (!currentRecipe) {
+    return (
+      <div style={{ minHeight: '100vh', background: W.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <ChefHat style={{ width: 64, height: 64, color: W.saffron, opacity: 0.5, marginBottom: 16 }} />
+        <h2 style={{ fontSize: 24, fontWeight: 800, color: W.heading, marginBottom: 8 }}>Kitchen is Empty!</h2>
+        <p style={{ color: W.muted, textAlign: 'center', marginBottom: 24 }}>Aapne abhi koi recipe select nahi ki hai. Search mein jaake ek recipe choose karein.</p>
+        <button onClick={() => router.push('/search')} style={{ background: W.saffron, color: 'white', border: 'none', padding: '14px 24px', borderRadius: 12, fontWeight: 700, fontSize: 16, cursor: 'pointer' }}>
+          Find a Recipe
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: W.bg, display: 'flex', flexDirection: 'column' }}>

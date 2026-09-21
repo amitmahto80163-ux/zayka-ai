@@ -3,6 +3,7 @@ import { Nunito, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import AuthProvider from "@/components/auth/AuthProvider";
+import BottomNav from "@/components/BottomNav";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -74,7 +75,10 @@ export default function RootLayout({
             },
           }}
         />
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <BottomNav />
+        </AuthProvider>
       </body>
     </html>
   );

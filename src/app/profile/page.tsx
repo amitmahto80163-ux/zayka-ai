@@ -112,7 +112,12 @@ export default function ProfilePage() {
         </div>
 
         {/* Sign Out */}
-        <button style={{ background: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 18, padding: '14px', color: '#DC2626', fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 14, cursor: 'pointer', width: '100%' }}>
+        <button 
+          onClick={() => {
+            useZaykaStore.getState().setUser(null);
+            router.push('/auth');
+          }}
+          style={{ background: '#FEF2F2', border: '1.5px solid #FECACA', borderRadius: 18, padding: '14px', color: '#DC2626', fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 14, cursor: 'pointer', width: '100%' }}>
           🚪 Sign Out
         </button>
 

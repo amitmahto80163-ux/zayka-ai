@@ -368,35 +368,6 @@ export default function HomePage() {
 
       </div>
 
-      {/* ===== BOTTOM NAV ===== */}
-      <nav className="bottom-nav">
-        <Link href="/">
-          <div className={`nav-item ${activeNav === 'home' ? 'active' : ''}`} onClick={() => setActiveNav('home')}>
-            <Home /><span>Home</span>
-          </div>
-        </Link>
-        <Link href="/search">
-          <div className={`nav-item ${activeNav === 'search' ? 'active' : ''}`} onClick={() => setActiveNav('search')}>
-            <Search /><span>Search</span>
-          </div>
-        </Link>
-        <Link href="/cook">
-          <div className={`nav-item ${activeNav === 'cook' ? 'active' : ''}`} onClick={() => setActiveNav('cook')}>
-            <ChefHat /><span>Cook</span>
-          </div>
-        </Link>
-        <Link href="/world">
-          <div className={`nav-item ${activeNav === 'world' ? 'active' : ''}`} onClick={() => setActiveNav('world')}>
-            <Globe /><span>World</span>
-          </div>
-        </Link>
-        <Link href="/profile">
-          <div className={`nav-item ${activeNav === 'profile' ? 'active' : ''}`} onClick={() => setActiveNav('profile')}>
-            <User /><span>Profile</span>
-          </div>
-        </Link>
-      </nav>
-
     </div>
   );
 }

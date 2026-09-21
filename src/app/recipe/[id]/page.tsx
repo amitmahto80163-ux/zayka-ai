@@ -163,7 +163,7 @@ export default function RecipeDetailPage() {
       removeFavourite(id);
       toast.success('Removed from cookbook');
     } else {
-      addFavourite({ id, name: recipe.name, image: recipe.image, time: recipe.prepTime + recipe.cookTime, calories: recipe.calories, isVeg: recipe.isVeg });
+      addFavourite(id);
       toast.success('Saved to cookbook!');
     }
   };
@@ -293,6 +293,11 @@ export default function RecipeDetailPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+            {activeTab === 'chef' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <ChefChat recipeData={recipe} context="recipe_detail" />
               </div>
             )}
           </motion.div>
