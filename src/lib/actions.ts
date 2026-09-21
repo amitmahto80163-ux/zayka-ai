@@ -96,28 +96,21 @@ export async function scanFridgeAction(imageBase64: string, language: AppLanguag
 
 export async function generateBudgetMealAction(budget: number, language: AppLanguage) {
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: { responseMimeType: "application/json" } 
-    });
-    
     const prompt = `Create a realistic Indian student budget meal under ₹${budget}. 
-    Return JSON only:
-    {
-      "dishName": "<creative name>",
-      "totalCost": <total cost number, must be <= ${budget}>,
-      "ingredients": [
-        { "name": "<item>", "estimatedCost": <number> }
-      ],
-      "quickRecipe": "<4-5 step very short recipe string>"
-    }`;
+    Return JSON only with exact keys: {"dishName": "name", "totalCost": 50, "ingredients": [{"name": "item", "estimatedCost": 10}], "quickRecipe": "steps"}. Do not add any extra text.`;
 
-    const result = await model.generateContent(prompt);
-    const data = JSON.parse(result.response.text());
+    const res = await fetch("https://consumption-awesome-kong-gore.trycloudflare.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
+    });
+    const json = await res.json();
+    const content = json.choices[0].message.content.replace(/```json|```/g, '').trim();
+    const data = JSON.parse(content);
     
     return { success: true, data };
   } catch (error) {
-    console.error("Gemini Budget Error, using fallback:", error);
+    console.error("Zayka LLM Budget Error, using fallback:", error);
     return { 
       success: true, 
       data: {
@@ -137,34 +130,27 @@ export async function generateBudgetMealAction(budget: number, language: AppLang
 
 export async function generateFusionRecipeAction(likedFoods: string[], language: AppLanguage) {
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: { responseMimeType: "application/json" } 
-    });
-    
-    const prompt = `Invent a wild, delicious fusion dish combining these two foods: ${likedFoods.join(' and ')}.
-    Return JSON only:
-    {
-      "name": "<Creative Fusion Name>",
-      "tagline": "<1 sentence catchy description>",
-      "emoji": "<3 food emojis>",
-      "ingredients": ["<fusion item 1>", "<fusion item 2>", "<fusion item 3>", "<fusion item 4>"],
-      "instructions": "<1 paragraph cooking instructions>",
-      "time": "<X mins>"
-    }`;
+    const prompt = `Invent a wild, delicious fusion dish combining these foods: ${likedFoods.join(' and ')}.
+    Return JSON only with exact keys: {"name": "Creative Fusion Name", "tagline": "1 sentence description", "emoji": "🍔🌮", "ingredients": ["item 1", "item 2"], "instructions": "cooking steps", "time": "25 mins"}. Do not add any extra text.`;
 
-    const result = await model.generateContent(prompt);
-    const data = JSON.parse(result.response.text());
+    const res = await fetch("https://consumption-awesome-kong-gore.trycloudflare.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: prompt }] })
+    });
+    const json = await res.json();
+    const content = json.choices[0].message.content.replace(/```json|```/g, '').trim();
+    const data = JSON.parse(content);
     
     return { success: true, data };
   } catch (error) {
-    console.error("Gemini Fusion Error, using fallback:", error);
+    console.error("Zayka LLM Fusion Error, using fallback:", error);
     return { 
       success: true, 
       data: {
         name: "Makhani Pizza 🍕",
         tagline: "A crispy thin Italian crust topped with rich Butter Chicken gravy.",
-        emoji: "🍕🍗🧀",
+        emoji: "🍕🔥🍅",
         ingredients: ["Pizza Base", "Butter Chicken Gravy", "Mozzarella Cheese", "Coriander"],
         instructions: "Bake base for 5 mins. Spread makhani gravy instead of tomato sauce. Top with cheese and bake at 200°C for 10 mins.",
         time: "25 mins"
