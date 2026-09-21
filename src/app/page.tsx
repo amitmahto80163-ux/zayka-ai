@@ -1,29 +1,13 @@
 'use client';
-
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import {
-  Search, ChefHat, Mic, Timer, Flame, Globe, Star, User
-} from 'lucide-react';
+import { Search, ChefHat, Mic, Timer, Flame, Globe, Star, User, Loader2 } from 'lucide-react';
 import { useZaykaStore } from '@/store';
-import { CHEF_PROFILES } from '@/data/chefs';
+import { ALL_DISHES } from '@/data/dishes';
 
-// ============================================================
-// DESIGN SYSTEM CONSTANTS
-// ============================================================
-const W = { 
-  bg: '#FFF8F3', 
-  primary: '#F97316', 
-  card: '#FFFFFF', 
-  text: '#1C1009', 
-  muted: '#92745A', 
-  border: '#F0E6DC' 
-};
+const W = { bg: '#FFF8F3', primary: '#F97316', card: '#FFFFFF', text: '#1C1009', muted: '#92745A', border: '#F0E6DC' };
 
-// ============================================================
-// DATA
-// ============================================================
 const CATEGORIES = [
   { id: 'all',     label: 'Sab',       icon: '🍲' },
   { id: 'indian',  label: 'Indian',    icon: '🇮🇳' },
@@ -42,76 +26,68 @@ const MOODS = [
   { id: 'date', emoji: '❤️', label: 'Date night' },
 ];
 
-const SAMPLE_RECIPES = [
-  {
-    id: 'sushi', name: 'Veggie Sushi Roll', nameHindi: 'वेज सुशी',
-    cuisine: 'japanese', time: 20, isVeg: true, calories: 310, rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=600&h=800',
-    tags: ['quick', 'healthy', 'japanese'],
-  },
-  {
-    id: '1', name: 'Butter Chicken', nameHindi: 'बटर चिकन',
-    cuisine: 'indian', time: 45, isVeg: false, calories: 380, rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800',
-    tags: ['popular', 'dinner'],
-  },
-  {
-    id: '2', name: 'Dal Makhani', nameHindi: 'दाल मखनी',
-    cuisine: 'indian', time: 60, isVeg: true, calories: 290, rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800',
-    tags: ['popular', 'vegetarian'],
-  },
-  {
-    id: '3', name: 'Paneer Tikka', nameHindi: 'पनीर टिक्का',
-    cuisine: 'indian', time: 30, isVeg: true, calories: 250, rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800',
-    tags: ['starter', 'vegetarian'],
-  },
-  {
-    id: '4', name: 'Pasta Arrabbiata', nameHindi: 'पास्ता',
-    cuisine: 'italian', time: 20, isVeg: true, calories: 320, rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800',
-    tags: ['quick', 'italian'],
-  },
-  {
-    id: '5', name: 'Hakka Noodles', nameHindi: 'हक्का नूडल्स',
-    cuisine: 'chinese', time: 25, isVeg: false, calories: 350, rating: 4.5,
-    image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800',
-    tags: ['quick', 'chinese'],
-  },
-  {
-    id: '6', name: 'Masala Chai', nameHindi: 'मसाला चाय',
-    cuisine: 'indian', time: 10, isVeg: true, calories: 80, rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800',
-    tags: ['quick', 'drinks'],
-  },
-];
-
 const QUICK_TOOLS = [
   { href: '/swipe',   emoji: '🔥', label: 'Food\nTinder',  bg: '#FFF0E6', border: '#FED7AA' },
   { href: '/judge',   emoji: '📸', label: 'Rate My\nPlate', bg: '#F5F3FF', border: '#DDD6FE' },
   { href: '/budget',  emoji: '💰', label: 'Student\nBudget', bg: '#F0FDF4', border: '#BBF7D0' },
   { href: '/fridge',  emoji: '🧊', label: 'Fridge\nScan',   bg: '#EFF6FF', border: '#BFDBFE' },
-  { href: '/world',   emoji: '🌍', label: 'World\nKitchen', bg: '#FFFBEB', border: '#FDE68A' },
+  { href: '/world',   emoji: '🌎', label: 'World\nKitchen', bg: '#FFFBEB', border: '#FDE68A' },
   { href: '/diet',    emoji: '🥗', label: 'Diet\nPlan',     bg: '#F7FEE7', border: '#D9F99D' },
 ];
+
+const PAGE_SIZE = 10; // Number of items to load per scroll
 
 export default function HomePage() {
   const { user, memory, currentStreak } = useZaykaStore();
   const [activeCategory, setActiveCategory] = useState('all');
+  
+  // Infinite Scroll States
+  const [page, setPage] = useState(1);
+  const [isGeneratingFallback, setIsGeneratingFallback] = useState(false);
+  const observerRef = useRef<HTMLDivElement>(null);
 
   const userName = user?.name?.split(' ')[0] || 'Dost';
   const streak = currentStreak || 0;
 
-  const filtered = SAMPLE_RECIPES.filter(r =>
+  // 1. Filter ALL_DISHES based on category
+  const filteredAll = ALL_DISHES.filter((r: any) =>
     activeCategory === 'all' || r.cuisine === activeCategory || r.tags.includes(activeCategory)
   );
 
-  const recommendedRecipes = SAMPLE_RECIPES.filter(r => {
+  // 2. Paginate the filtered array
+  const displayedDishes = filteredAll.slice(0, page * PAGE_SIZE);
+
+  const recommendedRecipes = ALL_DISHES.filter((r: any) => {
     if (memory?.isVegetarian && !r.isVeg) return false;
     if (memory?.budgetPerMeal && memory.budgetPerMeal < 80 && r.calories > 400) return false;
     return true;
   });
+
+  // Infinite Scroll Intersection Observer
+  useEffect(() => {
+    const target = observerRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        if (displayedDishes.length < filteredAll.length) {
+          // Normal load more from existing list
+          setPage(p => p + 1);
+        } else if (displayedDishes.length > 0 && activeCategory === 'all') {
+          // Exhausted the list — simulate AI generation
+          setIsGeneratingFallback(true);
+          setTimeout(() => {
+            setIsGeneratingFallback(false);
+            // In a real app, this would append to the list from the AI backend.
+            // For now, it just resets or shows it finished generating one batch.
+          }, 2000);
+        }
+      }
+    }, { threshold: 0.1 });
+
+    observer.observe(target);
+    return () => observer.unobserve(target);
+  }, [displayedDishes.length, filteredAll.length, activeCategory]);
 
   return (
     <div className="min-h-screen safe-bottom" style={{ backgroundColor: W.bg }}>
@@ -120,7 +96,7 @@ export default function HomePage() {
       <div className="glass sticky top-0 z-50 px-6 pt-10 pb-4">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p style={{ color: W.muted, fontSize: '13px', fontWeight: 600 }}>Namaste {userName} 👋</p>
+            <p style={{ color: W.muted, fontSize: '13px', fontWeight: 600 }}>Namaste {userName} 🙏</p>
             <h1 style={{ fontSize: '26px', fontWeight: 900, lineHeight: 1.1, color: W.text }}>
               Zayka <span style={{ color: W.primary }}>AI</span>
             </h1>
@@ -150,34 +126,32 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Search Bar - Full width pill */}
+        {/* Global Search Button */}
         <Link href="/search">
-          <motion.div whileTap={{ scale: 0.98 }} style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            background: W.card, border: `1.5px solid ${W.border}`,
-            borderRadius: 999, padding: '14px 20px', cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
+          <div style={{
+            background: 'white', border: `1.5px solid ${W.border}`, borderRadius: 100,
+            padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.03)', cursor: 'text'
           }}>
-            <Search style={{ color: W.muted, width: 20, height: 20 }} />
-            <span style={{ color: W.muted, fontSize: 15, fontWeight: 600, flex: 1 }}>Kya banana hai aaj? 😋</span>
-            <div style={{
-              background: W.primary, borderRadius: '50%', padding: '8px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-              <Mic style={{ width: 14, height: 14, color: 'white' }} />
-            </div>
-          </motion.div>
+            <Search size={20} color={W.muted} />
+            <span style={{ color: W.muted, fontSize: 15, fontWeight: 600, flex: 1 }}>
+              Aaj kya khana hai?
+            </span>
+            <div style={{ width: 1, height: 20, background: W.border }} />
+            <Mic size={20} color={W.primary} />
+          </div>
         </Link>
       </div>
 
-      <div className="px-6 pt-2 space-y-8 pb-32">
-        
-        {/* ===== MOOD SECTION ===== */}
+      {/* ===== BODY ===== */}
+      <div className="px-6 pb-24 flex flex-col gap-10 mt-2">
+
+        {/* ===== MOODS ===== */}
         <div>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: W.text, marginBottom: 12 }}>Aaj ka Mood</h2>
-          <div className="no-scrollbar" style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 4 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: W.text, marginBottom: 14 }}>Mood kaisa hai? 😋</h2>
+          <div className="no-scrollbar" style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 }}>
             {MOODS.map(mood => (
-              <Link key={mood.id} href={`/search?q=${encodeURIComponent(mood.label)}`}>
+              <Link href={`/search?q=${encodeURIComponent(mood.label)}`} key={mood.id}>
                 <motion.div whileTap={{ scale: 0.95 }} style={{
                   display: 'flex', alignItems: 'center', gap: 8,
                   background: W.card, border: `1px solid ${W.border}`,
@@ -217,14 +191,14 @@ export default function HomePage() {
         </div>
 
         {/* ===== FOR YOU ===== */}
-        {memory && (
+        {memory && recommendedRecipes.length > 0 && (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <h2 style={{ fontSize: 18, fontWeight: 800, color: W.text }}>🎯 For You</h2>
               <span style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>Based on your taste</span>
             </div>
             <div className="no-scrollbar" style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 4 }}>
-              {recommendedRecipes.slice(0, 5).map(recipe => (
+              {recommendedRecipes.slice(0, 5).map((recipe: any) => (
                 <Link href={`/recipe/${recipe.id}`} key={`rec-${recipe.id}`}>
                   <motion.div whileTap={{ scale: 0.95 }} style={{
                     width: 160, height: 180, borderRadius: 16, position: 'relative', overflow: 'hidden', flexShrink: 0
@@ -246,11 +220,14 @@ export default function HomePage() {
         )}
 
         {/* ===== CATEGORIES ===== */}
-        <div className="no-scrollbar" style={{ display: 'flex', gap: 10, overflowX: 'auto' }}>
+        <div className="no-scrollbar" style={{ display: 'flex', gap: 10, overflowX: 'auto', position: 'sticky', top: 120, zIndex: 40, padding: '10px 0', background: W.bg }}>
           {CATEGORIES.map(c => (
             <button
               key={c.id}
-              onClick={() => setActiveCategory(c.id)}
+              onClick={() => {
+                setActiveCategory(c.id);
+                setPage(1); // Reset pagination on filter change
+              }}
               style={{
                 padding: '8px 16px', borderRadius: 100, display: 'flex', alignItems: 'center', gap: 6,
                 background: activeCategory === c.id ? W.primary : W.card,
@@ -267,14 +244,14 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* ===== RECIPE FEED ===== */}
+        {/* ===== MASSIVE RECIPE FEED (INFINITE SCROLL) ===== */}
         <div>
           <h2 style={{ fontSize: 18, fontWeight: 800, color: W.text, marginBottom: 16 }}>
-            {activeCategory === 'all' ? 'Trending Today 📈' : 'Found Recipes 🍲'}
+            {activeCategory === 'all' ? `Trending Today 🚀 (${ALL_DISHES.length}+ dishes)` : 'Found Recipes 🍳'}
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <AnimatePresence>
-              {filtered.map(recipe => (
+              {displayedDishes.map((recipe: any) => (
                 <Link href={`/recipe/${recipe.id}`} key={recipe.id}>
                   <motion.div
                     layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
@@ -284,7 +261,7 @@ export default function HomePage() {
                       boxShadow: '0 8px 20px rgba(0,0,0,0.06)', cursor: 'pointer'
                     }}
                   >
-                    <img src={recipe.image} alt={recipe.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={recipe.image} alt={recipe.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     <div style={{
                       position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                       background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)',
@@ -307,7 +284,7 @@ export default function HomePage() {
                             <Timer size={10} /> {recipe.time}m
                           </span>
                         </div>
-                        <h3 style={{ color: 'white', fontWeight: 800, fontSize: 15, lineHeight: 1.2 }}>{recipe.name}</h3>
+                        <h3 style={{ color: 'white', fontWeight: 800, fontSize: 15, lineHeight: 1.2 }}>{recipe.nameHindi || recipe.name}</h3>
                       </div>
                     </div>
                   </motion.div>
@@ -315,7 +292,7 @@ export default function HomePage() {
               ))}
             </AnimatePresence>
             
-            {filtered.length === 0 && (
+            {filteredAll.length === 0 && (
               <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '40px 0' }}>
                 <span style={{ fontSize: 40 }}>🤷‍♂️</span>
                 <h3 style={{ fontSize: 16, fontWeight: 800, color: W.text, marginTop: 12 }}>Kuch nahi mila!</h3>
@@ -323,6 +300,24 @@ export default function HomePage() {
               </div>
             )}
           </div>
+
+          {/* Loader Element for Intersection Observer */}
+          {displayedDishes.length > 0 && (
+            <div ref={observerRef} style={{ width: '100%', padding: '32px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+              {isGeneratingFallback ? (
+                <>
+                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                    <Loader2 size={32} color={W.primary} />
+                  </motion.div>
+                  <p style={{ color: W.primary, fontSize: 14, fontWeight: 700 }}>AI is generating more delicious dishes...</p>
+                </>
+              ) : displayedDishes.length < filteredAll.length ? (
+                <div style={{ width: 40, height: 4, background: W.border, borderRadius: 10 }} />
+              ) : (
+                <p style={{ color: W.muted, fontSize: 14, fontWeight: 600 }}>Wow, you reached the end! 🌟</p>
+              )}
+            </div>
+          )}
         </div>
 
       </div>
