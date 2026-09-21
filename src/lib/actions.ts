@@ -96,10 +96,6 @@ export async function scanFridgeAction(imageBase64: string, language: AppLanguag
 
 export async function generateBudgetMealAction(budget: number, language: AppLanguage) {
   try {
-    // AGENT 1: ZAYKA-LLM (The Brain/Chef)
-    // Generates the creative, desi recipe in plain text using the fine-tuned model
-export async function generateBudgetMealAction(budget: number, language: AppLanguage) {
-  try {
     const prompt = `Aap ek master Indian Chef ho (Zayka AI). Neeche diye gaye sawal ka best desi jawab do.\n\n### Instruction:\nBhai ek ${budget} rupees ke andar Indian student budget meal batao.\n\n### Output:\n`;
 
     const res = await fetch("https://consumption-awesome-kong-gore.trycloudflare.com/v1/completions", {
