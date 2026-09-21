@@ -96,7 +96,8 @@ export async function scanFridgeAction(imageBase64: string, language: AppLanguag
 
 export async function generateBudgetMealAction(budget: number, language: AppLanguage) {
   try {
-    const prompt = `Aap ek master Indian Chef ho (Zayka AI). Neeche diye gaye sawal ka best desi jawab do.\n\n### Instruction:\nBhai ek ${budget} rupees ke andar Indian student budget meal batao. Please is format mein answer do:\n\nDISH_NAME: [Dish ka naam]\nINGREDIENTS: [Item 1 (Rs 10), Item 2 (Rs 20)]\nRECIPE:\nStep 1: [Step]\nStep 2: [Step]\n\n### Output:\n`;
+    // We let the Zayka-LLM speak in its natural fine-tuned conversational tone
+    const prompt = `Aap ek master Indian Chef ho (Zayka AI). Neeche diye gaye sawal ka best desi jawab do.\n\n### Instruction:\nBhai ek ${budget} rupees ke andar Indian student budget meal batao.\n\n### Output:\n`;
 
     const res = await fetch("https://consumption-awesome-kong-gore.trycloudflare.com/v1/completions", {
       method: "POST",
@@ -110,34 +111,37 @@ export async function generateBudgetMealAction(budget: number, language: AppLang
     const json = await res.json();
     const aiText = json.choices[0].text.trim();
     
-    // Parse the unstructured text using Regex
-    const dishNameMatch = aiText.match(/DISH_NAME:\s*(.+)/i);
-    const ingredientsMatch = aiText.match(/INGREDIENTS:\s*(.+)/i);
-    const recipeMatch = aiText.match(/RECIPE:\s*([\s\S]+)/i);
-
-    const dishName = dishNameMatch ? dishNameMatch[1].trim() : "Zayka Special Meal";
+    // SMART PARSING: Parse the exact conversational structure Zayka-LLM was trained on
+    // Example: "Absolutely! Let's make a Extra Spicy version of Biryani, a classic... You will need: Rice, Dal. The secret is... Cook it!"
+    const dishMatch = aiText.match(/version of (.*?), a classic/i) || aiText.match(/make a .*? (.*?)\. You will/i);
+    const dishName = dishMatch ? dishMatch[1].trim() : "Zayka Special Meal";
     
-    // Convert comma-separated ingredients into an array of objects
+    const ingredientsMatch = aiText.match(/You will need:\s*(.*?)\.\s*The secret/i);
     let ingredientsList: any[] = [];
+    
     if (ingredientsMatch) {
       const items = ingredientsMatch[1].split(',');
-      ingredientsList = items.map((item: any) => {
-        const cleanItem = item.trim();
-        const costMatch = cleanItem.match(/\d+/);
-        return { 
-          name: cleanItem.replace(/\(Rs \d+\)/gi, '').replace(/\d+/g, '').replace(/[()Rs]/gi, '').trim(), 
-          estimatedCost: costMatch ? parseInt(costMatch[0]) : Math.floor(budget / items.length)
-        };
-      });
+      ingredientsList = items.map((item: any) => ({
+        name: item.trim(),
+        estimatedCost: Math.floor(budget / items.length)
+      }));
     } else {
       ingredientsList = [{ name: "Zayka Ingredients", estimatedCost: budget }];
     }
+
+    // Extract the cooking instructions at the end
+    const recipeMatch = aiText.match(/The secret is.*?\. (.*)/i);
+    let rawRecipe = recipeMatch ? recipeMatch[1].trim() : aiText;
+    
+    // Split sentences into step-by-step format
+    const sentences = rawRecipe.split('. ').filter((s: string) => s.trim().length > 3);
+    const formattedRecipe = sentences.map((s: string, i: number) => `Step ${i + 1}: ${s.trim()}`).join('\n');
     
     const data = {
       dishName: dishName,
       totalCost: ingredientsList.reduce((acc: any, curr: any) => acc + (curr.estimatedCost || 0), 0) || budget,
       ingredients: ingredientsList,
-      quickRecipe: recipeMatch ? recipeMatch[1].trim() : aiText
+      quickRecipe: formattedRecipe
     };
     
     return { success: true, data };
