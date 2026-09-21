@@ -96,28 +96,48 @@ export async function scanFridgeAction(imageBase64: string, language: AppLanguag
 
 export async function generateBudgetMealAction(budget: number, language: AppLanguage) {
   try {
-    const prompt = `Aap ek master Indian Chef ho (Zayka AI). Neeche diye gaye sawal ka best desi jawab do.\n\n### Instruction:\nBhai ek ${budget} rupees ke andar Indian student budget meal batao.\n\n### Output:\n`;
+    const prompt = `Aap ek master Indian Chef ho (Zayka AI). Neeche diye gaye sawal ka best desi jawab do.\n\n### Instruction:\nBhai ek ${budget} rupees ke andar Indian student budget meal batao. Please is format mein answer do:\n\nDISH_NAME: [Dish ka naam]\nINGREDIENTS: [Item 1 (Rs 10), Item 2 (Rs 20)]\nRECIPE:\nStep 1: [Step]\nStep 2: [Step]\n\n### Output:\n`;
 
     const res = await fetch("https://consumption-awesome-kong-gore.trycloudflare.com/v1/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         prompt: prompt,
-        max_tokens: 300,
+        max_tokens: 350,
         stop: ["### Instruction", "</s>"]
       })
     });
     const json = await res.json();
     const aiText = json.choices[0].text.trim();
     
-    // Zayka-LLM gives plain text, so we wrap it in the required JSON format for the UI
+    // Parse the unstructured text using Regex
+    const dishNameMatch = aiText.match(/DISH_NAME:\s*(.+)/i);
+    const ingredientsMatch = aiText.match(/INGREDIENTS:\s*(.+)/i);
+    const recipeMatch = aiText.match(/RECIPE:\s*([\s\S]+)/i);
+
+    const dishName = dishNameMatch ? dishNameMatch[1].trim() : "Zayka Special Meal";
+    
+    // Convert comma-separated ingredients into an array of objects
+    let ingredientsList: any[] = [];
+    if (ingredientsMatch) {
+      const items = ingredientsMatch[1].split(',');
+      ingredientsList = items.map((item: any) => {
+        const cleanItem = item.trim();
+        const costMatch = cleanItem.match(/\d+/);
+        return { 
+          name: cleanItem.replace(/\(Rs \d+\)/gi, '').replace(/\d+/g, '').replace(/[()Rs]/gi, '').trim(), 
+          estimatedCost: costMatch ? parseInt(costMatch[0]) : Math.floor(budget / items.length)
+        };
+      });
+    } else {
+      ingredientsList = [{ name: "Zayka Ingredients", estimatedCost: budget }];
+    }
+    
     const data = {
-      dishName: "Zayka Budget Special",
-      totalCost: budget > 10 ? budget - 10 : budget,
-      ingredients: [
-        { name: "As suggested by AI", estimatedCost: budget }
-      ],
-      quickRecipe: aiText || "AI generated recipe"
+      dishName: dishName,
+      totalCost: ingredientsList.reduce((acc: any, curr: any) => acc + (curr.estimatedCost || 0), 0) || budget,
+      ingredients: ingredientsList,
+      quickRecipe: recipeMatch ? recipeMatch[1].trim() : aiText
     };
     
     return { success: true, data };
@@ -134,7 +154,7 @@ export async function generateBudgetMealAction(budget: number, language: AppLang
           { name: "Onion & Green Chilli", estimatedCost: 10 },
           { name: "Milk & Tea Leaves", estimatedCost: 30 }
         ],
-        quickRecipe: "1. Wash poha. 2. Roast peanuts and temper onions. 3. Mix everything with turmeric. 4. Brew thick Irani chai."
+        quickRecipe: "Step 1: Wash poha.\nStep 2: Roast peanuts and temper onions.\nStep 3: Mix everything with turmeric.\nStep 4: Brew thick Irani chai."
       }
     };
   }

@@ -154,8 +154,19 @@ export default function BudgetPage() {
               {/* Quick Recipe */}
               {mealData.quickRecipe && (
                 <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 16 }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginBottom: 10 }}>📋 Quick Recipe</h3>
-                  <p style={{ fontSize: 13, color: '#3D2B1F', lineHeight: 1.7, fontWeight: 600 }}>{mealData.quickRecipe}</p>
+                  <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginBottom: 16 }}>🧑‍🍳 Step-by-Step Recipe</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {mealData.quickRecipe.split(/(?:Step \d+:|\n)/i).filter((s: string) => s.trim().length > 3).map((step: string, index: number) => (
+                      <div key={index} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#FFF8F3', padding: 14, borderRadius: 16, border: '1px solid #FFE4CD' }}>
+                        <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'linear-gradient(135deg, #F97316, #FBBF24)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, flexShrink: 0 }}>
+                          {index + 1}
+                        </div>
+                        <p style={{ fontSize: 14, color: '#3D2B1F', lineHeight: 1.6, fontWeight: 600, paddingTop: 1 }}>
+                          {step.trim().replace(/^[-*•]\s*/, '')}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
