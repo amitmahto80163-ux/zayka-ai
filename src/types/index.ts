@@ -10,18 +10,15 @@ export interface Recipe {
   cuisine: CuisineType;
   category: CategoryType;
   difficulty: DifficultyLevel;
-  prepTime: number; // minutes
-  cookTime: number; // minutes
+  prepTime: number;
+  cookTime: number;
   servings: number;
-  
-  // Phase 1: Dual Option Engine (Global vs Desi)
   isGlobalWithDesiOptions?: boolean;
-  ingredients: Ingredient[]; // Acts as 'Desi/Default' ingredients
-  steps: CookingStep[];      // Acts as 'Desi/Default' steps
-  authenticIngredients?: Ingredient[]; // Original foreign ingredients
-  authenticSteps?: CookingStep[];      // Original foreign steps
-  desiSubstituteNote?: string;         // E.g. "Nori sheets ki jagah patla paratha use kiya hai"
-
+  ingredients: Ingredient[];
+  steps: CookingStep[];
+  authenticIngredients?: Ingredient[];
+  authenticSteps?: CookingStep[];
+  desiSubstituteNote?: string;
   nutrition: NutritionInfo;
   tags: string[];
   imageUrl?: string;
@@ -36,20 +33,48 @@ export interface Recipe {
 
 export interface Ingredient {
   id: string;
+  // Identity
   name: string;
   nameHindi?: string;
+  shopName?: string;
+  visualDescription?: string;
+  // Quantity
   amount: number;
   unit: string;
-  optional?: boolean;
+  visualMeasure?: string;
+  // Preparation
+  prepState?: string;
+  whenToAdd?: string;
+  // Cost
+  cost?: number;
+  costPerUnit?: string;
+  priceRange?: string;
+  // Availability
+  availability?: 'kirana' | 'supermarket' | 'online';
+  availabilityNote?: string;
+  // Freshness & Brand
+  freshnessCheck?: string;
+  brandTip?: string;
+  // Substitute
   substitute?: string;
+  substituteReason?: string;
+  // Notes
+  note?: string;
+  storage?: string;
+  healthNote?: string;
+  commonMistake?: string;
+  // Metadata
+  optional?: boolean;
+  isOptional?: boolean;
+  category?: 'protein' | 'spice' | 'oil' | 'vegetable' | 'dairy' | 'grain' | 'other';
 }
 
 export interface CookingStep {
-  id: string;
+  id?: string;
   stepNumber: number;
   title: string;
   description: string;
-  duration?: number; // seconds
+  duration?: number;
   imageUrl?: string;
   videoUrl?: string;
   tips?: string[];

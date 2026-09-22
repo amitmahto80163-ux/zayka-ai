@@ -239,3 +239,65 @@ export async function generateFusionRecipeAction(likedFoods: string[], language:
     };
   }
 }
+
+// ============================================
+// GENERATE DETAILED INGREDIENTS (AI Fallback)
+// Called when dish is not in static DISH_INGREDIENTS
+// ============================================
+export async function generateIngredientsAction(dishName: string, servings: number, language: AppLanguage = 'hindi') {
+  try {
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash', 
+      generationConfig: { responseMimeType: 'application/json' } 
+    });
+
+    const prompt = `You are an expert Indian home cooking assistant. Generate a very detailed ingredient list for "${dishName}" for ${servings} people.
+Think like an experienced cook explaining to a first-time cook with ZERO experience.
+Every field must be in simple Hindi/Hinglish — easy to understand.
+
+Return ONLY a JSON array (no other text):
+[
+  {
+    "id": "unique-id-1",
+    "name": "English name",
+    "nameHindi": "हिन्दी नाम",
+    "shopName": "dukaan pe is naam se maango (shopkeeper language)",
+    "visualDescription": "kaisi dikhti hai — color, shape, texture",
+    "amount": <number>,
+    "unit": "g OR kg OR ml OR L OR cup OR tbsp OR tsp OR pcs OR pinch",
+    "visualMeasure": "haath se measure karne ka tarika (jaise ek muthi, ek teacup)",
+    "prepState": "kaise katna ya taiyaar karna hai",
+    "whenToAdd": "kis step mein aur kab add karna hai",
+    "cost": <INR for this quantity for ${servings} people>,
+    "costPerUnit": "market rate jaise rupay 240 per kg",
+    "priceRange": "market mein kitne ka milega",
+    "availability": "kirana OR supermarket OR online",
+    "availabilityNote": "exactly kahan milega",
+    "freshnessCheck": "fresh kaise pehchanein — kya dekhein ya soonghein",
+    "brandTip": "konsa Indian brand best hai",
+    "substitute": "nahi mila toh kya use karein",
+    "substituteReason": "kyun same kaam karega",
+    "note": "sabse important cooking tip for this ingredient",
+    "storage": "ghar mein kaise aur kitne time tak store karein",
+    "healthNote": "health benefit ya caution",
+    "commonMistake": "sabse badi galti jo log karte hain",
+    "isOptional": false,
+    "category": "protein OR spice OR oil OR vegetable OR dairy OR grain OR other"
+  }
+]`;
+
+    const result = await model.generateContent(prompt);
+    const data = JSON.parse(result.response.text());
+    return { success: true, data };
+  } catch (error) {
+    console.error('generateIngredientsAction error:', error);
+    // Fallback static ingredients
+    return {
+      success: true,
+      data: [
+        { id: 'ai-1', name: 'Main Ingredient', nameHindi: 'मुख्य सामग्री', amount: 200, unit: 'g', cost: 50, availability: 'kirana', category: 'other', note: 'AI generation failed — please check your internet connection.' },
+      ]
+    };
+  }
+}
+
