@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import ChefChat from '@/components/chat/ChefChat';
 import { DISH_INGREDIENTS } from '@/data/ingredients';
 import { generateIngredientsAction } from '@/lib/actions';
+import { ALL_DISHES } from '@/data/dishes';
 
 const W = { bg: '#FFF8F3', primary: '#F97316', card: '#FFFFFF', text: '#1C1009', muted: '#92745A', border: '#F0E6DC' };
 
@@ -22,7 +23,9 @@ function getCategoryLabel(cat?: string) {
 function groupByCategory(ingredients: any[]) {
   const order = ['protein', 'grain', 'vegetable', 'dairy', 'oil', 'spice', 'other'];
   const groups: Record<string, any[]> = {};
-  for (const ing of ingredients) {
+  const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
+  for (const ing of safeIngredients) {
+    if (!ing) continue;
     const cat = ing.category || 'other';
     if (!groups[cat]) groups[cat] = [];
     groups[cat].push(ing);
@@ -244,9 +247,24 @@ export default function RecipeDetailPage() {
   useEffect(() => {
     if (!id) return;
     const generated = savedRecipes?.find((r: any) => r.id === id);
-    const r = generated || DUMMY_RECIPES[id] || DUMMY_RECIPES['fallback'];
-    setRecipe(r);
-    setServings(r.servings || 2);
+    let r = generated || DUMMY_RECIPES[id];
+    
+    if (!r) {
+      const fromAllDishes = ALL_DISHES.find(d => d.id === id);
+      if (fromAllDishes) {
+        r = {
+          ...fromAllDishes,
+          description: `Enjoy this delicious ${fromAllDishes.nameHindi || fromAllDishes.name} prepared Zayka style!`,
+          prepTime: 10, cookTime: fromAllDishes.time || 20, servings: 2,
+          image: fromAllDishes.image || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
+          ingredients: [], steps: []
+        };
+      }
+    }
+    
+    const finalRecipe = r || DUMMY_RECIPES['fallback'];
+    setRecipe(finalRecipe);
+    setServings(finalRecipe.servings || 2);
   }, [id, savedRecipes]);
 
   // Timer
@@ -270,15 +288,16 @@ export default function RecipeDetailPage() {
   const displayedSteps = (recipeVersion === 'authentic' ? (recipe.authenticSteps || recipe.steps) : recipe.steps) || [];
 
   // Enrich with static data if available
-  const enrichedIngredients: any[] = DISH_INGREDIENTS[id]
+  const rawEnriched = DISH_INGREDIENTS[id]
     ? (recipeVersion === 'desi' || !recipe.isGlobalWithDesiOptions ? DISH_INGREDIENTS[id] : (recipe.authenticIngredients || DISH_INGREDIENTS[id]))
     : (aiIngredients || displayedIngredients);
-
+    
+  const enrichedIngredients: any[] = Array.isArray(rawEnriched) ? rawEnriched : [];
   const grouped = groupByCategory(enrichedIngredients);
 
-  const kiranaCost = Math.round(enrichedIngredients.filter(i => i.availability === 'kirana').reduce((s: number, i: any) => s + ((i.cost || 0) / baseServings) * servings, 0));
-  const superCost = Math.round(enrichedIngredients.filter(i => i.availability === 'supermarket').reduce((s: number, i: any) => s + ((i.cost || 0) / baseServings) * servings, 0));
-  const onlineCost = Math.round(enrichedIngredients.filter(i => i.availability === 'online').reduce((s: number, i: any) => s + ((i.cost || 0) / baseServings) * servings, 0));
+  const kiranaCost = Math.round(enrichedIngredients.filter(i => i?.availability === 'kirana').reduce((s: number, i: any) => s + ((i.cost || 0) / baseServings) * servings, 0));
+  const superCost = Math.round(enrichedIngredients.filter(i => i?.availability === 'supermarket').reduce((s: number, i: any) => s + ((i.cost || 0) / baseServings) * servings, 0));
+  const onlineCost = Math.round(enrichedIngredients.filter(i => i?.availability === 'online').reduce((s: number, i: any) => s + ((i.cost || 0) / baseServings) * servings, 0));
   const totalCost = kiranaCost + superCost + onlineCost;
 
   const chefNote = memory?.allergies?.length
@@ -293,8 +312,8 @@ export default function RecipeDetailPage() {
   };
 
   const handleCopyList = (filter?: 'kirana' | 'supermarket' | 'online') => {
-    const items = filter ? enrichedIngredients.filter((i: any) => i.availability === filter) : enrichedIngredients;
-    const list = items.map((i: any) => {
+    const items = filter ? enrichedIngredients.filter((i: any) => i?.availability === filter) : enrichedIngredients;
+    const list = items.filter(Boolean).map((i: any) => {
       const amt = Math.round(((i.amount / baseServings) * servings) * 10) / 10;
       return `• ${i.nameHindi || i.name} — ${amt} ${i.unit}`;
     }).join('\n');
