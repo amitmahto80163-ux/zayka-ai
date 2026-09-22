@@ -5,25 +5,26 @@ import Link from 'next/link';
 import { Search, ChefHat, Mic, Timer, Flame, Globe, Star, User, Loader2 } from 'lucide-react';
 import { useZaykaStore } from '@/store';
 import { ALL_DISHES } from '@/data/dishes';
+import { generateMoreDishesAction } from '@/lib/actions';
 
 const W = { bg: '#FFF8F3', primary: '#F97316', card: '#FFFFFF', text: '#1C1009', muted: '#92745A', border: '#F0E6DC' };
 
 const CATEGORIES = [
-  { id: 'all',     label: 'Sab',       icon: '🍲' },
+  { id: 'all',     label: 'Sab',       icon: '🍱' },
   { id: 'indian',  label: 'Indian',    icon: '🇮🇳' },
-  { id: 'chinese', label: 'Chinese',   icon: '🍜' },
-  { id: 'italian', label: 'Italian',   icon: '🍝' },
+  { id: 'chinese', label: 'Chinese',   icon: '🥡' },
+  { id: 'italian', label: 'Italian',   icon: '🍕' },
   { id: 'healthy', label: 'Healthy',   icon: '🥗' },
-  { id: 'quick',   label: 'Quick',     icon: '⏱️' },
-  { id: 'dessert', label: 'Dessert',   icon: '🍨' },
-  { id: 'street',  label: 'Street',    icon: '🌶️' },
+  { id: 'quick',   label: 'Quick',     icon: '⚡' },
+  { id: 'dessert', label: 'Dessert',   icon: '🍩' },
+  { id: 'street',  label: 'Street',    icon: '🛵' },
 ];
 
 const MOODS = [
   { id: 'sick', emoji: '🤒', label: 'Tabiyat kharab' },
-  { id: 'late', emoji: '🌙', label: 'Late night' },
+  { id: 'late', emoji: '🕰️', label: 'Late night' },
   { id: 'gym',  emoji: '💪', label: 'Gym diet' },
-  { id: 'date', emoji: '❤️', label: 'Date night' },
+  { id: 'date', emoji: '🥂', label: 'Date night' },
 ];
 
 const QUICK_TOOLS = [
@@ -38,20 +39,22 @@ const QUICK_TOOLS = [
 const PAGE_SIZE = 10; // Number of items to load per scroll
 
 export default function HomePage() {
-  const { user, memory, currentStreak } = useZaykaStore();
+  const { user, memory, currentStreak, language } = useZaykaStore();
   const [activeCategory, setActiveCategory] = useState('all');
   
   // Infinite Scroll States
   const [page, setPage] = useState(1);
   const [isGeneratingFallback, setIsGeneratingFallback] = useState(false);
+  const [generatedDishes, setGeneratedDishes] = useState<any[]>([]);
   const observerRef = useRef<HTMLDivElement>(null);
 
   const userName = user?.name?.split(' ')[0] || 'Dost';
   const streak = currentStreak || 0;
 
   // 1. Filter ALL_DISHES based on category
-  const filteredAll = ALL_DISHES.filter((r: any) =>
-    activeCategory === 'all' || r.cuisine === activeCategory || r.tags.includes(activeCategory)
+  const combinedDishes = [...ALL_DISHES, ...generatedDishes];
+  const filteredAll = combinedDishes.filter((r: any) =>
+    activeCategory === 'all' || r.cuisine === activeCategory || r.tags?.includes(activeCategory)
   );
 
   // 2. Paginate the filtered array
@@ -69,25 +72,27 @@ export default function HomePage() {
     if (!target) return;
 
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
+      if (entries[0].isIntersecting && !isGeneratingFallback) {
         if (displayedDishes.length < filteredAll.length) {
           // Normal load more from existing list
           setPage(p => p + 1);
-        } else if (displayedDishes.length > 0 && activeCategory === 'all') {
+        } else if (displayedDishes.length > 0) {
           // Exhausted the list — simulate AI generation
           setIsGeneratingFallback(true);
-          setTimeout(() => {
+          generateMoreDishesAction(activeCategory, language).then(res => {
+            if (res.success && res.data) {
+              setGeneratedDishes(prev => [...prev, ...res.data]);
+              setPage(p => p + 1);
+            }
             setIsGeneratingFallback(false);
-            // In a real app, this would append to the list from the AI backend.
-            // For now, it just resets or shows it finished generating one batch.
-          }, 2000);
+          });
         }
       }
     }, { threshold: 0.1 });
 
     observer.observe(target);
     return () => observer.unobserve(target);
-  }, [displayedDishes.length, filteredAll.length, activeCategory]);
+  }, [displayedDishes.length, filteredAll.length, activeCategory, isGeneratingFallback, language]);
 
   return (
     <div className="min-h-screen safe-bottom" style={{ backgroundColor: W.bg }}>

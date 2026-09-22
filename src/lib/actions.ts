@@ -284,3 +284,38 @@ Return ONLY a JSON array (no other text):
   }
 }
 
+
+
+
+
+export async function generateMoreDishesAction(category: string, language: AppLanguage = 'hindi') {
+  try {
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      generationConfig: { responseMimeType: 'application/json' }
+    });
+
+    const prompt = `Generate 4 new, unique, and creative dishes for the category "${category}". 
+Return JSON array exactly in this format:
+[
+  {
+    "id": "gen_dish_xyz",
+    "name": "Dish Name",
+    "cuisine": "indian",
+    "isVeg": true,
+    "time": 20,
+    "calories": 300,
+    "rating": 4.5,
+    "tags": ["${category}"],
+    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+  }
+]
+IMPORTANT: Use real unsplash cooking images for the image field (like the example). Make sure they look appetizing.`;
+    
+    const result = await model.generateContent(prompt);
+    return { success: true, data: JSON.parse(result.response.text()) };
+  } catch (error) {
+    console.error("More dishes generation failed:", error);
+    return { success: false, error: 'Failed to generate more dishes' };
+  }
+}

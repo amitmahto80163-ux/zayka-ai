@@ -93,11 +93,31 @@ export default function FamilyVaultPage() {
                     {recipe.steps.length} steps
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, borderTop: `1px solid ${W.border}`, paddingTop: 16 }}>
-                  {recipe.isPrivate ? <Lock style={{ width: 14, height: 14, color: W.muted }} /> : <Globe style={{ width: 14, height: 14, color: '#10B981' }} />}
-                  <span style={{ fontSize: 12, fontWeight: 700, color: recipe.isPrivate ? W.muted : '#10B981' }}>
-                    {recipe.isPrivate ? 'Private (Only you)' : 'Shared with Family'}
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: `1px solid ${W.border}`, paddingTop: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {recipe.isPrivate ? <Lock style={{ width: 14, height: 14, color: W.muted }} /> : <Globe style={{ width: 14, height: 14, color: '#10B981' }} />}
+                    <span style={{ fontSize: 12, fontWeight: 700, color: recipe.isPrivate ? W.muted : '#10B981' }}>
+                      {recipe.isPrivate ? 'Private' : 'Shared'}
+                    </span>
+                  </div>
+                  <button onClick={() => {
+                    useZaykaStore.getState().setCurrentRecipe({
+                      id: recipe.id,
+                      name: recipe.title,
+                      description: recipe.description || `From ${recipe.origin}`,
+                      cuisine: 'family',
+                      prepTime: 10, cookTime: 20, servings: 2, isVeg: true, calories: 300, rating: 5,
+                      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
+                      ingredients: recipe.ingredients.map((i, idx) => ({ id: `i-${idx}`, name: i, amount: 1, unit: 'as needed', category: 'other' })),
+                      steps: recipe.steps.map((s, idx) => ({ stepNumber: idx + 1, title: `Step ${idx + 1}`, description: s, duration: 5 })),
+                      category: 'dinner', difficulty: 'easy',
+                      nutrition: { calories: 300, protein: 10, carbs: 40, fat: 10 },
+                      tags: ['family'], createdAt: recipe.createdAt
+                    } as any);
+                    router.push('/cook');
+                  }} style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)', color: 'white', border: 'none', padding: '8px 16px', borderRadius: 100, fontSize: 13, fontWeight: 900, cursor: 'pointer' }}>
+                    Cook This
+                  </button>
                 </div>
               </div>
             ))}

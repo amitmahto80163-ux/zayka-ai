@@ -7,6 +7,7 @@ import {
   RefreshCw, Film, Brain, Fingerprint, Atom, Globe, Play, X, Video, Eye, ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 const FEATURES = [
   { id: 'zaykacam', title: 'Zayka Cam 🎥', subtitle: 'Kitchen Sentinel', icon: Video, color: 'from-cyan-500 to-blue-700', desc: 'Connects physical CCTV/Camera for real-time burn detection & boil-over alerts.' },
@@ -208,7 +209,7 @@ export default function XLabsPage() {
 
                     {activeFeature.id === 'sos' && (
                       <div className="text-center">
-                        <button className="w-32 h-32 rounded-full bg-red-600 border-8 border-red-900 shadow-[0_0_50px_rgba(220,38,38,0.5)] mx-auto flex items-center justify-center text-4xl font-black mb-6 hover:scale-95 transition-transform" style={{ color: 'white' }}>SOS</button>
+                        <button onClick={() => toast.success('🚨 SOS Sent! AI analyzing burnt Dal...')} className="w-32 h-32 rounded-full bg-red-600 border-8 border-red-900 shadow-[0_0_50px_rgba(220,38,38,0.5)] mx-auto flex items-center justify-center text-4xl font-black mb-6 hover:scale-95 transition-transform" style={{ color: 'white' }}>SOS</button>
                         <p style={{ color: '#d1d5db' }}>"AI, meri Dal jal gayi hai!"</p>
                         <div className="mt-4 bg-white/5 p-4 rounded-2xl border border-white/10 text-left">
                           <span className="font-bold" style={{ color: '#4ade80' }}>Solution:</span>
@@ -231,7 +232,7 @@ export default function XLabsPage() {
                         <div className="bg-white/5 p-4 rounded-2xl">
                           <p className="text-sm mb-2" style={{ color: '#9ca3af' }}>Cortisol (Stress): <span className="font-bold" style={{ color: '#f87171' }}>HIGH</span></p>
                           <p className="text-sm mb-4" style={{ color: '#9ca3af' }}>Prescribed Chemical Alteration: <span className="font-bold" style={{ color: '#22d3ee' }}>+ Serotonin</span></p>
-                          <button className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl font-bold shadow-lg shadow-green-500/20" style={{ color: 'white' }}>Generate Healing Recipe</button>
+                          <button onClick={() => toast.success('Generating stress-relief recipe...')} className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl font-bold shadow-lg shadow-green-500/20" style={{ color: 'white' }}>Generate Healing Recipe</button>
                         </div>
                       </div>
                     )}
@@ -243,7 +244,7 @@ export default function XLabsPage() {
                         </div>
                         <h4 className="text-xl font-bold mb-2" style={{ color: 'white' }}>System Online</h4>
                         <p className="text-sm leading-relaxed" style={{ color: '#9ca3af' }}>The {activeFeature.title} module is primed and ready. In 2050, this will directly interface with your cortical implant to bypass manual cooking entirely.</p>
-                        <button className="mt-8 px-8 py-3 bg-white font-black rounded-full hover:scale-105 transition-transform" style={{ color: 'black' }}>Initialize Sequence</button>
+                        <button onClick={() => toast.success('Module Initialized. Welcome to 2050.')} className="mt-8 px-8 py-3 bg-white font-black rounded-full hover:scale-105 transition-transform" style={{ color: 'black' }}>Initialize Sequence</button>
                       </div>
                     )}
                   </div>

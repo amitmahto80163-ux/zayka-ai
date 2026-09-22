@@ -21,7 +21,8 @@ export default function BottomNav() {
     }
   };
 
-  if (pathname === '/auth' || pathname === '/onboarding' || pathname === '/cook') return null;
+  const isMainTab = ['/', '/search', '/world', '/profile'].includes(pathname);
+  if (!isMainTab) return null;
 
   const tabs = [
     { id: 'home', path: '/', icon: Home, label: 'Home' },

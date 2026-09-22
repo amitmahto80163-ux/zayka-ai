@@ -154,7 +154,7 @@ export default function BudgetPage() {
               {/* Quick Recipe */}
               {mealData.quickRecipe && (
                 <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 16 }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginBottom: 16 }}>🧑‍🍳 Step-by-Step Recipe</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginBottom: 16 }}>👨‍🍳 Step-by-Step Recipe</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {mealData.quickRecipe.split(/(?:Step \d+:|\n)/i).filter((s: string) => s.trim().length > 3).map((step: string, index: number) => (
                       <div key={index} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#FFF8F3', padding: 14, borderRadius: 16, border: '1px solid #FFE4CD' }}>
@@ -170,10 +170,30 @@ export default function BudgetPage() {
                 </div>
               )}
 
-              <button onClick={() => setStage('input')}
-                style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 18, padding: '14px', fontFamily: 'Nunito, sans-serif', fontSize: 14, fontWeight: 800, color: W.heading, cursor: 'pointer' }}>
-                ← Naya Budget Try Karo
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button onClick={() => {
+                  useZaykaStore.getState().setCurrentRecipe({
+                    id: `budget-${Date.now()}`,
+                    name: mealData.dishName || 'Budget Meal',
+                    description: `A delicious budget meal for ₹${mealData.totalCost || budget}`,
+                    cuisine: 'indian',
+                    prepTime: 10, cookTime: 20, servings: 2, isVeg: true, calories: 400, rating: 5,
+                    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
+                    ingredients: mealData.ingredients?.map((i: any, idx: number) => ({ id: `i-${idx}`, name: i.name, amount: 1, unit: 'as needed', category: 'other' })) || [],
+                    steps: mealData.quickRecipe?.split(/(?:Step \d+:|\n)/i).filter((s: string) => s.trim().length > 3).map((s: string, idx: number) => ({ stepNumber: idx + 1, title: `Step ${idx + 1}`, description: s.trim().replace(/^[-*•]\s*/, ''), duration: 5 })) || [],
+                    category: 'lunch', difficulty: 'easy',
+                    nutrition: { calories: 400, protein: 15, carbs: 50, fat: 12 },
+                    tags: ['budget'], createdAt: new Date().toISOString()
+                  } as any);
+                  router.push('/cook');
+                }} style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)', border: 'none', borderRadius: 18, padding: '16px', fontFamily: 'Nunito, sans-serif', fontSize: 16, fontWeight: 900, color: 'white', cursor: 'pointer', boxShadow: '0 8px 24px rgba(249,115,22,0.3)' }}>
+                  👨‍🍳 Start Cooking
+                </button>
+                <button onClick={() => setStage('input')}
+                  style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 18, padding: '14px', fontFamily: 'Nunito, sans-serif', fontSize: 14, fontWeight: 800, color: W.heading, cursor: 'pointer' }}>
+                  🔄 Naya Budget Try Karo
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

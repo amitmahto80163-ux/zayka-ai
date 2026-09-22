@@ -54,6 +54,7 @@ const WORLD_CUISINES = [
 
 export default function WorldCuisinePage() {
   const router = useRouter();
+  const { addSavedRecipe } = useZaykaStore();
   const [active, setActive] = useState(WORLD_CUISINES[0]);
   
   // Phase B3: Diet Filter Bar State
@@ -61,6 +62,26 @@ export default function WorldCuisinePage() {
   
   // Phase B1: Selected Dish Bottom Sheet State
   const [selectedDish, setSelectedDish] = useState<any>(null);
+
+  const handleViewRecipe = (version?: string) => {
+    if (!selectedDish) return;
+    const id = selectedDish.name.toLowerCase().replace(/ /g, '-');
+    addSavedRecipe({
+      id,
+      name: selectedDish.name,
+      image: selectedDish.img,
+      description: selectedDish.funFact,
+      isGlobalWithDesiOptions: true,
+      authenticIngredients: null, // Let AI generate
+      authenticSteps: null, // Let AI generate
+      ingredients: null, // Let AI generate
+      steps: null, // Let AI generate
+      cuisine: active.name.toLowerCase(),
+      time: 30, calories: 350,
+      type: selectedDish.type
+    });
+    router.push(`/recipe/${id}${version ? `?version=${version}` : ''}`);
+  };
 
   const typeColor = (type: string) => {
     if (type === 'Veg' || type === 'Vegan') return { bg: '#ECFDF5', text: '#059669' };
@@ -269,13 +290,13 @@ export default function WorldCuisinePage() {
                 
                 {/* Action Buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <button onClick={() => router.push(`/recipe/${selectedDish.name.toLowerCase().replace(/ /g, '-')}`)}
+                  <button onClick={() => handleViewRecipe()}
                     style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)', color: 'white', border: 'none', padding: '18px', borderRadius: 100, fontSize: 16, fontWeight: 900, cursor: 'pointer' }}>
                     🌍 View Full Recipe
                   </button>
                   <button onClick={() => { 
                       toast.success('Loading Desi version! 🇮🇳'); 
-                      router.push(`/recipe/${selectedDish.name.toLowerCase().replace(/ /g, '-')}?version=desi`); 
+                      handleViewRecipe('desi'); 
                     }}
                     style={{ background: 'white', border: '1.5px solid #F0E6DC', color: '#1C1009', padding: '16px', borderRadius: 100, fontSize: 15, fontWeight: 800, cursor: 'pointer' }}>
                     🇮🇳 Try Desi Jugaad Instead
