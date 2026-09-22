@@ -273,6 +273,7 @@ export default function RecipeDetailPage() {
     const interval = setInterval(() => setActiveTimer(t => t ? { ...t, remaining: t.remaining - 1 } : null), 1000);
     return () => clearInterval(interval);
   }, [activeTimer]);
+  
   useEffect(() => {
     if (activeTimer?.remaining === 0) {
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(500);
@@ -280,6 +281,23 @@ export default function RecipeDetailPage() {
       setActiveTimer(null);
     }
   }, [activeTimer?.remaining]);
+
+  const loadAIIngredients = async () => {
+    setLoadingAI(true);
+    try {
+      if (recipe && recipe.name) {
+        const result = await generateIngredientsAction(recipe.name, servings, 'hindi');
+        if (result.success && result.data) setAiIngredients(result.data);
+      }
+    } catch {}
+    setLoadingAI(false);
+  };
+
+  useEffect(() => {
+    if (recipe && !DISH_INGREDIENTS[id] && !aiIngredients && (recipe.ingredients?.length === 0 || !recipe.ingredients)) {
+      loadAIIngredients();
+    }
+  }, [recipe, id, aiIngredients]); // aiIngredients in deps avoids warnings
 
   if (!recipe) return <div style={{ background: W.bg, minHeight: '100vh' }} />;
 
@@ -321,21 +339,6 @@ export default function RecipeDetailPage() {
     navigator.clipboard.writeText(`${label} for ${recipe.name} (${servings} log)\n\n${list}\n\nTotal: ₹${totalCost}`);
     toast.success(`${label} copied!`);
   };
-
-  const loadAIIngredients = async () => {
-    setLoadingAI(true);
-    try {
-      const result = await generateIngredientsAction(recipe.name, servings, 'hindi');
-      if (result.success && result.data) setAiIngredients(result.data);
-    } catch {}
-    setLoadingAI(false);
-  };
-
-  useEffect(() => {
-    if (recipe && !DISH_INGREDIENTS[id] && !aiIngredients && (recipe.ingredients?.length === 0 || !recipe.ingredients)) {
-      loadAIIngredients();
-    }
-  }, [recipe, id]);
 
   return (
     <div style={{ minHeight: '100vh', background: W.bg, paddingBottom: 100 }}>
