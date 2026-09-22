@@ -6,6 +6,16 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const apiKey = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
 
+function parseJSONResponse(text: string) {
+  try {
+    const cleanText = text.replace(/^```(?:json)?/gim, '').replace(/```$/gim, '').trim();
+    return JSON.parse(cleanText);
+  } catch (e) {
+    console.error('Raw AI Output:', text);
+    throw new Error('Failed to parse AI JSON');
+  }
+}
+
 // Helper to convert base64 image string to Gemini format
 function getGenerativePart(base64Image: string) {
   // Check if it has a data URL prefix
@@ -42,7 +52,7 @@ export async function judgeDishAction(imageBase64: string, dishName: string, lan
     }`;
 
     const result = await model.generateContent([prompt, imagePart]);
-    const data = JSON.parse(result.response.text());
+    const data = parseJSONResponse(result.response.text());
     
     return { success: true, data };
   } catch (error) {
@@ -85,7 +95,7 @@ export async function scanFridgeAction(imageBase64: string, language: AppLanguag
     Return JSON only: { "ingredients": ["<item 1>", "<item 2>"] }`;
 
     const result = await model.generateContent([prompt, imagePart]);
-    const data = JSON.parse(result.response.text());
+    const data = parseJSONResponse(result.response.text());
     
     return { success: true, data: data.ingredients };
   } catch (error) {
@@ -140,7 +150,7 @@ Return ONLY JSON (no other text):
   "nutrition": { "calories": <number>, "protein": <number>, "carbs": <number> }
 }`;
     const result = await model.generateContent(prompt);
-    const data = JSON.parse(result.response.text());
+    const data = parseJSONResponse(result.response.text());
     return { success: true, data };
   } catch (error) {
     console.error('generateBudgetMealAction error:', error);
@@ -177,7 +187,7 @@ Be creative and give it a punny Hindi/English name. Return ONLY JSON:
   "funFact": "One fun fact about why this fusion works"
 }`;
     const result = await model.generateContent(prompt);
-    const data = JSON.parse(result.response.text());
+    const data = parseJSONResponse(result.response.text());
     return { success: true, data };
   } catch (error) {
     console.error('generateFusionRecipeAction error:', error);
@@ -213,7 +223,7 @@ Every step must be in simple Hinglish. Include pro tips. Return ONLY JSON array:
   "tips": ["one important pro tip"]
 }]`;
     const result = await model.generateContent(prompt);
-    const data = JSON.parse(result.response.text());
+    const data = parseJSONResponse(result.response.text());
     return { success: true, data };
   } catch (error) {
     return { success: true, data: [
@@ -270,7 +280,7 @@ Return ONLY a JSON array (no other text):
 ]`;
 
     const result = await model.generateContent(prompt);
-    const data = JSON.parse(result.response.text());
+    const data = parseJSONResponse(result.response.text());
     return { success: true, data };
   } catch (error) {
     console.error('generateIngredientsAction error:', error);
@@ -307,13 +317,13 @@ Return JSON array exactly in this format:
     "calories": 300,
     "rating": 4.5,
     "tags": ["${category}"],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://image.pollinations.ai/prompt/{URL-ENCODED-DISH-NAME}+delicious+indian+food+photography?width=800&height=800&nologo=true"
   }
 ]
-IMPORTANT: Use real unsplash cooking images for the image field (like the example). Make sure they look appetizing.`;
+IMPORTANT: For the "image" field, ALWAYS use this exact URL structure: https://image.pollinations.ai/prompt/{URL-ENCODED-DISH-NAME}+delicious+indian+food+photography?width=800&height=800&nologo=true . Replace {URL-ENCODED-DISH-NAME} with the actual dish name, and encode spaces as +. Make it sound highly authentic!`;
     
     const result = await model.generateContent(prompt);
-    return { success: true, data: JSON.parse(result.response.text()) };
+    return { success: true, data: parseJSONResponse(result.response.text()) };
   } catch (error) {
     console.error("More dishes generation failed:", error);
     return { success: false, error: 'Failed to generate more dishes' };

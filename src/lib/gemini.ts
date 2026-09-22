@@ -9,6 +9,15 @@ import { CHEF_PROFILES } from '@/data/chefs';
 const apiKey = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
 
+function parseJSONResponse(text: string) {
+  try {
+    const cleanText = text.replace(/^```(?:json)?/gim, '').replace(/```$/gim, '').trim();
+    return JSON.parse(cleanText);
+  } catch (e) {
+    console.error('Raw AI Output:', text);
+    throw new Error('Failed to parse AI JSON');
+  }
+}
 
 // ============================================
 // CHEF AI SYSTEM PROMPT
@@ -153,14 +162,16 @@ Return ONLY valid JSON in this exact format:
     "fat": number,
     "fiber": number
   },
-  "tags": ["tag1", "tag2"]
-}`;
+  "tags": ["tag1", "tag2"],
+  "image": "https://image.pollinations.ai/prompt/{URL-ENCODED-DISH-NAME}+delicious+food+photography?width=800&height=800&nologo=true"
+}
+IMPORTANT: Replace {URL-ENCODED-DISH-NAME} with the actual dish name (e.g., Paneer+Tikka).`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
 
     // Since we forced responseMimeType to application/json, it is guaranteed to be clean JSON!
-    const recipe = JSON.parse(text);
+    const recipe = parseJSONResponse(text);
     return recipe;
 
   } catch (error) {
@@ -238,7 +249,7 @@ Return JSON:
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    return JSON.parse(text);
+    return parseJSONResponse(text);
 
   } catch (error) {
     console.error('Ingredient adapter error:', error);
@@ -334,7 +345,7 @@ Return JSON:
     ]);
 
     const text = result.response.text();
-    return JSON.parse(text);
+    return parseJSONResponse(text);
   } catch (error) {
     console.error('Dish rating error:', error);
     return {
@@ -376,7 +387,7 @@ Language style: ${language}. Do not include containers, shelves, or non-food ite
     ]);
 
     const text = result.response.text();
-    return JSON.parse(text) as string[];
+    return parseJSONResponse(text) as string[];
 
   } catch (error) {
     console.error('Fridge scanning error:', error);
@@ -405,7 +416,7 @@ Return STRICTLY JSON:
 }`;
 
     const result = await model.generateContent(prompt);
-    return JSON.parse(result.response.text());
+    return parseJSONResponse(result.response.text());
   } catch (error) {
     console.error('Budget meal error:', error);
     return {
@@ -440,7 +451,7 @@ Return STRICTLY JSON:
 }`;
 
     const result = await model.generateContent(prompt);
-    return JSON.parse(result.response.text());
+    return parseJSONResponse(result.response.text());
   } catch (error) {
     console.error('Fusion error:', error);
     return {
