@@ -18,6 +18,22 @@ export default function FridgePage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        const ratio = Math.min(MAX / img.width, MAX / img.height, 1);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -25,25 +41,20 @@ export default function FridgePage() {
     setImagePreview(preview);
     setStage('scanning');
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-      try {
-        const base64 = reader.result?.toString().split(',')[1];
-        if (!base64) throw new Error('No base64');
-        const res = await scanFridgeAction(base64, language);
-        if (res.success && res.data) {
-          setIngredients(res.data as string[]);
-          setStage('result');
-        } else {
-          toast.error('Scan fail! Dobara try karo.');
-          setStage('camera');
-        }
-      } catch {
-        toast.error('Error! Please try again.');
+    try {
+      const base64 = await compressImage(file);
+      const res = await scanFridgeAction(base64, language);
+      if (res.success && res.data) {
+        setIngredients(res.data as string[]);
+        setStage('result');
+      } else {
+        toast.error('Scan fail! Dobara try karo.');
         setStage('camera');
       }
-    };
+    } catch {
+      toast.error('Error! Please try again.');
+      setStage('camera');
+    }
   };
 
   const reset = () => { setStage('camera'); setIngredients([]); setImagePreview(null); };

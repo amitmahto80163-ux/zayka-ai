@@ -17,6 +17,7 @@ export default function JudgePage() {
   const [stage, setStage] = useState<'camera' | 'judging' | 'result'>('camera');
   const [result, setResult] = useState<any>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [dishName, setDishName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleShare = () => {
@@ -36,7 +37,7 @@ export default function JudgePage() {
     if (result) {
       addCookingHistoryEntry({
         recipeId: `roast-${Date.now()}`,
-        recipeName: 'My Roasted Dish',
+        recipeName: dishName || 'My Roasted Dish',
         cookedAt: new Date().toISOString(),
         rating: Math.round(result.score / 2), // Map 10 to 5 stars
         note: `AI Score: ${result.score}/10. ${result.feedback}`,
@@ -47,7 +48,27 @@ export default function JudgePage() {
   };
 
   const handleCaptureClick = () => {
+    if (!dishName.trim()) {
+      toast.error('Pehle dish ka naam batao!');
+      return;
+    }
     fileInputRef.current?.click();
+  };
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        const ratio = Math.min(MAX / img.width, MAX / img.height, 1);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+      };
+      img.src = URL.createObjectURL(file);
+    });
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,32 +79,27 @@ export default function JudgePage() {
     setImageUrl(localUrl);
     setStage('judging');
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-      const base64Str = reader.result?.toString().split(',')[1];
-      if (base64Str) {
-        try {
-          const response = await judgeDishAction(base64Str, 'My Dish', language);
-          if (response.success && response.data) {
-            setResult(response.data);
-          } else {
-            toast.error("Scan failed!");
-            setStage('camera');
-          }
-        } catch (error) {
-          toast.error("Error analyzing image!");
-          setStage('camera');
-        }
-        if (stage !== 'camera') setStage('result');
+    try {
+      const base64Str = await compressImage(file);
+      const response = await judgeDishAction(base64Str, dishName || 'My Dish', language);
+      if (response.success && response.data) {
+        setResult(response.data);
+        setStage('result');
+      } else {
+        toast.error("Scan failed!");
+        setStage('camera');
       }
-    };
+    } catch (error) {
+      toast.error("Error analyzing image!");
+      setStage('camera');
+    }
   };
 
   const reset = () => {
     setStage('camera');
     setResult(null);
     setImageUrl(null);
+    setDishName('');
   };
 
   return (
@@ -116,6 +132,14 @@ export default function JudgePage() {
                 <p style={{ fontSize: 14, color: '#9A3412', fontWeight: 600, lineHeight: 1.5 }}>
                   Apni dish ki ek clear photo lo aur AI judge se rating and tips paao!
                 </p>
+              </div>
+
+              <div style={{ padding: '0 16px' }}>
+                <input 
+                  placeholder="Kya banaya? (e.g. Butter Chicken)"
+                  value={dishName} onChange={e => setDishName(e.target.value)}
+                  style={{ width: '100%', padding: '16px 20px', borderRadius: 16, border: `1.5px solid ${W.border}`, background: W.card, color: W.heading, fontSize: 16, fontWeight: 700, outline: 'none' }}
+                />
               </div>
 
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

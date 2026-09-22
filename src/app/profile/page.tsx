@@ -30,6 +30,15 @@ export default function ProfilePage() {
   const weeklyProgress = memory ? (memory.weeklyCompleted / memory.weeklyGoal) * 100 : 0;
   const totalCooked = memory ? memory.cookingHistory.length : 0;
 
+  const badgeUnlocked = [
+    true,                                          // First Step
+    totalCooked >= 5,                              // Recipe Star
+    memory?.cookingHistory.some(h => ['world', 'italian', 'chinese'].some(c => h.recipeId.includes(c))),  // World Tour
+    typeof window !== 'undefined' && window.location.href.includes('x-labs'),  // Lab Rat
+    memory?.cookingHistory.some(h => h.rating !== null && h.rating > 0),  // Food Critic
+    currentStreak >= 30,                           // Champion
+  ];
+
   return (
     <div style={{ minHeight: '100vh', background: W.bg, paddingBottom: 40 }}>
 
@@ -88,11 +97,11 @@ export default function ProfilePage() {
         )}
 
         {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {[
             { icon: <Trophy style={{ width: 20, height: 20, color: '#FBBF24' }} />, val: currentStreak || 0, label: 'Day Streak', bg: '#FFFBEB', border: '#FDE68A' },
             { icon: <Heart style={{ width: 20, height: 20, color: '#F97316' }} />, val: totalCooked, label: 'Dishes Made', bg: '#FFF7ED', border: '#FED7AA' },
-            { icon: <Star style={{ width: 20, height: 20, color: '#8B5CF6' }} />, val: '3', label: 'Badges', bg: '#F5F3FF', border: '#DDD6FE' },
+            { icon: <Star style={{ width: 20, height: 20, color: '#8B5CF6' }} />, val: badgeUnlocked.filter(Boolean).length, label: 'Badges', bg: '#F5F3FF', border: '#DDD6FE' },
           ].map((s, i) => (
             <div key={i} style={{ background: s.bg, border: `1.5px solid ${s.border}`, borderRadius: 20, padding: '14px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               {s.icon}
@@ -109,7 +118,7 @@ export default function ProfilePage() {
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
             {BADGES.map((b, i) => {
-              const unlocked = i === 0 || (i === 1 && totalCooked >= 5) || (i === 5 && currentStreak >= 30);
+              const unlocked = badgeUnlocked[i];
               return (
                 <div key={i} style={{ background: b.color, border: `1.5px solid ${b.border}`, borderRadius: 18, padding: '14px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, opacity: unlocked ? 1 : 0.4 }}>
                   <span style={{ fontSize: 28 }}>{b.emoji}</span>
@@ -141,7 +150,14 @@ export default function ProfilePage() {
 
         {/* Sign Out */}
         <button 
-          onClick={() => {
+          onClick={async () => {
+            try {
+              const { auth } = await import('@/lib/firebase');
+              const { signOut } = await import('firebase/auth');
+              await signOut(auth);
+            } catch (err) {
+              console.error(err);
+            }
             useZaykaStore.getState().setUser(null);
             router.push('/auth');
           }}

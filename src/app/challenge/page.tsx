@@ -1,52 +1,85 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Camera, CheckCircle, Trophy, Flame, Calendar, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useZaykaStore } from '@/store';
+import { judgeDishAction } from '@/lib/actions';
 
 const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
 
 const DAILY_TASKS = [
-  { day: 1, dish: 'Dal Tadka', difficulty: 'Easy', emoji: '🫘', points: 10 },
+  { day: 1, dish: 'Dal Tadka', difficulty: 'Easy', emoji: '🍲', points: 10 },
   { day: 2, dish: 'Aloo Sabzi', difficulty: 'Easy', emoji: '🥔', points: 10 },
-  { day: 3, dish: 'Paneer Bhurji', difficulty: 'Medium', emoji: '🧀', points: 20 },
-  { day: 4, dish: 'Rajma', difficulty: 'Medium', emoji: '🫘', points: 20 },
-  { day: 5, dish: 'Biryani', difficulty: 'Hard', emoji: '🍚', points: 40 },
-  { day: 6, dish: 'Chole', difficulty: 'Medium', emoji: '🌾', points: 20 },
+  { day: 3, dish: 'Paneer Bhurji', difficulty: 'Medium', emoji: '🥘', points: 20 },
+  { day: 4, dish: 'Rajma', difficulty: 'Medium', emoji: '🍲', points: 20 },
+  { day: 5, dish: 'Biryani', difficulty: 'Hard', emoji: '🍛', points: 40 },
+  { day: 6, dish: 'Chole', difficulty: 'Medium', emoji: '🧆', points: 20 },
   { day: 7, dish: 'Special Dessert', difficulty: 'Special', emoji: '🍮', points: 50 },
 ];
 
 export default function ChallengePage() {
   const router = useRouter();
-  const [streak, setStreak] = useState(4);
+  const { currentStreak, updateStreak, addCookingHistoryEntry, language } = useZaykaStore();
   const [skipPasses, setSkipPasses] = useState(2);
   const [todayCompleted, setTodayCompleted] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const totalDays = 30;
-  const todayDay = streak + 1;
+  
+  // Guard for Hydration Error
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+
+  const todayDay = (currentStreak || 0) + 1;
   const today = DAILY_TASKS[(todayDay - 1) % 7];
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        const ratio = Math.min(MAX / img.width, MAX / img.height, 1);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setIsUploading(true);
-    await new Promise(r => setTimeout(r, 1800));
-    const fakeScore = Math.floor(Math.random() * 3) + 7; // 7–9
-    setScore(fakeScore);
+    try {
+      const base64Str = await compressImage(file);
+      const res = await judgeDishAction(base64Str, today.dish, language);
+      if (res.success && res.data) {
+        const aiScore = res.data.score || Math.floor(Math.random() * 3) + 7;
+        setScore(aiScore);
+        setTodayCompleted(true);
+        updateStreak();
+        toast.success(`🎉 ${aiScore}/10 — Zabardast!`);
+      } else {
+        toast.error('AI check fail hua!');
+      }
+    } catch {
+      toast.error('Error analyzing photo!');
+    }
     setIsUploading(false);
-    setTodayCompleted(true);
-    setStreak(s => s + 1);
-    toast.success(`🎉 ${fakeScore}/10 — Zabardast!`);
   };
 
   const handleSkip = () => {
     if (skipPasses <= 0) { toast.error('No skip passes left!'); return; }
     setSkipPasses(s => s - 1);
     setTodayCompleted(true);
+    updateStreak();
     toast('Day skipped! 1 pass used.', { icon: '⏭️' });
   };
 
@@ -56,6 +89,8 @@ export default function ChallengePage() {
     if (d === 'Special') return { bg: '#F5F3FF', text: '#7C3AED' };
     return { bg: '#FFFBEB', text: '#D97706' };
   };
+
+  if (!isClient) return <div style={{ minHeight: '100vh', background: W.bg }} />;
 
   return (
     <div style={{ minHeight: '100vh', background: W.bg, paddingBottom: 40 }}>
@@ -80,13 +115,13 @@ export default function ChallengePage() {
           <div>
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 700, marginBottom: 4 }}>Current Streak</p>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-              <span style={{ fontSize: 48, fontWeight: 900, color: 'white', lineHeight: 1 }}>{streak}</span>
+              <span style={{ fontSize: 48, fontWeight: 900, color: 'white', lineHeight: 1 }}>{currentStreak || 0}</span>
               <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>days 🔥</span>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <Trophy style={{ width: 48, height: 48, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }} />
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 700 }}>{totalDays - streak} days left</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: 700 }}>{totalDays - (currentStreak || 0)} days left</p>
           </div>
         </div>
 
@@ -94,7 +129,7 @@ export default function ChallengePage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 20, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
             <Star style={{ width: 24, height: 24, color: '#FBBF24' }} />
-            <span style={{ fontSize: 22, fontWeight: 900, color: W.heading }}>{streak * 15}</span>
+            <span style={{ fontSize: 22, fontWeight: 900, color: W.heading }}>{(currentStreak || 0) * 15}</span>
             <span style={{ fontSize: 11, color: W.muted, fontWeight: 700 }}>Total Points ⭐</span>
           </div>
           <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 20, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
@@ -170,7 +205,7 @@ export default function ChallengePage() {
           <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 16 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
               {Array.from({ length: 30 }, (_, i) => {
-                const status = i < streak ? 'done' : i === streak ? 'today' : 'upcoming';
+                const status = i < (currentStreak || 0) ? 'done' : i === (currentStreak || 0) ? 'today' : 'upcoming';
                 return (
                   <div key={i} style={{
                     aspectRatio: '1', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900,

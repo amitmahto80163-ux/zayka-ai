@@ -83,10 +83,13 @@ function SearchContent() {
 
   const handleAdaptRecipe = async (dish: string, ingredients: string[]) => {
     setIsLoading(true);
+    setGeneratedRecipe(null);
     try {
       const res = await fetch('/api/recipe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dishName: dish, ingredients, chefId: selectedChef, language, servings }) });
       const data = await res.json();
-      if (data.success) setAdaptedResult(data.data);
+      if (data.success) {
+        setGeneratedRecipe(data.data);
+      }
     } catch { toast.error('Recipe nahi mili!'); }
     finally { setIsLoading(false); }
   };
