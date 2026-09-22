@@ -240,12 +240,19 @@ export default function RecipeDetailPage() {
   const [servings, setServings] = useState(2);
   const [activeTimer, setActiveTimer] = useState<{ stepIndex: number; remaining: number } | null>(null);
   const [aiIngredients, setAiIngredients] = useState<any[] | null>(null);
+  const [aiSteps, setAiSteps] = useState<any[] | null>(null);
   const [loadingAI, setLoadingAI] = useState(false);
 
   const isFav = isFavourite(id);
 
   useEffect(() => {
     if (!id) return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const versionParam = searchParams.get('version');
+    if (versionParam === 'authentic' || versionParam === 'desi') {
+      setRecipeVersion(versionParam);
+    }
+    
     const generated = savedRecipes?.find((r: any) => r.id === id);
     let r = generated || DUMMY_RECIPES[id];
     
@@ -282,28 +289,41 @@ export default function RecipeDetailPage() {
     }
   }, [activeTimer?.remaining]);
 
-  const loadAIIngredients = async () => {
+  const loadAIContent = async () => {
     setLoadingAI(true);
     try {
       if (recipe && recipe.name) {
-        const result = await generateIngredientsAction(recipe.name, servings, 'hindi');
-        if (result.success && result.data) setAiIngredients(result.data);
+        // Load ingredients
+        if (!aiIngredients && (!recipe.ingredients || recipe.ingredients.length === 0)) {
+          const result = await generateIngredientsAction(recipe.name, servings, 'hindi');
+          if (result.success && result.data) setAiIngredients(result.data);
+        }
+        // Load steps
+        if (!aiSteps && (!recipe.steps || recipe.steps.length === 0)) {
+          const { generateStepsAction } = await import('@/lib/actions');
+          const stepResult = await generateStepsAction(recipe.name, servings);
+          if (stepResult.success && stepResult.data) setAiSteps(stepResult.data);
+        }
       }
     } catch {}
     setLoadingAI(false);
   };
 
   useEffect(() => {
-    if (recipe && !DISH_INGREDIENTS[id] && !aiIngredients && (recipe.ingredients?.length === 0 || !recipe.ingredients)) {
-      loadAIIngredients();
+    if (recipe && !DISH_INGREDIENTS[id]) {
+      const needsIngredients = (!aiIngredients && (!recipe.ingredients || recipe.ingredients.length === 0));
+      const needsSteps = (!aiSteps && (!recipe.steps || recipe.steps.length === 0));
+      if (needsIngredients || needsSteps) {
+        loadAIContent();
+      }
     }
-  }, [recipe, id, aiIngredients]); // aiIngredients in deps avoids warnings
+  }, [recipe, id, aiIngredients, aiSteps]);
 
   if (!recipe) return <div style={{ background: W.bg, minHeight: '100vh' }} />;
 
   const baseServings = recipe.servings || 2;
   const displayedIngredients = (recipeVersion === 'authentic' ? (recipe.authenticIngredients || recipe.ingredients) : recipe.ingredients) || [];
-  const displayedSteps = (recipeVersion === 'authentic' ? (recipe.authenticSteps || recipe.steps) : recipe.steps) || [];
+  const displayedSteps = aiSteps || (recipeVersion === 'authentic' ? (recipe.authenticSteps || recipe.steps) : recipe.steps) || [];
 
   // Enrich with static data if available
   const rawEnriched = DISH_INGREDIENTS[id]
@@ -457,8 +477,8 @@ export default function RecipeDetailPage() {
                       </div>
                     )) : (
                       <div style={{ padding: 20, textAlign: 'center', color: W.muted }}>
-                        <p style={{ fontSize: 14 }}>Tap karo toh AI ingredients generate karega 🤖</p>
-                        <button onClick={loadAIIngredients} style={{ marginTop: 12, background: W.primary, color: 'white', border: 'none', padding: '12px 24px', borderRadius: 100, fontWeight: 800, cursor: 'pointer' }}>Generate with AI</button>
+                        <p style={{ fontSize: 14 }}>Tap karo toh AI ingredients generate karega ✨</p>
+                        <button onClick={loadAIContent} style={{ marginTop: 12, background: W.primary, color: 'white', border: 'none', padding: '12px 24px', borderRadius: 100, fontWeight: 800, cursor: 'pointer' }}>Generate with AI</button>
                       </div>
                     )}
 

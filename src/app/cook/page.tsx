@@ -26,14 +26,15 @@ export default function CookPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const step = currentRecipe?.steps[currentStep];
-  const isLastStep = currentStep === (currentRecipe?.steps.length || 1) - 1;
+  const steps = currentRecipe?.steps || [];
+  const isLastStep = currentStep === Math.max(0, steps.length - 1);
+  const step = steps[currentStep];
 
   // Use new AR Chef with visualizer
   const { isThinking: isARThinking, lastFeedback: arFeedback, micLevel } = useARChef({
     videoRef,
     audioRef,
-    currentStepDescription: currentRecipe?.steps[currentStep]?.description || '',
+    currentStepDescription: step?.description || '',
     isActive: isCameraActive
   });
 

@@ -139,12 +139,19 @@ export const useZaykaStore = create<ZaykaStore>()(
       updateMemory: (partial) => set((state) => ({
         memory: state.memory ? { ...state.memory, ...partial } : null
       })),
-      addCookingHistoryEntry: (entry) => set((state) => ({
-        memory: state.memory ? {
-          ...state.memory,
-          cookingHistory: [entry, ...state.memory.cookingHistory].slice(0, 100)
-        } : null
-      })),
+      addCookingHistoryEntry: (entry) => set((state) => {
+        if (state.memory) {
+          return { memory: { ...state.memory, cookingHistory: [entry, ...state.memory.cookingHistory].slice(0, 100) } };
+        }
+        return {
+          memory: {
+            isVegetarian: false, isVegan: false, allergies: [], spiceLevel: 'medium',
+            skillLevel: 'beginner', cuisineTypes: [], goals: [], budgetPerMeal: 150,
+            cookingHistory: [entry], preferredCookTime: 30, favoriteTags: [],
+            lastActiveDate: new Date().toISOString(), weeklyGoal: 3, weeklyCompleted: 1
+          }
+        };
+      }),
 
       // Saved Recipes
       savedRecipes: [],

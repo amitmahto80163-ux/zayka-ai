@@ -43,7 +43,7 @@ export default function OnboardingPage() {
     finish();
   };
 
-  const finish = () => {
+  const finish = async () => {
     if (!form.goal) { toast.error('Ek goal select karo!'); return; }
     const age = parseInt(form.age);
     let chef = 'arjun';
@@ -52,16 +52,18 @@ export default function OnboardingPage() {
     else if (form.diet === 'veg') chef = 'priya';
     setChef(chef as any);
 
-    setUser({
+    const newUser = {
       ...user,
       name: form.name,
+      age: age,
       preferences: {
         ...(user?.preferences || {}),
         isVegetarian: form.diet === 'veg' || form.diet === 'vegan',
         skillLevel: form.skill as 'beginner' | 'intermediate' | 'expert',
         goals: [form.goal],
       }
-    } as any);
+    };
+    setUser(newUser as any);
 
     const { setMemory } = useZaykaStore.getState();
     setMemory({
@@ -81,7 +83,17 @@ export default function OnboardingPage() {
       weeklyCompleted: 0,
     });
 
-    toast.success(`Welcome, ${form.name}! Zayka AI mein aapka swagat hai! 🎉`);
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      if (user?.id) {
+        await updateDoc(doc(db, 'users', user.id), { onboardingDone: true });
+      }
+    } catch (err) {
+      console.error('Failed to update firestore:', err);
+    }
+
+    toast.success('Your kitchen is ready! 🎉');
     router.push('/');
   };
 

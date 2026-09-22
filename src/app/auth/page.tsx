@@ -84,7 +84,12 @@ export default function AuthPage() {
 
       setUser(userData as any);
       toast.success('Welcome to Zayka AI! 🥘');
-      router.push('/onboarding');
+      
+      if (userData.onboardingDone) {
+        router.push('/');
+      } else {
+        router.push('/onboarding');
+      }
     } catch (error) {
       console.error(error);
       toast.error('Invalid OTP! Please try again.');

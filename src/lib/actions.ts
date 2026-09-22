@@ -119,124 +119,107 @@ function getRealisticPrice(itemName: string, budget: number): number {
   return Math.max(5, Math.floor(budget * 0.15));
 }
 
-export async function generateBudgetMealAction(budget: number, language: AppLanguage) {
+export async function generateBudgetMealAction(budget: number, language: AppLanguage = 'hindi') {
   try {
-    const prompt = `Aap ek master Indian Chef ho (Zayka AI). Neeche diye gaye sawal ka best desi jawab do.\n\n### Instruction:\nBhai ek ${budget} rupees ke andar Indian student budget meal batao.\n\n### Output:\n`;
-
-    const res = await fetch("https://consumption-awesome-kong-gore.trycloudflare.com/v1/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        prompt: prompt,
-        max_tokens: 350,
-        stop: ["### Instruction", "</s>"]
-      })
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: { responseMimeType: 'application/json' }
     });
-    const json = await res.json();
-    const aiText = json.choices[0].text.trim();
-    
-    // SMART PARSING: Zayka-LLM Native Parser
-    const dishMatch = aiText.match(/version of (.*?), a classic/i) || aiText.match(/make a .*? (.*?)\. You will/i);
-    const dishName = dishMatch ? dishMatch[1].trim() : "Zayka Special Meal";
-    
-    const ingredientsMatch = aiText.match(/You will need:\s*(.*?)\.\s*The secret/i);
-    let ingredientsList: any[] = [];
-    
-    if (ingredientsMatch) {
-      const items = ingredientsMatch[1].split(',');
-      ingredientsList = items.map((item: any) => {
-        const cleanName = item.trim().replace(/^[-*•]\s*/, '').replace(/^[A-Za-z0-9]+ (tbsp|tsp|cup|grams|g|ml) /i, '');
-        return {
-          name: cleanName,
-          estimatedCost: getRealisticPrice(cleanName, budget)
-        };
-      });
-    } else {
-      ingredientsList = [{ name: "Zayka Ingredients", estimatedCost: budget }];
-    }
-
-    const recipeMatch = aiText.match(/The secret is.*?\. (.*)/i);
-    let rawRecipe = recipeMatch ? recipeMatch[1].trim() : aiText;
-    
-    const sentences = rawRecipe.split('. ').filter((s: string) => s.trim().length > 3);
-    const formattedRecipe = sentences.map((s: string, i: number) => `Step ${i + 1}: ${s.trim()}`).join('\n');
-    
-    // Scale prices if total exceeds user budget
-    let totalCost = ingredientsList.reduce((acc: any, curr: any) => acc + (curr.estimatedCost || 0), 0);
-    if (totalCost > budget && ingredientsList.length > 0) {
-      const scaleFactor = budget / totalCost;
-      ingredientsList = ingredientsList.map(ing => ({
-        ...ing,
-        estimatedCost: Math.max(2, Math.floor(ing.estimatedCost * scaleFactor))
-      }));
-      totalCost = ingredientsList.reduce((acc: any, curr: any) => acc + (curr.estimatedCost || 0), 0);
-    }
-    
-    const data = {
-      dishName: dishName,
-      totalCost: totalCost || budget,
-      ingredients: ingredientsList,
-      quickRecipe: formattedRecipe
-    };
-    
+    const prompt = `You are an expert Indian budget cook. A student has a budget of ₹${budget} for one meal for 2 people.
+Suggest ONE perfect meal that fits strictly within this budget.
+Return ONLY JSON (no other text):
+{
+  "name": "Dish Name",
+  "description": "2-line Hinglish description",
+  "totalCost": <actual cost in INR>,
+  "ingredients": [
+    { "name": "English name", "nameHindi": "हिन्दी", "amount": "exact amount", "cost": <INR number> }
+  ],
+  "instructions": "Step 1: ...\\nStep 2: ...\\nStep 3: ...",
+  "tips": "One saving tip for students",
+  "nutrition": { "calories": <number>, "protein": <number>, "carbs": <number> }
+}`;
+    const result = await model.generateContent(prompt);
+    const data = JSON.parse(result.response.text());
     return { success: true, data };
-  } catch (error: any) {
-    console.error("Zayka Budget Error:", error);
-    return { 
-      success: true, 
-      data: {
-        dishName: "Royal Masala Poha",
-        totalCost: budget > 5 ? budget - 5 : budget,
-        ingredients: [
-          { name: "Poha (Flattened Rice)", estimatedCost: 20 },
-          { name: "Peanuts & Curry Leaves", estimatedCost: 15 },
-          { name: "Onion & Green Chilli", estimatedCost: 10 }
-        ],
-        quickRecipe: "Step 1: Wash poha.\nStep 2: Roast peanuts and temper onions.\nStep 3: Mix everything with turmeric."
-      }
-    };
+  } catch (error) {
+    console.error('generateBudgetMealAction error:', error);
+    return { success: true, data: {
+      name: "Masala Maggi Special",
+      description: "Quick, filling, under budget. Student ka best friend!",
+      totalCost: budget > 50 ? 45 : 30,
+      ingredients: [{ name: "Maggi", nameHindi: "मैगी", amount: "2 packets", cost: 28 }, { name: "Onion", nameHindi: "प्याज़", amount: "1 medium", cost: 10 }, { name: "Tomato", nameHindi: "टमाटर", amount: "1 small", cost: 8 }],
+      instructions: "Step 1: Pani boil karo.\nStep 2: Pyaaz aur tamatar kaat ke bhuno.\nStep 3: Maggi aur masala daalo, 2 min pakao.",
+      tips: "Double serving ke liye extra sabzi daalo — cost same rahega!",
+      nutrition: { calories: 380, protein: 9, carbs: 52 }
+    }};
   }
 }
 
-export async function generateFusionRecipeAction(likedFoods: string[], language: AppLanguage) {
+// ============================================
+// GENERATE FUSION RECIPE (Food Tinder)
+// ============================================
+export async function generateFusionRecipeAction(likedFoods: string[], language: AppLanguage = 'hindi') {
   try {
-    const prompt = `Aap ek master Indian Chef ho (Zayka AI). Neeche diye gaye sawal ka best desi jawab do.\n\n### Instruction:\n${likedFoods.join(' aur ')} ka ek mast fusion dish batao.\n\n### Output:\n`;
-
-    const res = await fetch("https://consumption-awesome-kong-gore.trycloudflare.com/v1/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        prompt: prompt,
-        max_tokens: 350,
-        stop: ["### Instruction", "</s>"]
-      })
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: { responseMimeType: 'application/json' }
     });
-    const json = await res.json();
-    const aiText = json.choices[0].text.trim();
-    
-    const data = {
-      name: "Zayka Fusion",
-      tagline: "Custom fusion generated by Zayka LLM",
-      emoji: "🔥😋",
-      ingredients: likedFoods,
-      instructions: aiText || "Fusion recipe text",
-      time: "20 mins"
-    };
-    
+    const prompt = `You are a creative Indian fusion chef. Create a unique fusion dish combining these foods: ${likedFoods.join(', ')}.
+Be creative and give it a punny Hindi/English name. Return ONLY JSON:
+{
+  "name": "Fusion Dish Name (with Hinglish pun)",
+  "tagline": "One fun Hinglish tagline",
+  "emoji": "3 relevant emojis",
+  "ingredients": ["ingredient 1", "ingredient 2", "ingredient 3", "ingredient 4", "ingredient 5"],
+  "instructions": "Step 1: ...\\nStep 2: ...\\nStep 3: ...",
+  "time": "X mins",
+  "funFact": "One fun fact about why this fusion works"
+}`;
+    const result = await model.generateContent(prompt);
+    const data = JSON.parse(result.response.text());
     return { success: true, data };
   } catch (error) {
-    console.error("Zayka Fusion Error:", error);
-    return { 
-      success: true, 
-      data: {
-        name: "Makhani Pizza 🍕",
-        tagline: "A crispy thin Italian crust topped with rich Butter Chicken gravy.",
-        emoji: "🍕🔥🍅",
-        ingredients: ["Pizza Base", "Butter Chicken Gravy", "Mozzarella Cheese", "Coriander"],
-        instructions: "Step 1: Bake base for 5 mins.\nStep 2: Spread makhani gravy.\nStep 3: Top with cheese and bake.",
-        time: "25 mins"
-      } 
-    };
+    console.error('generateFusionRecipeAction error:', error);
+    return { success: true, data: {
+      name: "Makhani Pizza 🍕",
+      tagline: "Jab Italy aur Punjab milte hain!",
+      emoji: "🍕🔥🧡",
+      ingredients: ["Pizza Base", "Butter Chicken Gravy", "Mozzarella Cheese", "Coriander", "Butter"],
+      instructions: "Step 1: Bake base for 5 mins.\nStep 2: Spread makhani gravy.\nStep 3: Top with cheese and bake 10 min at 200°C.",
+      time: "25 mins",
+      funFact: "Butter Chicken was invented by accident in 1948 — aur pizza ne use perfect bana diya!"
+    }};
+  }
+}
+
+// ============================================
+// GENERATE COOKING STEPS (AI Fallback)
+// Called when dish is not in static DISH_INGREDIENTS
+// ============================================
+export async function generateStepsAction(dishName: string, servings: number) {
+  try {
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: { responseMimeType: 'application/json' }
+    });
+    const prompt = `You are an expert Indian home cooking teacher. Generate step-by-step cooking instructions for "${dishName}" for ${servings} people.
+Every step must be in simple Hinglish. Include pro tips. Return ONLY JSON array:
+[{
+  "stepNumber": 1,
+  "title": "Step title (short, 4-6 words)",
+  "description": "Detailed instruction in Hinglish (3-4 sentences). Explain exactly what to do, how it should look, smell, and sound when ready.",
+  "duration": <minutes as number>,
+  "tips": ["one important pro tip"]
+}]`;
+    const result = await model.generateContent(prompt);
+    const data = JSON.parse(result.response.text());
+    return { success: true, data };
+  } catch (error) {
+    return { success: true, data: [
+      { stepNumber: 1, title: 'Ingredients Taiyaar Karo', description: 'Sabhi ingredients measure karke rakh lo. Vegetables kaat lo.', duration: 10, tips: ['Mise en place — sab pehle se ready karo'] },
+      { stepNumber: 2, title: 'Pakao Dhyan Se', description: 'Medium flame pe pakate raho, hamare diye steps follow karo.', duration: 15, tips: ['Dhairya rakho!'] },
+    ]};
   }
 }
 
