@@ -7,6 +7,30 @@ import { AppLanguage, ChefId, Recipe } from '@/types';
 import { CHEF_PROFILES } from '@/data/chefs';
 import { callGroq, callVision, parseJSONResponse, getDishImageUrl, GROQ_FAST_MODEL } from './ai';
 
+import { db } from '@/lib/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+
+async function getCachedData(key: string) {
+  try {
+    const docRef = doc(db, 'ai_cache', key);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) return snap.data().result;
+  } catch(e) {}
+  return null;
+}
+
+async function setCachedData(key: string, result: any) {
+  try {
+    const docRef = doc(db, 'ai_cache', key);
+    await setDoc(docRef, { result, timestamp: Date.now() });
+  } catch(e) {}
+}
+
+function makeCacheKey(...args: any[]) {
+  return args.map(a => String(a).toLowerCase().replace(/[^a-z0-9]/g, '')).join('_');
+}
+
+
 // ============================================
 // CHEF AI SYSTEM PROMPT
 // ============================================
@@ -105,6 +129,10 @@ export async function generateRecipe(
   } = {}
 ): Promise<Partial<Recipe>> {
   try {
+    const cacheKey = makeCacheKey('recipe', dishName, preferences.servings || 4, preferences.isVeg ? 'veg' : 'all', preferences.language || 'hindi');
+    const cached = await getCachedData(cacheKey);
+    if (cached) return cached as Partial<Recipe>;
+
     const imageUrl = getDishImageUrl(dishName);
 
     const prompt = `You are an expert chef and nutritionist. Generate a complete detailed recipe for "${dishName}" scaled for exactly ${preferences.servings || 4} servings.
@@ -157,7 +185,10 @@ Generate ALL ingredients and ALL steps (5-8 steps) for a complete recipe.`;
 
     const text = await callGroq(prompt);
     const recipe = parseJSONResponse(text);
-    return { ...recipe, imageUrl: imageUrl };
+    
+    const finalRecipe = { ...recipe, imageUrl: imageUrl };
+    await setCachedData(cacheKey, finalRecipe);
+    return finalRecipe;
 
   } catch (error: any) {
     console.error('Recipe generation error:', error);
@@ -328,6 +359,11 @@ Language style: ${language}. List only food items, not containers or non-food ob
 
 export async function generateBudgetMeal(budget: number, language: AppLanguage = 'hinglish'): Promise<any> {
   try {
+    
+    const cacheKey = makeCacheKey('budget', budget, language);
+    const cached = await getCachedData(cacheKey);
+    if (cached) return cached;
+    
     const prompt = `You are an expert Indian budget chef. User has exactly ₹${budget} for one meal for 2 people.
 Suggest ONE perfect nutritious meal within this budget.
 Return ONLY valid JSON (no markdown):
@@ -342,7 +378,10 @@ Return ONLY valid JSON (no markdown):
 }`;
 
     const text = await callGroq(prompt);
-    return parseJSONResponse(text);
+    
+    const result = parseJSONResponse(text);
+    await setCachedData(cacheKey, result);
+    return result;
   } catch (error) {
     console.error('Budget meal error:', error);
     return {
@@ -361,6 +400,11 @@ Return ONLY valid JSON (no markdown):
 
 export async function generateFusionRecipe(likedFoods: string[], language: AppLanguage = 'hinglish'): Promise<any> {
   try {
+    
+    const cacheKey = makeCacheKey('fusion', likedFoods.sort().join(''), language);
+    const cached = await getCachedData(cacheKey);
+    if (cached) return cached;
+    
     const prompt = `User swiped right on these foods: ${likedFoods.join(', ')}.
 Create a unique creative "FUSION DISH" combining their taste.
 Return ONLY valid JSON (no markdown):
@@ -374,7 +418,10 @@ Return ONLY valid JSON (no markdown):
 }`;
 
     const text = await callGroq(prompt);
-    return parseJSONResponse(text);
+    
+    const result = parseJSONResponse(text);
+    await setCachedData(cacheKey, result);
+    return result;
   } catch (error) {
     console.error('Fusion error:', error);
     return {
