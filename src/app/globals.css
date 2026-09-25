@@ -160,7 +160,7 @@ a img { border: none !important; }
 
 /* --- Section Titles --- */
 .section-title {
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-playfair), serif;
   font-weight: 900;
   font-size: 18px;
   color: var(--text-heading);
@@ -331,3 +331,9 @@ a img { border: none !important; }
   box-shadow: 0 0 0 3px var(--saffron-light);
 }
 .input-warm::placeholder { color: var(--text-faint); }
+
+
+/* --- Display Font Utility --- */
+.font-display {
+  font-family: var(--font-playfair), serif;
+}

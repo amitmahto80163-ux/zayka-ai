@@ -8,6 +8,7 @@ import { ArrowLeft, Mic, MicOff, Search, Loader2, X, ChefHat, Sparkles, Clock, U
 import { useZaykaStore } from '@/store';
 import { CHEF_PROFILES } from '@/data/chefs';
 import toast from 'react-hot-toast';
+import { W } from '@/lib/theme';
 
 const POPULAR_DISHES = [
   'Butter Chicken', 'Dal Makhani', 'Biryani', 'Paneer Tikka',
@@ -107,7 +108,7 @@ function SearchContent() {
     finally { setIsLoading(false); }
   };
 
-  const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
+  
 
   return (
     <div style={{ minHeight: '100vh', background: W.bg, paddingBottom: 40 }}>

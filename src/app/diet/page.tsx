@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { judgeDishAction } from '@/lib/actions';
 import { useZaykaStore } from '@/store';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
+
 
 export default function DietScannerPage() {
   const router = useRouter();
@@ -111,7 +112,7 @@ export default function DietScannerPage() {
                 <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} style={{ position: 'absolute', top: 16, left: 16, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', padding: '10px 14px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Flame style={{ color: '#F97316', width: 20, height: 20 }} />
                   <div>
-                    <p style={{ fontSize: 10, fontWeight: 900, color: W.muted, textTransform: 'uppercase' }}>Calories</p>
+                    <p style={{ fontSize: 10, fontWeight: 900, color: W.muted, }}>Calories</p>
                     <p style={{ fontSize: 16, fontWeight: 900, color: W.heading }}>{result.score * 45} kcal</p>
                   </div>
                 </motion.div>
@@ -119,7 +120,7 @@ export default function DietScannerPage() {
                 <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} style={{ position: 'absolute', bottom: 16, right: 16, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', padding: '10px 14px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Beef style={{ color: '#3B82F6', width: 20, height: 20 }} />
                   <div>
-                    <p style={{ fontSize: 10, fontWeight: 900, color: W.muted, textTransform: 'uppercase' }}>Protein</p>
+                    <p style={{ fontSize: 10, fontWeight: 900, color: W.muted, }}>Protein</p>
                     <p style={{ fontSize: 16, fontWeight: 900, color: W.heading }}>{result.score * 3}g</p>
                   </div>
                 </motion.div>

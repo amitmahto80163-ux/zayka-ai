@@ -6,8 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, CheckCircle2, User, Cake } from 'lucide-react';
 import { useZaykaStore } from '@/store';
 import toast from 'react-hot-toast';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
+
 
 const SKILL_LEVELS = [
   { id: 'beginner', title: 'Beginner', desc: 'Bas Maggi aur Chai aati hai 😅', emoji: '🥚' },

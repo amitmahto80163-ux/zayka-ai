@@ -235,7 +235,7 @@ export default function WorldCuisinePage() {
                         <img src={dish.img} alt={dish.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </div>
                       <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '3px 8px', borderRadius: 50, background: tc.bg, color: tc.text, display: 'inline-block', marginBottom: 6 }}>
+                        <span style={{ fontSize: 9, fontWeight: 800,   padding: '3px 8px', borderRadius: 50, background: tc.bg, color: tc.text, display: 'inline-block', marginBottom: 6 }}>
                           {dish.type}
                         </span>
                         <h4 style={{ fontSize: 15, fontWeight: 900, color: '#1C1009', lineHeight: 1.2 }}>

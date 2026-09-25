@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Lock, Globe, BookOpen, Trash2 } from 'lucide-react';
 import { useZaykaStore } from '@/store';
 import toast from 'react-hot-toast';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', primary: '#F97316', card: '#FFFFFF', text: '#1C1009', muted: '#92745A', border: '#F0E6DC' };
+
 
 export default function FamilyVaultPage() {
   const router = useRouter();

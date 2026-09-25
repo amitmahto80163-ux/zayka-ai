@@ -7,8 +7,9 @@ import { ArrowLeft, Camera, CheckCircle, Trophy, Flame, Calendar, Star } from 'l
 import toast from 'react-hot-toast';
 import { useZaykaStore } from '@/store';
 import { judgeDishAction } from '@/lib/actions';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
+
 
 const DAILY_TASKS = [
   { day: 1, dish: 'Dal Tadka', difficulty: 'Easy', emoji: '🍲', points: 10 },
@@ -145,7 +146,7 @@ export default function ChallengePage() {
             <motion.div key="task" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
               style={{ background: W.card, border: `2px solid ${W.saffron}`, borderRadius: 28, overflow: 'hidden', boxShadow: '0 8px 32px rgba(249,115,22,0.12)' }}>
               <div style={{ background: 'linear-gradient(135deg, #FFEDD5, #FFF7ED)', padding: '16px 20px', borderBottom: `1px solid #FED7AA` }}>
-                <p style={{ fontSize: 11, fontWeight: 800, color: W.saffron, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Day {todayDay} — Aaj ka Challenge</p>
+                <p style={{ fontSize: 11, fontWeight: 800, color: W.saffron,  }}>Day {todayDay} — Aaj ka Challenge</p>
               </div>
               <div style={{ padding: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>

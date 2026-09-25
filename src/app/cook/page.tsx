@@ -6,8 +6,9 @@ import { ChevronLeft, ChevronRight, Camera, CheckCircle2, Timer, Flame, BrainCir
 import { useZaykaStore } from '@/store';
 import { useARChef } from '@/hooks/useARChef';
 import ChefChat from '@/components/chat/ChefChat';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
+
 
 export default function CookPage() {
   const router = useRouter();

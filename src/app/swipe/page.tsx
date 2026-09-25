@@ -7,8 +7,9 @@ import { ArrowLeft, RefreshCw, X, Heart, Loader2 } from 'lucide-react';
 import { useZaykaStore } from '@/store';
 import { generateFusionRecipeAction } from '@/lib/actions';
 import toast from 'react-hot-toast';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
+
 
 const FOOD_CARDS = [
   { id: 'f1', name: 'Butter Chicken', cuisine: 'Indian 🇮🇳', emoji: '🥘', color: '#E85D04', img: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=400&q=80' },
@@ -213,7 +214,7 @@ export default function SwipePage() {
               </div>
 
               <div style={{ marginBottom: 20 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 900, color: W.heading, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>🥣 Key Ingredients</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 900, color: W.heading, marginBottom: 8,  }}>🥣 Key Ingredients</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {fusion.ingredients?.map((ing: string) => (
                     <span key={ing} style={{ background: '#FFF0E6', color: '#C2410C', fontSize: 12, fontWeight: 700, padding: '4px 10px', borderRadius: 8 }}>{ing}</span>
@@ -222,7 +223,7 @@ export default function SwipePage() {
               </div>
 
               <div style={{ marginBottom: 24 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 900, color: W.heading, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>📋 How to Make</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 900, color: W.heading, marginBottom: 8,  }}>📋 How to Make</h3>
                 <div style={{ background: W.bg, padding: 16, borderRadius: 16, border: `1px solid ${W.border}` }}>
                   <p style={{ fontSize: 14, color: W.heading, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{fusion.instructions}</p>
                 </div>

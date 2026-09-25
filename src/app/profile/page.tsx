@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Flame, Trophy, Heart, Star, Medal } from 'lucide-react';
 import { useZaykaStore } from '@/store';
+import { W } from '@/lib/theme';
 
 const BADGES = [
   { emoji: '🔥', label: 'First Step', sub: 'Unlocked', color: '#FFF7ED', border: '#FED7AA' },
@@ -25,7 +26,7 @@ const MENU_ITEMS = [
 export default function ProfilePage() {
   const router = useRouter();
   const { user, memory, currentStreak } = useZaykaStore();
-  const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
+  
 
   const weeklyProgress = memory ? (memory.weeklyCompleted / memory.weeklyGoal) * 100 : 0;
   const totalCooked = memory ? memory.cookingHistory.length : 0;
@@ -106,7 +107,7 @@ export default function ProfilePage() {
             <div key={i} style={{ background: s.bg, border: `1.5px solid ${s.border}`, borderRadius: 20, padding: '14px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               {s.icon}
               <span style={{ fontSize: 22, fontWeight: 900, color: W.heading }}>{s.val}</span>
-              <span style={{ fontSize: 9, fontWeight: 800, color: W.muted, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center', lineHeight: 1.2 }}>{s.label}</span>
+              <span style={{ fontSize: 9, fontWeight: 800, color: W.muted,   textAlign: 'center', lineHeight: 1.2 }}>{s.label}</span>
             </div>
           ))}
         </div>

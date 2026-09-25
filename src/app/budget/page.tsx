@@ -7,8 +7,9 @@ import { ArrowLeft, Sparkles, IndianRupee } from 'lucide-react';
 import { useZaykaStore } from '@/store';
 import { generateBudgetMealAction } from '@/lib/actions';
 import toast from 'react-hot-toast';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
+
 
 const BUDGET_PRESETS = [50, 100, 150, 200, 300, 500];
 

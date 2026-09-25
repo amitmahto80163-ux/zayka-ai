@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useZaykaStore } from '@/store';
+import { W } from '@/lib/theme';
 
-const W = { primary: '#F97316', muted: '#C4A882', activeText: '#1C1009', bg: '#FFFFFF' };
+
 
 export default function BottomNav() {
   const pathname = usePathname();

@@ -6,8 +6,9 @@ import { Search, ChefHat, Mic, Timer, Flame, Globe, Star, User, Loader2 } from '
 import { useZaykaStore } from '@/store';
 import { ALL_DISHES } from '@/data/dishes';
 import { generateMoreDishesAction } from '@/lib/actions';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', primary: '#F97316', card: '#FFFFFF', text: '#1C1009', muted: '#92745A', border: '#F0E6DC' };
+
 
 const CATEGORIES = [
   { id: 'all',     label: 'Sab',       icon: '🍱' },

@@ -9,8 +9,9 @@ import ChefChat from '@/components/chat/ChefChat';
 import { DISH_INGREDIENTS } from '@/data/ingredients';
 import { generateIngredientsAction } from '@/lib/actions';
 import { ALL_DISHES } from '@/data/dishes';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', primary: '#F97316', card: '#FFFFFF', text: '#1C1009', muted: '#92745A', border: '#F0E6DC' };
+
 
 function getCategoryEmoji(cat?: string) {
   const map: Record<string, string> = { protein: '🍗', spice: '🌶️', oil: '🫙', vegetable: '🥦', dairy: '🥛', grain: '🌾', other: '🧂' };
@@ -399,7 +400,7 @@ export default function RecipeDetailPage() {
             ].map(n => (
               <div key={n.label} style={{ background: n.bg, borderRadius: 14, padding: '10px 8px', textAlign: 'center' }}>
                 <p style={{ fontSize: 18, fontWeight: 900, color: n.color }}>{n.val}</p>
-                <p style={{ fontSize: 9, fontWeight: 800, color: W.muted, textTransform: 'uppercase' }}>{n.label}</p>
+                <p style={{ fontSize: 9, fontWeight: 800, color: W.muted, }}>{n.label}</p>
                 <p style={{ fontSize: 10, color: W.muted }}>{n.unit}</p>
               </div>
             ))}
@@ -423,7 +424,7 @@ export default function RecipeDetailPage() {
         {/* Servings Adjuster */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: W.card, border: `1px solid ${W.border}`, borderRadius: 20, padding: '14px 18px', marginBottom: 16 }}>
           <div>
-            <p style={{ fontSize: 11, fontWeight: 800, color: W.muted, textTransform: 'uppercase' }}>Kitne Logon Ke Liye?</p>
+            <p style={{ fontSize: 11, fontWeight: 800, color: W.muted, }}>Kitne Logon Ke Liye?</p>
             <p style={{ fontSize: 20, fontWeight: 900, color: W.text }}>{servings} {servings === 1 ? 'Person' : 'Log'}</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -467,7 +468,7 @@ export default function RecipeDetailPage() {
                   <div>
                     {grouped.length > 0 ? grouped.map(group => (
                       <div key={group.category} style={{ marginBottom: 20 }}>
-                        <p style={{ fontSize: 12, fontWeight: 900, textTransform: 'uppercase', color: W.muted, marginBottom: 10, letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <p style={{ fontSize: 12, fontWeight: 900,  color: W.muted, marginBottom: 10,  display: 'flex', alignItems: 'center', gap: 6 }}>
                           {getCategoryEmoji(group.category)} {getCategoryLabel(group.category)}
                           <span style={{ background: W.border, color: W.muted, fontSize: 11, padding: '2px 8px', borderRadius: 100, fontWeight: 700 }}>{group.items.length}</span>
                         </p>

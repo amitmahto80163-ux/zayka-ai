@@ -8,8 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { judgeDishAction } from '@/lib/actions';
 import { useZaykaStore } from '@/store';
 import toast from 'react-hot-toast';
+import { W } from '@/lib/theme';
 
-const W = { bg: '#FFF8F3', card: '#FFFFFF', border: '#F0E6DC', saffron: '#F97316', muted: '#92745A', heading: '#1C1009' };
+
 
 export default function JudgePage() {
   const router = useRouter();

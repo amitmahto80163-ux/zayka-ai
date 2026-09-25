@@ -6,19 +6,9 @@ import { Send, Mic, Loader2, Bot } from 'lucide-react';
 import { useZaykaStore } from '@/store';
 import { CHEF_PROFILES } from '@/data/chefs';
 import toast from 'react-hot-toast';
+import { W } from '@/lib/theme';
 
-const W = { 
-  bg: '#FFF8F3', 
-  primary: '#F97316', 
-  card: '#FFFFFF', 
-  text: '#1C1009', 
-  muted: '#92745A', 
-  border: '#F0E6DC',
-  userBubble: '#F97316',
-  userText: '#FFFFFF',
-  chefBubble: '#FFFFFF',
-  chefText: '#1C1009'
-};
+
 
 export default function ChefChat({ context = 'general', recipeData = null }: { context?: string, recipeData?: any }) {
   const { selectedChef, language, chatHistory, addChatMessage } = useZaykaStore();
