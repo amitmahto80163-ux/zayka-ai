@@ -142,5 +142,6 @@ export async function callVision(
 // ─── DISH IMAGE (Pollinations — No key needed) ─
 export function getDishImageUrl(dishName: string): string {
   const encoded = encodeURIComponent(dishName).replace(/%20/g, '+');
-  return `https://image.pollinations.ai/prompt/${encoded}+delicious+indian+food+photography+highly+detailed?width=800&height=800&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
+  return `https://image.pollinations.ai/prompt/${encoded}+delicious+indian+food+photography+highly+detailed?width=800&height=800&nologo=true&seed=${dishName.length}`;
 }
+

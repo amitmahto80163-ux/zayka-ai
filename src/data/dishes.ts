@@ -3147,3 +3147,10 @@ export const ALL_DISHES = [
     "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
   }
 ];
+
+// Dynamically generate accurate dish images for all dishes
+ALL_DISHES.forEach(dish => {
+  const encoded = encodeURIComponent(dish.name).replace(/%20/g, "+");
+  dish.image = `https://image.pollinations.ai/prompt/${encoded}+delicious+indian+food+photography+highly+detailed?width=800&height=800&nologo=true&seed=${dish.name.length}`;
+});
+
