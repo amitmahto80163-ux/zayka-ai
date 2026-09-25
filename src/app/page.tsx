@@ -225,7 +225,7 @@ export default function HomePage() {
         )}
 
         {/* ===== CATEGORIES ===== */}
-        <div className="no-scrollbar" style={{ display: 'flex', gap: 10, overflowX: 'auto', position: 'sticky', top: 120, zIndex: 40, padding: '10px 0', background: W.bg }}>
+        <div className="no-scrollbar" style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '10px 0', background: W.bg, marginTop: 10, marginBottom: 10 }}>
           {CATEGORIES.map(c => (
             <button
               key={c.id}
