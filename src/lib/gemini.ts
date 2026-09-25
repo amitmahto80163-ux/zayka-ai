@@ -173,7 +173,7 @@ Generate ALL ingredients and ALL steps (5-8 steps) for a complete recipe.`;
     await setCachedData(cacheKey, finalRecipe);
     return finalRecipe;
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Recipe generation error:', error);
     const imageUrl = getDishImageUrl(dishName);
     return {
@@ -181,8 +181,8 @@ Generate ALL ingredients and ALL steps (5-8 steps) for a complete recipe.`;
       name: `${dishName} (Fallback)`,
       nameHindi: 'Pakwan (AI Unavailable)',
       description: 'Ghar par banao, ekdum restaurant jaisa swad aayega!',
-      cuisine: 'indian' as any,
-      difficulty: (preferences.difficulty as any) || 'beginner',
+      cuisine: 'indian' as import('@/types').CuisineType,
+      difficulty: (preferences.difficulty as import('@/types').DifficultyLevel) || 'beginner',
       prepTime: 15,
       cookTime: 25,
       servings: preferences.servings || 4,
@@ -340,7 +340,7 @@ Language style: ${language}. List only food items, not containers or non-food ob
 // BUDGET MEAL (Groq Text)
 // ============================================
 
-export async function generateBudgetMeal(budget: number, language: AppLanguage = 'hinglish'): Promise<any> {
+export async function generateBudgetMeal(budget: number, language: AppLanguage = 'hinglish'): Promise<{dishName: string, description: string, totalCost: number, ingredients: {name: string, estimatedCost: number}[], quickRecipe: string}> {
   try {
     
     const cacheKey = makeCacheKey('budget', budget, language);
@@ -381,7 +381,7 @@ Return ONLY valid JSON (no markdown):
 // FUSION RECIPE (Groq Text)
 // ============================================
 
-export async function generateFusionRecipe(likedFoods: string[], language: AppLanguage = 'hinglish'): Promise<any> {
+export async function generateFusionRecipe(likedFoods: string[], language: AppLanguage = 'hinglish'): Promise<{fusionName: string, emoji: string, tagline: string, description: string, ingredients: string[], instructions: string}> {
   try {
     
     const cacheKey = makeCacheKey('fusion', likedFoods.sort().join(''), language);
