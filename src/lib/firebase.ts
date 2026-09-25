@@ -2,6 +2,7 @@
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getMessaging, isSupported } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCC6Ixo__q8X4QFMI-UA1I1CydD8C8QFxM",
@@ -12,7 +13,7 @@ const firebaseConfig = {
   appId: "1:656092612044:web:62dc7f2c34c1e4a37e4969",
 };
 
-let app;
+let app: import("firebase/app").FirebaseApp | undefined;
 try {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 } catch (error) {
@@ -23,3 +24,10 @@ export const auth = app ? getAuth(app) : {} as any;
 export const db = app ? getFirestore(app) : {} as any;
 export const storage = app ? getStorage(app) : {} as any;
 export default app;
+
+export const messaging = async () => {
+  if (app && await isSupported()) {
+    return getMessaging(app);
+  }
+  return null;
+};

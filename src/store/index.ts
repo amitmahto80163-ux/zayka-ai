@@ -4,6 +4,7 @@
 
 import { create } from 'zustand';
 import { syncStateToFirestore, loadStateFromFirestore } from '@/lib/db';
+import { requestNotificationPermission } from '@/lib/notifications';
 
 import { persist } from 'zustand/middleware';
 import { 
@@ -89,6 +90,7 @@ export const useZaykaStore = create<ZaykaStore>()(
             const serverState = await loadStateFromFirestore(user.id);
             if (serverState) {
               set((state) => ({ ...state, ...serverState }));
+              requestNotificationPermission(user.id);
             }
           }
         },
