@@ -46,7 +46,34 @@ export default function ChefChat({ context = 'general', recipeData = null }: { c
     window.speechSynthesis.speak(utterance);
   }, [language, chef.id]);
 
-  const handleSendMessage = async () => {
+  
+  // Speech to Text handler
+  const [isListening, setIsListening] = useState(false);
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Voice input is not supported in this browser.");
+      return;
+    }
+    
+    const recognition = new SpeechRecognition();
+    recognition.lang = language === "english" ? "en-US" : "hi-IN";
+    recognition.interimResults = false;
+    
+    recognition.onstart = () => setIsListening(true);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setMessage(transcript);
+    };
+    
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    
+    recognition.start();
+  };
+
+const handleSendMessage = async () => {
     if (!message.trim()) return;
 
     const userMsg = message.trim();
@@ -197,12 +224,16 @@ export default function ChefChat({ context = 'general', recipeData = null }: { c
         padding: '12px 16px', background: 'white', borderTop: `1px solid ${W.border}`, 
         display: 'flex', alignItems: 'center', gap: 10 
       }}>
-        <button style={{ 
-          padding: 10, background: '#FFF0E6', color: W.primary, 
-          borderRadius: '50%', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <Mic size={18} />
-        </button>
+        <motion.button 
+  whileTap={{ scale: 0.9 }}
+  onClick={startListening}
+  style={{ 
+    padding: 10, background: isListening ? "#FEE2E2" : "#FFF0E6", color: isListening ? "#EF4444" : W.primary, 
+    borderRadius: "50%", border: "none", display: "flex", alignItems: "center", justifyContent: "center",
+    cursor: "pointer"
+  }}>
+  <Mic size={18} className={isListening ? "animate-pulse" : ""} />
+</motion.button>
         <div style={{ 
           flex: 1, background: W.bg, border: `1px solid ${W.border}`, 
           borderRadius: 100, display: 'flex', alignItems: 'center', padding: '4px 4px 4px 16px' 
@@ -238,3 +269,4 @@ export default function ChefChat({ context = 'general', recipeData = null }: { c
     </div>
   );
 }
+
