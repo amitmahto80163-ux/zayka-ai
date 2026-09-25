@@ -173,9 +173,16 @@ export const useZaykaStore = create<ZaykaStore>()(
 
       // Family Recipes
       familyRecipes: [],
-      addFamilyRecipe: (recipe) => set((state) => ({
-        familyRecipes: [recipe, ...state.familyRecipes]
-      })),
+      
+        addFamilyRecipe: (recipe) => set((state) => {
+          const badWords = ['fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy', 'slut'];
+          const textToScan = (recipe.title + ' ' + (recipe.description || '') + ' ' + recipe.ingredients.join(' ')).toLowerCase();
+          if (badWords.some(word => textToScan.includes(word))) {
+            console.warn('Inappropriate content detected in family recipe. Rejecting.');
+            return state;
+          }
+          return { familyRecipes: [recipe, ...state.familyRecipes] };
+        }),
       deleteFamilyRecipe: (id) => set((state) => ({
         familyRecipes: state.familyRecipes.filter(r => r.id !== id)
       })),
@@ -189,7 +196,7 @@ export const useZaykaStore = create<ZaykaStore>()(
         if (last === today) return {}; // Already counted today
         
         const yesterday = new Date(Date.now() - 86400000).toDateString();
-        const newStreak = last === yesterday ? state.currentStreak + 1 : 1;
+        const newStreak = last === today ? state.currentStreak : (last === yesterday ? state.currentStreak + 1 : 1);
         return { currentStreak: newStreak, lastCookDate: today };
       }),
     }),

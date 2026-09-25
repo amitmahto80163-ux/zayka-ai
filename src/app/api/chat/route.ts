@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { chatWithChef } from '@/lib/gemini';
 import { AppLanguage, ChefId } from '@/types';
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, response });
   } catch (error) {
     console.error('Chat API error:', error);
+    Sentry.captureException(error);
     return NextResponse.json(
       { success: false, error: 'Chef AI temporarily unavailable' },
       { status: 500 }

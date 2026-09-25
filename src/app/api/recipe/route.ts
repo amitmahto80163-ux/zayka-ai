@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { generateRecipe, adaptRecipeToIngredients } from '@/lib/gemini';
 import { AppLanguage } from '@/types';
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Recipe API error:', error);
+    Sentry.captureException(error);
     return NextResponse.json(
       { success: false, error: 'Recipe generation failed' },
       { status: 500 }
