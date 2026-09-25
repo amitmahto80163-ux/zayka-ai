@@ -225,7 +225,7 @@ Generate complete list for ALL ingredients needed.`;
     return {
       success: true,
       data: [
-        { id: 'ai-1', name: 'Main Ingredient', nameHindi: 'मुख्य सामग्री', amount: 200, unit: 'g', cost: 50, availability: 'kirana', category: 'other', note: 'Internet se connect hokar dobara try karo.' },
+        { id: 'ai-1', name: 'Main Ingredient (ERROR: ' + (error as any).message + ')', nameHindi: 'मुख्य सामग्री', amount: 200, unit: 'g', cost: 50, availability: 'kirana', category: 'other', note: 'Internet se connect hokar dobara try karo.' },
       ],
     };
   }
@@ -261,3 +261,5 @@ Replace DISH+NAME with actual dish name (spaces as +).`;
     return { success: false, error: 'Failed to generate more dishes' };
   }
 }
+
+

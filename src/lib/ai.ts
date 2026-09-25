@@ -77,7 +77,28 @@ export async function callGroq(
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Groq Error: ${res.status} — ${err}`);
+    if (res.status === 401 && OPENROUTER_API_KEY) {
+      console.warn('Groq failed with 401. Falling back to OpenRouter text model.');
+      const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + OPENROUTER_API_KEY,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://zayka-ai.vercel.app',
+          'X-Title': 'Zayka AI'
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.1-8b-instruct:free',
+          messages: messages,
+          temperature: 0.7
+        })
+      });
+      if (orRes.ok) {
+        const orData = await orRes.json();
+        return orData.choices[0].message.content;
+      }
+    }
+    throw new Error('Groq Error: ' + res.status + ' - ' + err);
   }
 
   const data = await res.json();
