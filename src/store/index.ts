@@ -3,6 +3,8 @@
 // ============================================
 
 import { create } from 'zustand';
+import { syncStateToFirestore, loadStateFromFirestore } from '@/lib/db';
+
 import { persist } from 'zustand/middleware';
 import { 
   User, Recipe, ChatMessage, AppLanguage, ChefId, 
@@ -81,7 +83,15 @@ export const useZaykaStore = create<ZaykaStore>()(
     (set, get) => ({
       // User
       user: null,
-      setUser: (user) => set({ user }),
+      setUser: async (user) => {
+          set({ user });
+          if (user?.id) {
+            const serverState = await loadStateFromFirestore(user.id);
+            if (serverState) {
+              set((state) => ({ ...state, ...serverState }));
+            }
+          }
+        },
 
       // Language
       language: 'hinglish',
@@ -199,3 +209,24 @@ export const useZaykaStore = create<ZaykaStore>()(
     }
   )
 );
+
+
+let syncTimeout: any = null;
+useZaykaStore.subscribe((state, prevState) => {
+  if (state.user?.id) {
+    const keys = ['memory', 'favourites', 'savedRecipes', 'familyRecipes', 'currentStreak', 'lastCookDate'] as const;
+    const changed = keys.some(key => state[key] !== prevState[key]);
+    
+    if (changed) {
+      const stateToSync = keys.reduce((acc, key) => {
+        acc[key] = state[key];
+        return acc;
+      }, {} as any);
+      
+      if (syncTimeout) clearTimeout(syncTimeout);
+      syncTimeout = setTimeout(() => {
+        syncStateToFirestore(state.user!.id, stateToSync);
+      }, 2000);
+    }
+  }
+});
