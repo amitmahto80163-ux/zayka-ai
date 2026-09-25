@@ -15,6 +15,29 @@ const OR_VISION_FALLBACK = 'openrouter/free';          // Fallback if main fails
 
 export function parseJSONResponse(text: string) {
   try {
+    // Find the first { or [ and the last } or ]
+    const startObj = text.indexOf('{');
+    const startArr = text.indexOf('[');
+    const endObj = text.lastIndexOf('}');
+    const endArr = text.lastIndexOf(']');
+
+    let startIndex = -1;
+    let endIndex = -1;
+
+    if (startObj !== -1 && (startArr === -1 || startObj < startArr)) {
+      startIndex = startObj;
+      endIndex = endObj;
+    } else if (startArr !== -1) {
+      startIndex = startArr;
+      endIndex = endArr;
+    }
+
+    if (startIndex !== -1 && endIndex !== -1 && endIndex >= startIndex) {
+      const cleanText = text.substring(startIndex, endIndex + 1);
+      return JSON.parse(cleanText);
+    }
+    
+    // Fallback if no brackets found (unlikely if it's JSON, but just in case)
     const cleanText = text.replace(/^```(?:json)?/gim, '').replace(/```$/gim, '').trim();
     return JSON.parse(cleanText);
   } catch (e) {
