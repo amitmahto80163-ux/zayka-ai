@@ -1,7 +1,8 @@
 'use client';
-import { auth } from '@/lib/firebase';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { chatWithChef, analyzeCookingFrame } from '@/lib/gemini';
+import { useZaykaStore } from '@/store'; // Or get chef/lang from props. Wait, useARChefProps doesn't have them? Let's check store
 
 interface UseARChefProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -14,58 +15,49 @@ export function useARChef({ videoRef, audioRef, currentStepDescription, isActive
   const [isThinking, setIsThinking] = useState(false);
   const [arPhase, setArPhase] = useState<'idle' | 'connecting' | 'cooking'>('idle');
   const [micLevel, setMicLevel] = useState(0);
+  const [lastFeedback, setLastFeedback] = useState<string | null>(null);
   
-  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const dataChannelRef = useRef<RTCDataChannel | null>(null);
+  const recognitionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const animationFrameRef = useRef<number>(0);
+  const visionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // We need store for chef/language
+  // Let's just hardcode 'sanjeev_kapoor' and 'hindi' if store is hard to import, but usually we can import it.
+  const { selectedChef, language } = useZaykaStore();
+
+  const speak = (text: string) => {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language === 'hindi' ? 'hi-IN' : 'en-IN';
+    // optionally find a good voice
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const captureFrame = (): string | null => {
+    if (!videoRef.current) return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth || 640;
+    canvas.height = videoRef.current.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.6);
+  };
 
   const initLiveAI = useCallback(async () => {
-    if (!videoRef.current || !audioRef.current) return;
+    if (!videoRef.current) return;
     setArPhase('connecting');
     setIsThinking(true);
 
     try {
-      
-      const user = auth.currentUser;
-      const token = user ? await user.getIdToken() : '';
-      if (!token) throw new Error('Not authenticated');
-
-      const tokenResponse = await fetch('/api/session', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (!tokenResponse.ok) {
-        throw new Error('Failed to get session token: ' + tokenResponse.statusText);
-      }
-      const data = await tokenResponse.json();
-      const EPHEMERAL_KEY = data.client_secret.value;
-
-      const pc = new RTCPeerConnection();
-      peerConnectionRef.current = pc;
-
-      // Play AI Audio instantly when stream arrives
-      pc.ontrack = e => {
-        if (audioRef.current && e.track.kind === 'audio') {
-          audioRef.current.srcObject = e.streams[0];
-          // Force play to overcome some browser policies
-          audioRef.current.play().catch(err => console.error("Autoplay blocked:", err));
-        }
-      };
-
       // Get Mic & Camera
       let stream = videoRef.current.srcObject as MediaStream;
       if (!stream) {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: true });
         videoRef.current.srcObject = stream;
-      } else if (stream.getAudioTracks().length === 0) {
-        const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.addTrack(audioStream.getAudioTracks()[0]);
       }
-
-      // Add tracks to WebRTC
-      stream.getTracks().forEach(track => {
-        pc.addTrack(track, stream);
-      });
 
       // --- AUDIO VISUALIZER LOGIC ---
       if (!audioContextRef.current) {
@@ -82,53 +74,92 @@ export function useARChef({ videoRef, audioRef, currentStepDescription, isActive
           let sum = 0;
           for(let i = 0; i < dataArray.length; i++) { sum += dataArray[i]; }
           const average = sum / dataArray.length;
-          setMicLevel(average); // 0 to ~128
+          setMicLevel(average); 
           animationFrameRef.current = requestAnimationFrame(updateMicLevel);
         };
         updateMicLevel();
       }
 
-      // Data channel for events
-      const dc = pc.createDataChannel('oai-events');
-      dataChannelRef.current = dc;
+      // --- SPEECH RECOGNITION ---
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        toast.error('Voice not supported in this browser. Please use Chrome/Edge or text chat.', { duration: 5000 });
+        setArPhase('idle');
+        setIsThinking(false);
+        return;
+      }
 
-      // Connect to OpenAI
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = language === 'hindi' ? 'hi-IN' : 'en-IN';
+      recognitionRef.current = recognition;
 
-      const baseUrl = 'https://api.openai.com/v1/realtime';
-      const model = 'gpt-4o-realtime-preview-2024-12-17';
-      const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
-        method: 'POST',
-        body: offer.sdp,
-        headers: {
-          Authorization: `Bearer ${EPHEMERAL_KEY}`,
-          'Content-Type': 'application/sdp'
-        },
-      });
-
-      const answer = {
-        type: 'answer' as RTCSdpType,
-        sdp: await sdpResponse.text(),
+      recognition.onresult = async (event: any) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        if (!transcript.trim()) return;
+        
+        setIsThinking(true);
+        setLastFeedback(`You: "${transcript}"`);
+        try {
+          const reply = await chatWithChef(transcript, selectedChef, language, null, []);
+          setLastFeedback(`Chef: "${reply}"`);
+          speak(reply);
+        } catch(e) {
+          console.error(e);
+        } finally {
+          setIsThinking(false);
+        }
       };
-      await pc.setRemoteDescription(answer);
+
+      recognition.onerror = (e: any) => {
+        if (e.error !== 'no-speech') console.error('Speech recognition error', e.error);
+      };
+
+      recognition.onend = () => {
+        // Auto-restart if still active
+        if (arPhase === 'cooking') {
+          recognition.start();
+        }
+      };
+
+      recognition.start();
+
+      // --- VISION LOOP (Every 20 seconds) ---
+      visionIntervalRef.current = setInterval(async () => {
+        const base64 = captureFrame();
+        if (!base64) return;
+        try {
+          const feedback = await analyzeCookingFrame(base64, currentStepDescription || "Cooking", selectedChef, language);
+          setLastFeedback(`Chef saw: "${feedback}"`);
+          speak(feedback);
+        } catch(e) {
+          console.error(e);
+        }
+      }, 20000);
 
       setArPhase('cooking');
       setIsThinking(false);
-      toast.success('Chef is listening! Say Hello! YZ');
+      setLastFeedback('Chef is watching & listening... Speak now!');
+      toast.success('AR Chef Active! Start cooking and talking.');
 
     } catch (error) {
-      console.error('WebRTC Error:', error);
-      toast.error('Failed to connect to Live AI.');
+      console.error('AR Setup Error:', error);
+      toast.error('Failed to start camera/mic.');
       setArPhase('idle');
       setIsThinking(false);
     }
-  }, [videoRef, audioRef]);
+  }, [videoRef, selectedChef, language, currentStepDescription, arPhase]);
 
   const stopLiveAI = useCallback(() => {
-    if (peerConnectionRef.current) {
-      peerConnectionRef.current.close();
-      peerConnectionRef.current = null;
+    if (recognitionRef.current) {
+      recognitionRef.current.onend = null;
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    if (visionIntervalRef.current) {
+      clearInterval(visionIntervalRef.current);
+      visionIntervalRef.current = null;
     }
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
@@ -137,8 +168,12 @@ export function useARChef({ videoRef, audioRef, currentStepDescription, isActive
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     setMicLevel(0);
     setArPhase('idle');
+    setLastFeedback(null);
   }, []);
 
   useEffect(() => {
@@ -153,7 +188,7 @@ export function useARChef({ videoRef, audioRef, currentStepDescription, isActive
     isThinking,
     arPhase,
     micLevel,
-    lastFeedback: arPhase === 'connecting' ? 'Connecting to live brain...' : arPhase === 'cooking' ? 'Chef is watching & listening... Speak now!' : null
+    lastFeedback: arPhase === 'connecting' ? 'Connecting to live brain...' : lastFeedback
   };
 }
 
