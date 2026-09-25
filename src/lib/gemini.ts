@@ -5,30 +5,13 @@
 
 import { AppLanguage, ChefId, Recipe } from '@/types';
 import { CHEF_PROFILES } from '@/data/chefs';
+import { getCachedData, setCachedData, makeCacheKey } from './db';
 import { callGroq, callVision, parseJSONResponse, getDishImageUrl, GROQ_FAST_MODEL } from './ai';
 
-import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-async function getCachedData(key: string) {
-  try {
-    const docRef = doc(db, 'ai_cache', key);
-    const snap = await getDoc(docRef);
-    if (snap.exists()) return snap.data().result;
-  } catch(e) {}
-  return null;
-}
 
-async function setCachedData(key: string, result: any) {
-  try {
-    const docRef = doc(db, 'ai_cache', key);
-    await setDoc(docRef, { result, timestamp: Date.now() });
-  } catch(e) {}
-}
 
-function makeCacheKey(...args: any[]) {
-  return args.map(a => String(a).toLowerCase().replace(/[^a-z0-9]/g, '')).join('_');
-}
+
 
 
 // ============================================

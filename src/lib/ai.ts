@@ -1,24 +1,31 @@
-import { db } from './firebase';
-import { doc, getDoc, setDoc, increment } from 'firebase/firestore';
 
+import { adminDb } from './firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
-async function trackApiUsage(provider: 'groq' | 'gemini' | 'openrouter') {
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    const docRef = doc(db, 'api_usage', today);
-    await setDoc(docRef, { [provider]: increment(1) }, { merge: true });
+function trackOpenRouterUsage() {
+  if (!adminDb) return;
+  (async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const docRef = adminDb.collection('api_usage').doc(today);
+      await docRef.set({ openrouter: FieldValue.increment(1) }, { merge: true });
 
-    if (provider === 'openrouter') {
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-         const count = snap.data().openrouter || 0;
+      const snap = await docRef.get();
+      if (snap.exists) {
+         const count = snap.data()?.openrouter || 0;
          if (count >= 40) {
             console.warn(`WARNING: OpenRouter usage is at ${count}/50 for today!`);
          }
       }
+    } catch(e) {
+      console.error('Usage tracking error:', e);
     }
-  } catch(e) {}
+  })();
 }
+
+
+
+
 // ============================================
 // ZAYKA AI — Unified AI Client
 // Groq  → Text generation (fast + free)
@@ -87,7 +94,6 @@ export async function callGroq(
     : prompt;
   messages.push({ role: 'user', content: finalPrompt });
 
-  trackApiUsage('groq');
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -142,7 +148,6 @@ export async function callGeminiVision(prompt: string, imageBase64: string, json
   const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
   const finalPrompt = jsonMode ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text.' : prompt;
 
-  trackApiUsage('gemini');
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -182,7 +187,7 @@ export async function callVision(
   
   for (const model of visionModels) {
     try {
-      trackApiUsage('openrouter');
+      trackOpenRouterUsage();
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {

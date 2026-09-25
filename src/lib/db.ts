@@ -81,3 +81,22 @@ export async function saveRecipeToDB(recipe: Recipe) {
     console.error('Error saving recipe:', error);
   }
 }
+
+export async function getCachedData(key: string) {
+  try {
+    const docRef = doc(db, 'ai_cache', key);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) return snap.data().result;
+  } catch(e) {}
+}
+
+export async function setCachedData(key: string, result: any) {
+  try {
+    const docRef = doc(db, 'ai_cache', key);
+    await setDoc(docRef, { result, timestamp: Date.now() });
+  } catch(e) {}
+}
+
+export function makeCacheKey(...args: any[]) {
+  return args.map(a => String(a).toLowerCase().replace(/[^a-z0-9]/g, '')).join('_');
+}
