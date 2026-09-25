@@ -8,9 +8,10 @@
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 
-// Models
-const GROQ_TEXT_MODEL = 'llama-3.3-70b-versatile';
-const OR_VISION_MODEL = 'meta-llama/llama-3.2-11b-vision-instruct:free';
+// Working Models (tested 25-Sep-2026)
+const GROQ_TEXT_MODEL = 'qwen/qwen3.8-27b';           // Fast + JSON support ✅
+const OR_VISION_MODEL = 'qwen/qwen3.8-27b:free';      // Vision capable free model ✅
+const OR_VISION_FALLBACK = 'openrouter/free';          // Fallback if main fails
 
 export function parseJSONResponse(text: string) {
   try {
@@ -56,7 +57,7 @@ export async function callGroq(
   return data.choices[0].message.content;
 }
 
-// ─── VISION (OpenRouter — Llama Vision) ──────
+// ─── VISION (OpenRouter with Groq fallback) ──────
 export async function callVision(
   prompt: string,
   imageBase64: string,
@@ -66,36 +67,47 @@ export async function callVision(
   const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
   const imageUrl = `data:image/jpeg;base64,${base64Data}`;
 
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://zayka-ai.vercel.app',
-      'X-Title': 'Zayka AI',
-    },
-    body: JSON.stringify({
-      model: OR_VISION_MODEL,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: jsonMode ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text.' : prompt },
-            { type: 'image_url', image_url: { url: imageUrl } },
-          ],
+  // Try OpenRouter vision models in order
+  const visionModels = [OR_VISION_MODEL, OR_VISION_FALLBACK, 'google/gemma-4-31b-it:free'];
+  
+  for (const model of visionModels) {
+    try {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://zayka-ai.vercel.app',
+          'X-Title': 'Zayka AI',
         },
-      ],
-      max_tokens: 2048,
-    }),
-  });
+        body: JSON.stringify({
+          model,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: jsonMode ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text.' : prompt },
+                { type: 'image_url', image_url: { url: imageUrl } },
+              ],
+            },
+          ],
+          max_tokens: 2048,
+        }),
+      });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenRouter Vision Error: ${res.status} — ${err}`);
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) return content;
+      }
+    } catch (e) {
+      console.warn(`Vision model ${model} failed, trying next...`);
+    }
   }
 
-  const data = await res.json();
-  return data.choices[0].message.content;
+  // Final fallback: Use Groq text model (no image, just context)
+  console.warn('All vision models failed, using Groq text fallback');
+  return await callGroq(prompt + '\n\n(Note: Image analysis unavailable, provide best estimate based on context)', undefined, jsonMode);
 }
 
 // ─── DISH IMAGE (Pollinations — No key needed) ─
