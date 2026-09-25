@@ -1,4 +1,5 @@
-﻿'use client';
+'use client';
+import { auth } from '@/lib/firebase';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
 
@@ -25,7 +26,17 @@ export function useARChef({ videoRef, audioRef, currentStepDescription, isActive
     setIsThinking(true);
 
     try {
-      const tokenResponse = await fetch('/api/session');
+      
+      const user = auth.currentUser;
+      const token = user ? await user.getIdToken() : '';
+      if (!token) throw new Error('Not authenticated');
+
+      const tokenResponse = await fetch('/api/session', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!tokenResponse.ok) {
+        throw new Error('Failed to get session token: ' + tokenResponse.statusText);
+      }
       const data = await tokenResponse.json();
       const EPHEMERAL_KEY = data.client_secret.value;
 
@@ -145,3 +156,5 @@ export function useARChef({ videoRef, audioRef, currentStepDescription, isActive
     lastFeedback: arPhase === 'connecting' ? 'Connecting to live brain...' : arPhase === 'cooking' ? 'Chef is watching & listening... Speak now!' : null
   };
 }
+
+

@@ -5,7 +5,7 @@
 
 import { AppLanguage, ChefId, Recipe } from '@/types';
 import { CHEF_PROFILES } from '@/data/chefs';
-import { callGroq, callVision, parseJSONResponse, getDishImageUrl } from './ai';
+import { callGroq, callVision, parseJSONResponse, getDishImageUrl, GROQ_FAST_MODEL } from './ai';
 
 // ============================================
 // CHEF AI SYSTEM PROMPT
@@ -83,7 +83,7 @@ ${historyText}
 User: ${message}
 Chef:`;
 
-    const response = await callGroq(userPrompt, systemPrompt, false);
+    const response = await callGroq(userPrompt, systemPrompt, false, GROQ_FAST_MODEL);
     return response.trim();
   } catch (error) {
     console.error('Chef AI error:', error);

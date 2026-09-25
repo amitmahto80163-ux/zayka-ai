@@ -9,8 +9,9 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 
 // Working Models (tested 25-Sep-2026)
-const GROQ_TEXT_MODEL = 'qwen/qwen3.8-27b';           // Fast + JSON support ✅
-const OR_VISION_MODEL = 'qwen/qwen3.8-27b:free';      // Vision capable free model ✅
+const GROQ_TEXT_MODEL = 'llama-3.3-70b-versatile';
+export const GROQ_FAST_MODEL = 'llama-3.1-8b-instant';           // Fast + JSON support ✅
+      // Vision capable free model ✅
 const OR_VISION_FALLBACK = 'openrouter/free';          // Fallback if main fails
 
 export function parseJSONResponse(text: string) {
@@ -50,7 +51,8 @@ export function parseJSONResponse(text: string) {
 export async function callGroq(
   prompt: string,
   systemPrompt?: string,
-  jsonMode = true
+  jsonMode = true,
+  modelOverride?: string
 ): Promise<string> {
   const messages: { role: string; content: string }[] = [];
   if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
@@ -68,7 +70,7 @@ export async function callGroq(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: GROQ_TEXT_MODEL,
+      model: modelOverride || GROQ_TEXT_MODEL,
       messages,
       temperature: 0.7,
       max_tokens: 4096,
@@ -118,7 +120,7 @@ export async function callVision(
   const imageUrl = `data:image/jpeg;base64,${base64Data}`;
 
   // Try OpenRouter vision models in order
-  const visionModels = [OR_VISION_MODEL, OR_VISION_FALLBACK, 'google/gemma-4-31b-it:free'];
+  const visionModels = ['google/gemma-3-27b-it:free', OR_VISION_FALLBACK];
   
   for (const model of visionModels) {
     try {
