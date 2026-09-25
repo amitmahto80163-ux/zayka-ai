@@ -31,7 +31,12 @@ export async function callGroq(
 ): Promise<string> {
   const messages: { role: string; content: string }[] = [];
   if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
-  messages.push({ role: 'user', content: prompt });
+  
+  // Append JSON instruction directly in prompt (qwen doesn't support response_format)
+  const finalPrompt = jsonMode
+    ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON. No markdown, no explanation, no code blocks. Just raw JSON.'
+    : prompt;
+  messages.push({ role: 'user', content: finalPrompt });
 
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -44,7 +49,6 @@ export async function callGroq(
       messages,
       temperature: 0.7,
       max_tokens: 4096,
-      ...(jsonMode ? { response_format: { type: 'json_object' } } : {}),
     }),
   });
 
@@ -54,7 +58,9 @@ export async function callGroq(
   }
 
   const data = await res.json();
-  return data.choices[0].message.content;
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) throw new Error('Groq returned empty response');
+  return content;
 }
 
 // ─── VISION (OpenRouter with Groq fallback) ──────
