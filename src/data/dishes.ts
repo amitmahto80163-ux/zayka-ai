@@ -13,7 +13,7 @@ export const ALL_DISHES = [
       "dinner",
       "popular"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Chicken_makhani.jpg/800px-Chicken_makhani.jpg"
+    "image": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_2",
@@ -28,7 +28,7 @@ export const ALL_DISHES = [
       "dinner",
       "popular"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Dal_Makhani.jpg/800px-Dal_Makhani.jpg"
+    "image": "https://images.unsplash.com/photo-1708782340380-536df8cf6784?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_3",
@@ -43,7 +43,7 @@ export const ALL_DISHES = [
       "starter",
       "popular"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Paneer_Tikka.jpg/800px-Paneer_Tikka.jpg"
+    "image": "https://images.unsplash.com/photo-1666001120694-3ebe8fd207be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_4",
@@ -58,7 +58,7 @@ export const ALL_DISHES = [
       "lunch",
       "street"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Chole_Bhature.jpg/800px-Chole_Bhature.jpg"
+    "image": "https://images.unsplash.com/photo-1788602564560-9bcbf0f9acb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_5",
@@ -73,7 +73,7 @@ export const ALL_DISHES = [
       "breakfast",
       "popular"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Aloo_Paratha_also_known_as_Batatay_Jo_Phulko.jpg/800px-Aloo_Paratha_also_known_as_Batatay_Jo_Phulko.jpg"
+    "image": "https://images.unsplash.com/photo-1668357530437-72a12c660f94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_6",
@@ -88,7 +88,7 @@ export const ALL_DISHES = [
       "lunch",
       "comfort"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Rajma_chawal_in_a_bowl.jpg/800px-Rajma_chawal_in_a_bowl.jpg"
+    "image": "https://images.unsplash.com/photo-1788601988466-9f361c34c6cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_7",
@@ -103,7 +103,7 @@ export const ALL_DISHES = [
       "dinner",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Palak_Paneer.jpg/800px-Palak_Paneer.jpg"
+    "image": "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_8",
@@ -118,7 +118,7 @@ export const ALL_DISHES = [
       "dinner",
       "premium"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Rogan_Josh.jpg/800px-Rogan_Josh.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_9",
@@ -133,7 +133,7 @@ export const ALL_DISHES = [
       "dinner",
       "popular"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Chicken_Tikka_Masala_Curry.jpg/800px-Chicken_Tikka_Masala_Curry.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_10",
@@ -148,7 +148,7 @@ export const ALL_DISHES = [
       "dinner",
       "popular"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Matar_Paneer.jpg/800px-Matar_Paneer.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_11",
@@ -163,7 +163,7 @@ export const ALL_DISHES = [
       "breakfast",
       "popular"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Dosa_and_ghee.jpg/800px-Dosa_and_ghee.jpg"
+    "image": "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_12",
@@ -178,7 +178,7 @@ export const ALL_DISHES = [
       "breakfast",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Idli_Sambar.jpg/800px-Idli_Sambar.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_13",
@@ -193,7 +193,7 @@ export const ALL_DISHES = [
       "breakfast",
       "snack"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Medu_vada_with_sambar_and_chutney.jpg/800px-Medu_vada_with_sambar_and_chutney.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_14",
@@ -208,7 +208,7 @@ export const ALL_DISHES = [
       "dinner",
       "premium"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Hyderabadi_Chicken_Biryani.jpg/800px-Hyderabadi_Chicken_Biryani.jpg"
+    "image": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_15",
@@ -223,7 +223,7 @@ export const ALL_DISHES = [
       "dinner",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Chicken_Chettinad.jpg/800px-Chicken_Chettinad.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_16",
@@ -238,7 +238,7 @@ export const ALL_DISHES = [
       "lunch",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Lemon_Rice.jpg/800px-Lemon_Rice.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_17",
@@ -253,7 +253,7 @@ export const ALL_DISHES = [
       "breakfast",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Upma.jpg/800px-Upma.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_18",
@@ -283,7 +283,7 @@ export const ALL_DISHES = [
       "snack",
       "street"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Samosa_in_a_plate.jpg/800px-Samosa_in_a_plate.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_20",
@@ -298,7 +298,7 @@ export const ALL_DISHES = [
       "snack",
       "street"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Pani_Puri_or_Golgappa.jpg/800px-Pani_Puri_or_Golgappa.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_21",
@@ -313,7 +313,7 @@ export const ALL_DISHES = [
       "dinner",
       "street"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Pav_Bhaji.jpg/800px-Pav_Bhaji.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_22",
@@ -328,7 +328,7 @@ export const ALL_DISHES = [
       "snack",
       "street"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Vada_Pav.jpg/800px-Vada_Pav.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_23",
@@ -403,7 +403,7 @@ export const ALL_DISHES = [
       "dessert",
       "popular"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Rasgulla.jpg/800px-Rasgulla.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_28",
@@ -448,7 +448,7 @@ export const ALL_DISHES = [
       "snack",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Dhokla.jpg/800px-Dhokla.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_31",
@@ -463,7 +463,7 @@ export const ALL_DISHES = [
       "breakfast",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Thepla.jpg/800px-Thepla.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_32",
@@ -493,7 +493,7 @@ export const ALL_DISHES = [
       "snack",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Khandvi.jpg/800px-Khandvi.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_34",
@@ -733,7 +733,7 @@ export const ALL_DISHES = [
       "dessert",
       "popular"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Gulab_Jamun_in_a_bowl.jpg/800px-Gulab_Jamun_in_a_bowl.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_50",
@@ -763,7 +763,7 @@ export const ALL_DISHES = [
       "dessert",
       "comfort"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Kheer.jpg/800px-Kheer.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_52",
@@ -778,7 +778,7 @@ export const ALL_DISHES = [
       "dessert",
       "street"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Jalebi_in_a_plate.jpg/800px-Jalebi_in_a_plate.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_53",
@@ -856,7 +856,7 @@ export const ALL_DISHES = [
       "spicy",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Chicken_Chettinad.jpg/800px-Chicken_Chettinad.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_58",
@@ -872,7 +872,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Paneer_Tikka.jpg/800px-Paneer_Tikka.jpg"
+    "image": "https://images.unsplash.com/photo-1666001120694-3ebe8fd207be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_59",
@@ -984,7 +984,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Chicken_makhani.jpg/800px-Chicken_makhani.jpg"
+    "image": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_66",
@@ -1016,7 +1016,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Pav_Bhaji.jpg/800px-Pav_Bhaji.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_68",
@@ -1032,7 +1032,7 @@ export const ALL_DISHES = [
       "premium",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Rogan_Josh.jpg/800px-Rogan_Josh.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_69",
@@ -1128,7 +1128,7 @@ export const ALL_DISHES = [
       "premium",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Rogan_Josh.jpg/800px-Rogan_Josh.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_75",
@@ -1144,7 +1144,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Gulab_Jamun_in_a_bowl.jpg/800px-Gulab_Jamun_in_a_bowl.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_76",
@@ -1176,7 +1176,7 @@ export const ALL_DISHES = [
       "premium",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Hyderabadi_Chicken_Biryani.jpg/800px-Hyderabadi_Chicken_Biryani.jpg"
+    "image": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_78",
@@ -1192,7 +1192,7 @@ export const ALL_DISHES = [
       "popular",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Aloo_Paratha_also_known_as_Batatay_Jo_Phulko.jpg/800px-Aloo_Paratha_also_known_as_Batatay_Jo_Phulko.jpg"
+    "image": "https://images.unsplash.com/photo-1668357530437-72a12c660f94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_79",
@@ -1224,7 +1224,7 @@ export const ALL_DISHES = [
       "healthy",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Khandvi.jpg/800px-Khandvi.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_81",
@@ -1240,7 +1240,7 @@ export const ALL_DISHES = [
       "healthy",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Palak_Paneer.jpg/800px-Palak_Paneer.jpg"
+    "image": "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_82",
@@ -1304,7 +1304,7 @@ export const ALL_DISHES = [
       "comfort",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Rajma_chawal_in_a_bowl.jpg/800px-Rajma_chawal_in_a_bowl.jpg"
+    "image": "https://images.unsplash.com/photo-1788601988466-9f361c34c6cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_86",
@@ -1336,7 +1336,7 @@ export const ALL_DISHES = [
       "street",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Pav_Bhaji.jpg/800px-Pav_Bhaji.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_88",
@@ -1368,7 +1368,7 @@ export const ALL_DISHES = [
       "premium",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Rogan_Josh.jpg/800px-Rogan_Josh.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_90",
@@ -1384,7 +1384,7 @@ export const ALL_DISHES = [
       "healthy",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Upma.jpg/800px-Upma.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_91",
@@ -1416,7 +1416,7 @@ export const ALL_DISHES = [
       "healthy",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Idli_Sambar.jpg/800px-Idli_Sambar.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_93",
@@ -1432,7 +1432,7 @@ export const ALL_DISHES = [
       "healthy",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Palak_Paneer.jpg/800px-Palak_Paneer.jpg"
+    "image": "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_94",
@@ -1480,7 +1480,7 @@ export const ALL_DISHES = [
       "street",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Samosa_in_a_plate.jpg/800px-Samosa_in_a_plate.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_97",
@@ -1496,7 +1496,7 @@ export const ALL_DISHES = [
       "quick",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Lemon_Rice.jpg/800px-Lemon_Rice.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_98",
@@ -1528,7 +1528,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Dal_Makhani.jpg/800px-Dal_Makhani.jpg"
+    "image": "https://images.unsplash.com/photo-1708782340380-536df8cf6784?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_100",
@@ -1544,7 +1544,7 @@ export const ALL_DISHES = [
       "street",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Vada_Pav.jpg/800px-Vada_Pav.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_101",
@@ -1560,7 +1560,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Dosa_and_ghee.jpg/800px-Dosa_and_ghee.jpg"
+    "image": "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_102",
@@ -1624,7 +1624,7 @@ export const ALL_DISHES = [
       "healthy",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Idli_Sambar.jpg/800px-Idli_Sambar.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_106",
@@ -1640,7 +1640,7 @@ export const ALL_DISHES = [
       "healthy",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Dhokla.jpg/800px-Dhokla.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_107",
@@ -1656,7 +1656,7 @@ export const ALL_DISHES = [
       "healthy",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Upma.jpg/800px-Upma.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_108",
@@ -1672,7 +1672,7 @@ export const ALL_DISHES = [
       "snack",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Medu_vada_with_sambar_and_chutney.jpg/800px-Medu_vada_with_sambar_and_chutney.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_109",
@@ -1720,7 +1720,7 @@ export const ALL_DISHES = [
       "street",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Samosa_in_a_plate.jpg/800px-Samosa_in_a_plate.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_112",
@@ -1752,7 +1752,7 @@ export const ALL_DISHES = [
       "healthy",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Dhokla.jpg/800px-Dhokla.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_114",
@@ -1816,7 +1816,7 @@ export const ALL_DISHES = [
       "street",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Chole_Bhature.jpg/800px-Chole_Bhature.jpg"
+    "image": "https://images.unsplash.com/photo-1788602564560-9bcbf0f9acb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_118",
@@ -1880,7 +1880,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Dal_Makhani.jpg/800px-Dal_Makhani.jpg"
+    "image": "https://images.unsplash.com/photo-1708782340380-536df8cf6784?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_122",
@@ -1928,7 +1928,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Matar_Paneer.jpg/800px-Matar_Paneer.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_125",
@@ -1976,7 +1976,7 @@ export const ALL_DISHES = [
       "premium",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Rogan_Josh.jpg/800px-Rogan_Josh.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_128",
@@ -2008,7 +2008,7 @@ export const ALL_DISHES = [
       "premium",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Hyderabadi_Chicken_Biryani.jpg/800px-Hyderabadi_Chicken_Biryani.jpg"
+    "image": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_130",
@@ -2024,7 +2024,7 @@ export const ALL_DISHES = [
       "popular",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Matar_Paneer.jpg/800px-Matar_Paneer.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_131",
@@ -2056,7 +2056,7 @@ export const ALL_DISHES = [
       "popular",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Chicken_makhani.jpg/800px-Chicken_makhani.jpg"
+    "image": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_133",
@@ -2088,7 +2088,7 @@ export const ALL_DISHES = [
       "healthy",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Upma.jpg/800px-Upma.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_135",
@@ -2120,7 +2120,7 @@ export const ALL_DISHES = [
       "premium",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Hyderabadi_Chicken_Biryani.jpg/800px-Hyderabadi_Chicken_Biryani.jpg"
+    "image": "https://images.unsplash.com/photo-1589302168068-964664d93dc0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_137",
@@ -2168,7 +2168,7 @@ export const ALL_DISHES = [
       "comfort",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Rajma_chawal_in_a_bowl.jpg/800px-Rajma_chawal_in_a_bowl.jpg"
+    "image": "https://images.unsplash.com/photo-1788601988466-9f361c34c6cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_140",
@@ -2216,7 +2216,7 @@ export const ALL_DISHES = [
       "street",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Pani_Puri_or_Golgappa.jpg/800px-Pani_Puri_or_Golgappa.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_143",
@@ -2248,7 +2248,7 @@ export const ALL_DISHES = [
       "street",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Vada_Pav.jpg/800px-Vada_Pav.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_145",
@@ -2264,7 +2264,7 @@ export const ALL_DISHES = [
       "popular",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Rasgulla.jpg/800px-Rasgulla.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_146",
@@ -2280,7 +2280,7 @@ export const ALL_DISHES = [
       "street",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Vada_Pav.jpg/800px-Vada_Pav.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_147",
@@ -2296,7 +2296,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Samosa_in_a_plate.jpg/800px-Samosa_in_a_plate.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_148",
@@ -2344,7 +2344,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Jalebi_in_a_plate.jpg/800px-Jalebi_in_a_plate.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_151",
@@ -2376,7 +2376,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Aloo_Paratha_also_known_as_Batatay_Jo_Phulko.jpg/800px-Aloo_Paratha_also_known_as_Batatay_Jo_Phulko.jpg"
+    "image": "https://images.unsplash.com/photo-1668357530437-72a12c660f94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_153",
@@ -2408,7 +2408,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Vada_Pav.jpg/800px-Vada_Pav.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_155",
@@ -2440,7 +2440,7 @@ export const ALL_DISHES = [
       "snack",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Medu_vada_with_sambar_and_chutney.jpg/800px-Medu_vada_with_sambar_and_chutney.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_157",
@@ -2600,7 +2600,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Dosa_and_ghee.jpg/800px-Dosa_and_ghee.jpg"
+    "image": "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_167",
@@ -2616,7 +2616,7 @@ export const ALL_DISHES = [
       "street",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Jalebi_in_a_plate.jpg/800px-Jalebi_in_a_plate.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_168",
@@ -2776,7 +2776,7 @@ export const ALL_DISHES = [
       "comfort",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Rajma_chawal_in_a_bowl.jpg/800px-Rajma_chawal_in_a_bowl.jpg"
+    "image": "https://images.unsplash.com/photo-1788601988466-9f361c34c6cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_178",
@@ -2792,7 +2792,7 @@ export const ALL_DISHES = [
       "street",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Chole_Bhature.jpg/800px-Chole_Bhature.jpg"
+    "image": "https://images.unsplash.com/photo-1788602564560-9bcbf0f9acb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_179",
@@ -2824,7 +2824,7 @@ export const ALL_DISHES = [
       "healthy",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Idli_Sambar.jpg/800px-Idli_Sambar.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_181",
@@ -2856,7 +2856,7 @@ export const ALL_DISHES = [
       "healthy",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Upma.jpg/800px-Upma.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_183",
@@ -2872,7 +2872,7 @@ export const ALL_DISHES = [
       "popular",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Chicken_makhani.jpg/800px-Chicken_makhani.jpg"
+    "image": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_184",
@@ -2920,7 +2920,7 @@ export const ALL_DISHES = [
       "street",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Pani_Puri_or_Golgappa.jpg/800px-Pani_Puri_or_Golgappa.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_187",
@@ -2936,7 +2936,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Pani_Puri_or_Golgappa.jpg/800px-Pani_Puri_or_Golgappa.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_188",
@@ -2952,7 +2952,7 @@ export const ALL_DISHES = [
       "comfort",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Rajma_chawal_in_a_bowl.jpg/800px-Rajma_chawal_in_a_bowl.jpg"
+    "image": "https://images.unsplash.com/photo-1788601988466-9f361c34c6cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_189",
@@ -2968,7 +2968,7 @@ export const ALL_DISHES = [
       "quick",
       "healthy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Thepla.jpg/800px-Thepla.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_190",
@@ -2984,7 +2984,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Chicken_makhani.jpg/800px-Chicken_makhani.jpg"
+    "image": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_191",
@@ -3016,7 +3016,7 @@ export const ALL_DISHES = [
       "comfort",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Kheer.jpg/800px-Kheer.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_193",
@@ -3032,7 +3032,7 @@ export const ALL_DISHES = [
       "quick",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Thepla.jpg/800px-Thepla.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_194",
@@ -3048,7 +3048,7 @@ export const ALL_DISHES = [
       "comfort",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Kheer.jpg/800px-Kheer.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_195",
@@ -3096,7 +3096,7 @@ export const ALL_DISHES = [
       "healthy",
       "quick"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Palak_Paneer.jpg/800px-Palak_Paneer.jpg"
+    "image": "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&fit=crop"
   },
   {
     "id": "dish_198",
@@ -3112,7 +3112,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Chicken_Tikka_Masala_Curry.jpg/800px-Chicken_Tikka_Masala_Curry.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_199",
@@ -3128,7 +3128,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Matar_Paneer.jpg/800px-Matar_Paneer.jpg"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800&h=800"
   },
   {
     "id": "dish_200",
@@ -3144,6 +3144,6 @@ export const ALL_DISHES = [
       "comfort",
       "homestyle"
     ],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Kheer.jpg/800px-Kheer.jpg"
+    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&q=80&w=800&h=800"
   }
 ];
