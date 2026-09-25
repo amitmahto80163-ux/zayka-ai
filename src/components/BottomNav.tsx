@@ -47,10 +47,11 @@ export default function BottomNav() {
         // Special styling for Cook tab if there's an active recipe
         if (tab.isSpecial) {
           return (
-            <a href="/cook" onClick={handleCookClick} key={tab.id} style={{ textDecoration: 'none' }}>
+            <a href="/cook" onClick={handleCookClick} key={tab.id} style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', width: 60 }}>
               <motion.div whileTap={{ scale: 0.9 }} style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                position: 'relative', top: currentRecipe ? -15 : 0
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                position: currentRecipe ? 'absolute' : 'relative',
+                top: currentRecipe ? -24 : 0
               }}>
                 <div style={{
                   width: currentRecipe ? 56 : 40, height: currentRecipe ? 56 : 40,
@@ -58,16 +59,17 @@ export default function BottomNav() {
                   background: currentRecipe ? 'linear-gradient(135deg, #F97316, #EA580C)' : (isActive ? '#FFF0E6' : 'transparent'),
                   color: currentRecipe ? 'white' : (isActive ? W.primary : W.muted),
                   boxShadow: currentRecipe ? '0 8px 16px rgba(249,115,22,0.3)' : 'none',
+                  border: currentRecipe ? `4px solid ${W.bg}` : 'none',
                   transition: 'all 0.3s'
                 }}>
-                  <Icon size={currentRecipe ? 28 : 24} />
+                  <Icon size={currentRecipe ? 26 : 24} />
                 </div>
                 {!currentRecipe && (
-                  <span style={{ fontSize: 11, fontWeight: isActive ? 800 : 600, color: isActive ? W.activeText : W.muted }}>
+                  <span style={{ fontSize: 11, fontWeight: isActive ? 800 : 600, color: isActive ? W.activeText : W.muted, marginTop: 4 }}>
                     {tab.label}
                   </span>
                 )}
-                {currentRecipe && <div style={{ width: 4, height: 4, borderRadius: '50%', background: W.primary, marginTop: 4 }} />}
+                {currentRecipe && <div style={{ width: 4, height: 4, borderRadius: '50%', background: W.primary, marginTop: 8 }} />}
               </motion.div>
             </a>
           );
