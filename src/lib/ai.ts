@@ -7,6 +7,9 @@
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+
+export const GEMINI_VISION_MODEL = 'gemini-2.5-flash';
 
 // Working Models (tested 25-Sep-2026)
 const GROQ_TEXT_MODEL = 'llama-3.3-70b-versatile';
@@ -110,6 +113,38 @@ export async function callGroq(
 }
 
 // ─── VISION (OpenRouter with Groq fallback) ──────
+
+export async function callGeminiVision(prompt: string, imageBase64: string, jsonMode = true): Promise<string> {
+  if (!GEMINI_API_KEY) throw new Error('Missing GEMINI_API_KEY');
+  
+  const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+  const finalPrompt = jsonMode ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text.' : prompt;
+
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{
+        parts: [
+          { text: finalPrompt },
+          { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
+        ]
+      }],
+      generationConfig: { temperature: 0.7 }
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Gemini Error: ${res.status} - ${err}`);
+  }
+
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Empty response from Gemini');
+  return text;
+}
+
 export async function callVision(
   prompt: string,
   imageBase64: string,
