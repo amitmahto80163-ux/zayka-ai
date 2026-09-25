@@ -13,7 +13,7 @@ export const ALL_DISHES = [
       "dinner",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_2",
@@ -28,7 +28,7 @@ export const ALL_DISHES = [
       "dinner",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1701000194119-d2059ba3bed8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_3",
@@ -43,7 +43,7 @@ export const ALL_DISHES = [
       "starter",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1692835647026-9d309b143fc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_4",
@@ -58,7 +58,7 @@ export const ALL_DISHES = [
       "lunch",
       "street"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1788602564560-9bcbf0f9acb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_5",
@@ -73,7 +73,7 @@ export const ALL_DISHES = [
       "breakfast",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1788538397295-41114c76044d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_6",
@@ -88,7 +88,7 @@ export const ALL_DISHES = [
       "lunch",
       "comfort"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1788601988466-9f361c34c6cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_7",
@@ -103,7 +103,7 @@ export const ALL_DISHES = [
       "dinner",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1767114915936-745dd372f1d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_8",
@@ -118,7 +118,7 @@ export const ALL_DISHES = [
       "dinner",
       "premium"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_9",
@@ -133,7 +133,7 @@ export const ALL_DISHES = [
       "dinner",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_10",
@@ -143,12 +143,12 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 15,
     "calories": 328,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "dinner",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_11",
@@ -163,7 +163,7 @@ export const ALL_DISHES = [
       "breakfast",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516698-fd7a320a55e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_12",
@@ -178,7 +178,7 @@ export const ALL_DISHES = [
       "breakfast",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1668236499396-a62d2d1cb0cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_13",
@@ -193,7 +193,7 @@ export const ALL_DISHES = [
       "breakfast",
       "snack"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_14",
@@ -208,7 +208,7 @@ export const ALL_DISHES = [
       "dinner",
       "premium"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_15",
@@ -223,7 +223,7 @@ export const ALL_DISHES = [
       "dinner",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_16",
@@ -238,7 +238,7 @@ export const ALL_DISHES = [
       "lunch",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695029505632-bfdec382ae37?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_17",
@@ -253,7 +253,7 @@ export const ALL_DISHES = [
       "breakfast",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1665660710687-b44c50751054?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_18",
@@ -268,7 +268,7 @@ export const ALL_DISHES = [
       "breakfast",
       "comfort"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516698-fd7a320a55e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_19",
@@ -283,7 +283,7 @@ export const ALL_DISHES = [
       "snack",
       "street"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516676-04a259917c03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_20",
@@ -298,7 +298,7 @@ export const ALL_DISHES = [
       "snack",
       "street"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658159-e8e29b2b12b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_21",
@@ -313,7 +313,7 @@ export const ALL_DISHES = [
       "dinner",
       "street"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658477-1c8decbdfb18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_22",
@@ -328,7 +328,7 @@ export const ALL_DISHES = [
       "snack",
       "street"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1750767397012-3413ba4fdbc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_23",
@@ -343,7 +343,7 @@ export const ALL_DISHES = [
       "snack",
       "street"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658353-d223db8307ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_24",
@@ -358,7 +358,7 @@ export const ALL_DISHES = [
       "snack",
       "street"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1675280735161-febe15d7ffae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_25",
@@ -368,12 +368,12 @@ export const ALL_DISHES = [
     "isVeg": false,
     "time": 45,
     "calories": 361,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "snack",
       "street"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_26",
@@ -388,7 +388,7 @@ export const ALL_DISHES = [
       "dinner",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_27",
@@ -403,7 +403,7 @@ export const ALL_DISHES = [
       "dessert",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1714799263412-2e0c1f875959?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_28",
@@ -418,7 +418,7 @@ export const ALL_DISHES = [
       "dessert",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_29",
@@ -433,7 +433,7 @@ export const ALL_DISHES = [
       "lunch",
       "comfort"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1707227861789-475326479c2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_30",
@@ -448,7 +448,7 @@ export const ALL_DISHES = [
       "snack",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658477-1c8decbdfb18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_31",
@@ -458,12 +458,12 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 30,
     "calories": 227,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "breakfast",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1739786996022-5ed5b56834e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_32",
@@ -478,7 +478,7 @@ export const ALL_DISHES = [
       "dinner",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1645432524571-0e469b22e43f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_33",
@@ -493,7 +493,7 @@ export const ALL_DISHES = [
       "snack",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1631791956434-42468596a5f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_34",
@@ -508,7 +508,7 @@ export const ALL_DISHES = [
       "lunch",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1617622141573-2e00d8818f3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_35",
@@ -523,7 +523,7 @@ export const ALL_DISHES = [
       "starter",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_36",
@@ -538,7 +538,7 @@ export const ALL_DISHES = [
       "starter",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1667389723440-dbbde959df52?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_37",
@@ -553,7 +553,7 @@ export const ALL_DISHES = [
       "lunch",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_38",
@@ -568,7 +568,7 @@ export const ALL_DISHES = [
       "starter",
       "snack"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695756121533-3f60bee7ba7b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_39",
@@ -583,7 +583,7 @@ export const ALL_DISHES = [
       "starter",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585032226651-759b368d7246?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_40",
@@ -598,7 +598,7 @@ export const ALL_DISHES = [
       "dinner",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1673439304183-8840bd0dc1bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_41",
@@ -613,7 +613,7 @@ export const ALL_DISHES = [
       "dinner",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1677956021545-986eaa5f6e65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_42",
@@ -628,7 +628,7 @@ export const ALL_DISHES = [
       "dinner",
       "comfort"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1778342449541-20a22fa5b4e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_43",
@@ -643,7 +643,7 @@ export const ALL_DISHES = [
       "dinner",
       "premium"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_44",
@@ -658,7 +658,7 @@ export const ALL_DISHES = [
       "dinner",
       "comfort"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1664472658489-8bb2cf572db1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_45",
@@ -673,7 +673,7 @@ export const ALL_DISHES = [
       "snack",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1664476631037-87a2714dd04e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_46",
@@ -688,7 +688,7 @@ export const ALL_DISHES = [
       "snack",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1731950424220-17ce9415dcc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_47",
@@ -703,7 +703,7 @@ export const ALL_DISHES = [
       "snack",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1679816655240-341f19e8027d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_48",
@@ -718,7 +718,7 @@ export const ALL_DISHES = [
       "lunch",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1666919819060-c2f3a6f8a120?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_49",
@@ -733,7 +733,7 @@ export const ALL_DISHES = [
       "dessert",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030657761-cca2ec5e97e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_50",
@@ -748,7 +748,7 @@ export const ALL_DISHES = [
       "dessert",
       "comfort"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1729038876160-0097658820ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_51",
@@ -763,7 +763,7 @@ export const ALL_DISHES = [
       "dessert",
       "comfort"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1664303714911-f89d3021e9b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_52",
@@ -778,7 +778,7 @@ export const ALL_DISHES = [
       "dessert",
       "street"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1677956021545-986eaa5f6e65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_53",
@@ -793,7 +793,7 @@ export const ALL_DISHES = [
       "dessert",
       "popular"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1698500034718-843a8d049781?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_54",
@@ -808,7 +808,7 @@ export const ALL_DISHES = [
       "dessert",
       "premium"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723730426108-1bb37a500d5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_55",
@@ -824,7 +824,7 @@ export const ALL_DISHES = [
       "comfort",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1732139049622-431b05dc76e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_56",
@@ -840,7 +840,7 @@ export const ALL_DISHES = [
       "street",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_57",
@@ -856,7 +856,7 @@ export const ALL_DISHES = [
       "spicy",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_58",
@@ -872,7 +872,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1692835647026-9d309b143fc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_59",
@@ -888,7 +888,7 @@ export const ALL_DISHES = [
       "premium",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141251673-1758913ade48?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_60",
@@ -904,7 +904,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695936029053-2d773e5dba7d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_61",
@@ -920,7 +920,7 @@ export const ALL_DISHES = [
       "popular",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_62",
@@ -936,7 +936,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1679816655240-341f19e8027d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_63",
@@ -952,7 +952,7 @@ export const ALL_DISHES = [
       "snack",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695756121533-3f60bee7ba7b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_64",
@@ -968,7 +968,7 @@ export const ALL_DISHES = [
       "quick",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_65",
@@ -984,7 +984,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_66",
@@ -1000,7 +1000,7 @@ export const ALL_DISHES = [
       "premium",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_67",
@@ -1016,7 +1016,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1606491956689-2ea866880c84?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_68",
@@ -1032,7 +1032,7 @@ export const ALL_DISHES = [
       "premium",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_69",
@@ -1048,7 +1048,7 @@ export const ALL_DISHES = [
       "healthy",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516740-6f9ceff51404?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_70",
@@ -1064,7 +1064,7 @@ export const ALL_DISHES = [
       "popular",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1712604940796-1a1dd9021bf1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_71",
@@ -1080,7 +1080,7 @@ export const ALL_DISHES = [
       "popular",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1559978137-8c560d91e9e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_72",
@@ -1096,7 +1096,7 @@ export const ALL_DISHES = [
       "comfort",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1707227861789-475326479c2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_73",
@@ -1112,7 +1112,7 @@ export const ALL_DISHES = [
       "street",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1675280735161-febe15d7ffae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_74",
@@ -1128,7 +1128,7 @@ export const ALL_DISHES = [
       "premium",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_75",
@@ -1144,7 +1144,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1667546202642-e3c506786caa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_76",
@@ -1160,7 +1160,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_77",
@@ -1176,7 +1176,7 @@ export const ALL_DISHES = [
       "premium",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1691171047462-66025ecd5efc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_78",
@@ -1192,7 +1192,7 @@ export const ALL_DISHES = [
       "popular",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1682098131736-3318bd23ad39?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_79",
@@ -1208,7 +1208,7 @@ export const ALL_DISHES = [
       "premium",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252026-3df1de888a21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_80",
@@ -1224,7 +1224,7 @@ export const ALL_DISHES = [
       "healthy",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723928494246-0c38f1bdf204?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_81",
@@ -1240,7 +1240,7 @@ export const ALL_DISHES = [
       "healthy",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_82",
@@ -1256,7 +1256,7 @@ export const ALL_DISHES = [
       "comfort",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516698-fd7a320a55e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_83",
@@ -1272,7 +1272,7 @@ export const ALL_DISHES = [
       "comfort",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1664472658489-8bb2cf572db1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_84",
@@ -1288,7 +1288,7 @@ export const ALL_DISHES = [
       "healthy",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516740-6f9ceff51404?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_85",
@@ -1304,7 +1304,7 @@ export const ALL_DISHES = [
       "comfort",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1712678280695-7525b7bf50d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_86",
@@ -1320,7 +1320,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1661730329741-b3bf77019b39?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_87",
@@ -1336,7 +1336,7 @@ export const ALL_DISHES = [
       "street",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658353-d223db8307ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_88",
@@ -1352,7 +1352,7 @@ export const ALL_DISHES = [
       "quick",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1679986537856-f13d1b30204c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_89",
@@ -1368,7 +1368,7 @@ export const ALL_DISHES = [
       "premium",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_90",
@@ -1378,13 +1378,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 45,
     "calories": 399,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "breakfast",
       "healthy",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516740-6f9ceff51404?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_91",
@@ -1400,7 +1400,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_92",
@@ -1416,7 +1416,7 @@ export const ALL_DISHES = [
       "healthy",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694506374374-80abb779c582?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_93",
@@ -1432,7 +1432,7 @@ export const ALL_DISHES = [
       "healthy",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1713089366140-814130d69933?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_94",
@@ -1448,7 +1448,7 @@ export const ALL_DISHES = [
       "popular",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_95",
@@ -1464,7 +1464,7 @@ export const ALL_DISHES = [
       "premium",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1722686461601-b2a018a4213b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_96",
@@ -1480,7 +1480,7 @@ export const ALL_DISHES = [
       "street",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516676-04a259917c03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_97",
@@ -1496,7 +1496,7 @@ export const ALL_DISHES = [
       "quick",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695029505632-bfdec382ae37?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_98",
@@ -1512,7 +1512,7 @@ export const ALL_DISHES = [
       "comfort",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723730426108-1bb37a500d5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_99",
@@ -1528,7 +1528,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694506374847-ced565472398?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_100",
@@ -1544,7 +1544,7 @@ export const ALL_DISHES = [
       "street",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658788-41d188eabb64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_101",
@@ -1560,7 +1560,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516698-fd7a320a55e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_102",
@@ -1576,7 +1576,7 @@ export const ALL_DISHES = [
       "popular",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585032226651-759b368d7246?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_103",
@@ -1592,7 +1592,7 @@ export const ALL_DISHES = [
       "quick",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1664478288635-b9703a502393?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_104",
@@ -1608,7 +1608,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297515151-b2af3a60008d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_105",
@@ -1624,7 +1624,7 @@ export const ALL_DISHES = [
       "healthy",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694506374374-80abb779c582?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_106",
@@ -1634,13 +1634,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 30,
     "calories": 406,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "snack",
       "healthy",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658477-1c8decbdfb18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_107",
@@ -1656,7 +1656,7 @@ export const ALL_DISHES = [
       "healthy",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516740-6f9ceff51404?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_108",
@@ -1672,7 +1672,7 @@ export const ALL_DISHES = [
       "snack",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1668618295065-4d6b9d541629?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_109",
@@ -1688,7 +1688,7 @@ export const ALL_DISHES = [
       "popular",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1661730329741-b3bf77019b39?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_110",
@@ -1698,13 +1698,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 30,
     "calories": 203,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "snack",
       "street",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516676-04a259917c03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_111",
@@ -1720,7 +1720,7 @@ export const ALL_DISHES = [
       "street",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516676-04a259917c03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_112",
@@ -1736,7 +1736,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_113",
@@ -1752,7 +1752,7 @@ export const ALL_DISHES = [
       "healthy",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1767883339097-0675e98f3475?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_114",
@@ -1768,7 +1768,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_115",
@@ -1784,7 +1784,7 @@ export const ALL_DISHES = [
       "quick",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_116",
@@ -1800,7 +1800,7 @@ export const ALL_DISHES = [
       "healthy",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252026-3df1de888a21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_117",
@@ -1816,7 +1816,7 @@ export const ALL_DISHES = [
       "street",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1718570263725-a51fdd59bb54?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_118",
@@ -1832,7 +1832,7 @@ export const ALL_DISHES = [
       "street",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1606491956689-2ea866880c84?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_119",
@@ -1848,7 +1848,7 @@ export const ALL_DISHES = [
       "comfort",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1729038877250-3af682084f07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_120",
@@ -1864,7 +1864,7 @@ export const ALL_DISHES = [
       "quick",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1714611446765-3e85644ea4ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_121",
@@ -1874,13 +1874,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 45,
     "calories": 312,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "dinner",
       "popular",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1700582540772-dbb70d696c60?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_122",
@@ -1896,7 +1896,7 @@ export const ALL_DISHES = [
       "popular",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694506374847-ced565472398?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_123",
@@ -1912,7 +1912,7 @@ export const ALL_DISHES = [
       "healthy",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1645432524528-ae76145f67b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_124",
@@ -1928,7 +1928,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694506375581-aa0cdf5b6e74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_125",
@@ -1938,13 +1938,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 15,
     "calories": 178,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "snack",
       "quick",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1682098131736-3318bd23ad39?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_126",
@@ -1960,7 +1960,7 @@ export const ALL_DISHES = [
       "comfort",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1707227861789-475326479c2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_127",
@@ -1976,7 +1976,7 @@ export const ALL_DISHES = [
       "premium",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723809701668-325bc15b5137?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_128",
@@ -1992,7 +1992,7 @@ export const ALL_DISHES = [
       "premium",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1722686461601-b2a018a4213b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_129",
@@ -2008,7 +2008,7 @@ export const ALL_DISHES = [
       "premium",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_130",
@@ -2024,7 +2024,7 @@ export const ALL_DISHES = [
       "popular",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1712678280803-7e0d1adaed70?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_131",
@@ -2040,7 +2040,7 @@ export const ALL_DISHES = [
       "healthy",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252026-3df1de888a21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_132",
@@ -2056,7 +2056,7 @@ export const ALL_DISHES = [
       "popular",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_133",
@@ -2072,7 +2072,7 @@ export const ALL_DISHES = [
       "street",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658353-d223db8307ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_134",
@@ -2088,7 +2088,7 @@ export const ALL_DISHES = [
       "healthy",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516740-6f9ceff51404?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_135",
@@ -2104,7 +2104,7 @@ export const ALL_DISHES = [
       "street",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1769030905851-c0e0a4fe5c51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_136",
@@ -2120,7 +2120,7 @@ export const ALL_DISHES = [
       "premium",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_137",
@@ -2136,7 +2136,7 @@ export const ALL_DISHES = [
       "popular",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694506374847-ced565472398?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_138",
@@ -2152,7 +2152,7 @@ export const ALL_DISHES = [
       "comfort",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1729038877250-3af682084f07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_139",
@@ -2168,7 +2168,7 @@ export const ALL_DISHES = [
       "comfort",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141251673-1758913ade48?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_140",
@@ -2184,7 +2184,7 @@ export const ALL_DISHES = [
       "comfort",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1778342449541-20a22fa5b4e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_141",
@@ -2200,7 +2200,7 @@ export const ALL_DISHES = [
       "quick",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_142",
@@ -2216,7 +2216,7 @@ export const ALL_DISHES = [
       "street",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658159-e8e29b2b12b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_143",
@@ -2226,13 +2226,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 45,
     "calories": 454,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "snack",
       "quick",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1731950424220-17ce9415dcc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_144",
@@ -2248,7 +2248,7 @@ export const ALL_DISHES = [
       "street",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1769030905851-c0e0a4fe5c51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_145",
@@ -2264,7 +2264,7 @@ export const ALL_DISHES = [
       "popular",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1714799263412-2e0c1f875959?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_146",
@@ -2280,7 +2280,7 @@ export const ALL_DISHES = [
       "street",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658353-d223db8307ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_147",
@@ -2296,7 +2296,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516676-04a259917c03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_148",
@@ -2312,7 +2312,7 @@ export const ALL_DISHES = [
       "premium",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1722686461601-b2a018a4213b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_149",
@@ -2328,7 +2328,7 @@ export const ALL_DISHES = [
       "quick",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1617622141573-2e00d8818f3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_150",
@@ -2344,7 +2344,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1677956021545-986eaa5f6e65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_151",
@@ -2360,7 +2360,7 @@ export const ALL_DISHES = [
       "popular",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695456065048-52a053ce9dd2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_152",
@@ -2376,7 +2376,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1682098131736-3318bd23ad39?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_153",
@@ -2392,7 +2392,7 @@ export const ALL_DISHES = [
       "snack",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516147-4c4adafeaf88?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_154",
@@ -2408,7 +2408,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297515370-32990b502463?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_155",
@@ -2424,7 +2424,7 @@ export const ALL_DISHES = [
       "popular",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_156",
@@ -2440,7 +2440,7 @@ export const ALL_DISHES = [
       "snack",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1668618295065-4d6b9d541629?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_157",
@@ -2456,7 +2456,7 @@ export const ALL_DISHES = [
       "street",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1788620644939-6f3158c6fb01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_158",
@@ -2466,13 +2466,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 20,
     "calories": 178,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "dessert",
       "popular",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1698500034718-843a8d049781?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_159",
@@ -2482,13 +2482,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 15,
     "calories": 595,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "lunch",
       "comfort",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1707227861789-475326479c2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_160",
@@ -2498,13 +2498,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 15,
     "calories": 470,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "dinner",
       "premium",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695029502961-f57f307bd0c0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_161",
@@ -2520,7 +2520,7 @@ export const ALL_DISHES = [
       "healthy",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1664648005723-3cd53a75b44d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_162",
@@ -2536,7 +2536,7 @@ export const ALL_DISHES = [
       "quick",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_163",
@@ -2552,7 +2552,7 @@ export const ALL_DISHES = [
       "quick",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695029505632-bfdec382ae37?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_164",
@@ -2568,7 +2568,7 @@ export const ALL_DISHES = [
       "comfort",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297515601-1536991ae14e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_165",
@@ -2584,7 +2584,7 @@ export const ALL_DISHES = [
       "popular",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1750307451963-0abc5636bc81?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_166",
@@ -2600,7 +2600,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1695297516698-fd7a320a55e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_167",
@@ -2616,7 +2616,7 @@ export const ALL_DISHES = [
       "street",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1677956021545-986eaa5f6e65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_168",
@@ -2626,13 +2626,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 10,
     "calories": 278,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "dessert",
       "comfort",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1729038877250-3af682084f07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_169",
@@ -2648,7 +2648,7 @@ export const ALL_DISHES = [
       "popular",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_170",
@@ -2664,7 +2664,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1692776206795-60a58a4dc817?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_171",
@@ -2680,7 +2680,7 @@ export const ALL_DISHES = [
       "popular",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1661730329741-b3bf77019b39?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_172",
@@ -2696,7 +2696,7 @@ export const ALL_DISHES = [
       "premium",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1691171047462-66025ecd5efc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_173",
@@ -2712,7 +2712,7 @@ export const ALL_DISHES = [
       "quick",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1664478288635-b9703a502393?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_174",
@@ -2728,7 +2728,7 @@ export const ALL_DISHES = [
       "healthy",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723928494246-0c38f1bdf204?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_175",
@@ -2744,7 +2744,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1698500034718-843a8d049781?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_176",
@@ -2760,7 +2760,7 @@ export const ALL_DISHES = [
       "quick",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694141252774-c937d97641da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_177",
@@ -2776,7 +2776,7 @@ export const ALL_DISHES = [
       "comfort",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_178",
@@ -2792,7 +2792,7 @@ export const ALL_DISHES = [
       "street",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1788602564560-9bcbf0f9acb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_179",
@@ -2808,7 +2808,7 @@ export const ALL_DISHES = [
       "street",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1671394138398-fe1ce5e5b03b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_180",
@@ -2824,7 +2824,7 @@ export const ALL_DISHES = [
       "healthy",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1694506374374-80abb779c582?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_181",
@@ -2834,13 +2834,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 20,
     "calories": 357,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "starter",
       "popular",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1676976197084-a7b35e0d2537?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_182",
@@ -2850,13 +2850,13 @@ export const ALL_DISHES = [
     "isVeg": true,
     "time": 10,
     "calories": 388,
-    "rating": 4.0,
+    "rating": 4,
     "tags": [
       "breakfast",
       "healthy",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1665660710687-b44c50751054?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_183",
@@ -2872,7 +2872,7 @@ export const ALL_DISHES = [
       "popular",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_184",
@@ -2888,7 +2888,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1679816655240-341f19e8027d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_185",
@@ -2904,7 +2904,7 @@ export const ALL_DISHES = [
       "popular",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_186",
@@ -2920,7 +2920,7 @@ export const ALL_DISHES = [
       "street",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658159-e8e29b2b12b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_187",
@@ -2936,7 +2936,7 @@ export const ALL_DISHES = [
       "street",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1649140041688-0f75446e707e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_188",
@@ -2952,7 +2952,7 @@ export const ALL_DISHES = [
       "comfort",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1788601988466-9f361c34c6cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_189",
@@ -2968,7 +2968,7 @@ export const ALL_DISHES = [
       "quick",
       "healthy"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_190",
@@ -2984,7 +2984,7 @@ export const ALL_DISHES = [
       "popular",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_191",
@@ -3000,7 +3000,7 @@ export const ALL_DISHES = [
       "popular",
       "restaurant style"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_192",
@@ -3016,7 +3016,7 @@ export const ALL_DISHES = [
       "comfort",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1698500035179-edd84b64f527?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_193",
@@ -3032,7 +3032,7 @@ export const ALL_DISHES = [
       "quick",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_194",
@@ -3048,7 +3048,7 @@ export const ALL_DISHES = [
       "comfort",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1698500035179-edd84b64f527?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_195",
@@ -3064,7 +3064,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1698500034718-843a8d049781?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_196",
@@ -3080,7 +3080,7 @@ export const ALL_DISHES = [
       "comfort",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1726804961062-31c16c245079?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_197",
@@ -3096,7 +3096,7 @@ export const ALL_DISHES = [
       "healthy",
       "quick"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658477-1c8decbdfb18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_198",
@@ -3112,7 +3112,7 @@ export const ALL_DISHES = [
       "popular",
       "spicy"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1723708871094-2c02cf5f5394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_199",
@@ -3128,7 +3128,7 @@ export const ALL_DISHES = [
       "popular",
       "special"
     ],
-    "image": "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=800&h=800&fit=crop"
   },
   {
     "id": "dish_200",
@@ -3144,6 +3144,6 @@ export const ALL_DISHES = [
       "comfort",
       "homestyle"
     ],
-    "image": "https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600&h=800"
+    "image": "https://plus.unsplash.com/premium_photo-1691030658477-1c8decbdfb18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800&h=800&fit=crop"
   }
 ];
