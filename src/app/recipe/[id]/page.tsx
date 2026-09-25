@@ -163,7 +163,7 @@ function IngredientCard({ ing, servings, baseServings }: { ing: any, servings: n
       
       {/* Collapsed Row */}
       <div onClick={() => setExpanded(!expanded)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-        <span style={{ fontSize: 28, flexShrink: 0 }}>{getCategoryEmoji(ing.category)}</span>
+        <img src={`https://image.pollinations.ai/prompt/Raw+fresh+${encodeURIComponent(ing.name)}+ingredient+isolated+on+white+background+photography+high+quality?width=100&height=100&nologo=true&seed=${ing.name.length}`} alt={ing.name} style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover", background: "#F3F4F6", flexShrink: 0 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             <p style={{ fontWeight: 900, fontSize: 15, color: W.text }}>{ing.nameHindi || ing.name}</p>
@@ -620,3 +620,4 @@ export default function RecipeDetailPage() {
     </div>
   );
 }
+
