@@ -8,7 +8,9 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged
 } from 'firebase/auth';
-import { auth } from './firebase';
+import { deleteUser } from 'firebase/auth';
+import { auth, db } from './firebase';
+import { doc, deleteDoc } from 'firebase/firestore';
 import { saveUserProfile, getUserProfile } from './db';
 
 const googleProvider = new GoogleAuthProvider();
@@ -42,3 +44,20 @@ export async function signOut() {
 }
 
 export { onAuthStateChanged };
+
+export async function deleteAccount() {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error('No authenticated user');
+    
+    // Delete user data from Firestore
+    await deleteDoc(doc(db, 'users', user.uid, 'appData', 'state'));
+    await deleteDoc(doc(db, 'users', user.uid));
+    
+    // Delete Firebase Auth user
+    await deleteUser(user);
+  } catch (error) {
+    console.error('Delete Account Error:', error);
+    throw error;
+  }
+}
