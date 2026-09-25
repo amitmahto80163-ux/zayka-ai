@@ -178,8 +178,8 @@ Generate ALL ingredients and ALL steps (5-8 steps) for a complete recipe.`;
     const imageUrl = getDishImageUrl(dishName);
     return {
       id: 'auto-gen',
-      name: `${dishName} (ERROR: ${error.message})`,
-      nameHindi: 'Error aaya hai, API key check karo',
+      name: `${dishName} (Fallback)`,
+      nameHindi: 'Pakwan (AI Unavailable)',
       description: 'Ghar par banao, ekdum restaurant jaisa swad aayega!',
       cuisine: 'indian' as any,
       difficulty: (preferences.difficulty as any) || 'beginner',

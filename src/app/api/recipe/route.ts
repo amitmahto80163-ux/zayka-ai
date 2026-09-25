@@ -1,35 +1,34 @@
-// ============================================
-// ZAYKA AI — Recipe Generation API Route
-// ============================================
-
 import { NextRequest, NextResponse } from 'next/server';
 import { generateRecipe, adaptRecipeToIngredients } from '@/lib/gemini';
 import { AppLanguage } from '@/types';
+import { z } from 'zod';
 
-// Generate full recipe
+const recipeSchema = z.object({
+  dishName: z.string().min(1, 'Dish name required').max(150, 'Dish name too long'),
+  servings: z.number().int().min(1).max(20).default(4),
+  isVeg: z.boolean().optional(),
+  difficulty: z.enum(['beginner', 'intermediate', 'expert']).default('intermediate'),
+  language: z.enum(['hinglish', 'hindi', 'english']).default('hinglish'),
+  availableIngredients: z.array(z.string().max(100)).max(50).optional(),
+  adaptMode: z.boolean().default(false)
+});
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      dishName,
-      servings = 4,
-      isVeg,
-      difficulty = 'intermediate',
-      language = 'hinglish',
-      // For "Bol Ke Banao" feature
-      availableIngredients,
-      adaptMode = false,
-    } = body;
+    const parsed = recipeSchema.safeParse(body);
 
-    if (!dishName) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'Dish name required' },
+        { success: false, error: 'Invalid input', details: parsed.error.format() },
         { status: 400 }
       );
     }
 
-    // "Bol Ke Banao" — Ingredient Adapter Mode
-    if (adaptMode && availableIngredients?.length > 0) {
+    const { dishName, servings, isVeg, difficulty, language, availableIngredients, adaptMode } = parsed.data;
+
+    // "Bol Ke Banao" - Ingredient Adapter Mode
+    if (adaptMode && availableIngredients && availableIngredients.length > 0) {
       const adapted = await adaptRecipeToIngredients(
         dishName,
         availableIngredients,
@@ -43,7 +42,7 @@ export async function POST(request: NextRequest) {
       servings,
       isVeg,
       difficulty,
-      language,
+      language: language as AppLanguage,
     });
 
     return NextResponse.json({

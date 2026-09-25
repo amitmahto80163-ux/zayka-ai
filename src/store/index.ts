@@ -120,9 +120,11 @@ export const useZaykaStore = create<ZaykaStore>()(
       // Favourites
       favourites: [],
       addFavourite: (recipeId) =>
-        set((state) => ({
-          favourites: [...state.favourites, recipeId],
-        })),
+        set((state) => 
+          state.favourites.includes(recipeId) 
+            ? state 
+            : { favourites: [...state.favourites, recipeId] }
+        ),
       removeFavourite: (recipeId) =>
         set((state) => ({
           favourites: state.favourites.filter((id) => id !== recipeId),
