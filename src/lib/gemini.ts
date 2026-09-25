@@ -159,13 +159,13 @@ Generate ALL ingredients and ALL steps (5-8 steps) for a complete recipe.`;
     const recipe = parseJSONResponse(text);
     return { ...recipe, imageUrl: imageUrl };
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Recipe generation error:', error);
     const imageUrl = getDishImageUrl(dishName);
     return {
       id: 'auto-gen',
-      name: dishName,
-      nameHindi: dishName,
+      name: `${dishName} (ERROR: ${error.message})`,
+      nameHindi: 'Error aaya hai, API key check karo',
       description: 'Ghar par banao, ekdum restaurant jaisa swad aayega!',
       cuisine: 'indian' as any,
       difficulty: (preferences.difficulty as any) || 'beginner',
