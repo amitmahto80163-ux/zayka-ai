@@ -12,6 +12,13 @@ import { generateIngredientsAction } from '@/lib/actions';
 import { ALL_DISHES } from '@/data/dishes';
 import { W } from '@/lib/theme';
 
+const swipeVariants = {
+  enter: (direction: number) => ({ x: direction > 0 ? 30 : -30, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: number) => ({ x: direction < 0 ? 30 : -30, opacity: 0 })
+};
+
+
 
 
 function getCategoryEmoji(cat?: string) {
@@ -160,7 +167,8 @@ function IngredientCard({ ing, servings, baseServings }: { ing: any, servings: n
   const avColor = ing.availability === 'kirana' ? '#166534' : ing.availability === 'supermarket' ? '#1D4ED8' : '#7E22CE';
   const avLabel = ing.availability === 'kirana' ? '✅ Kirana' : ing.availability === 'supermarket' ? '🏪 Supermarket' : '📦 Online';
 
-  return (
+  
+    return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
       style={{ background: ing.isOptional ? '#FAFAFA' : W.card, borderRadius: 20, border: `1.5px solid ${ing.isOptional ? '#E5E7EB' : W.border}`, overflow: 'hidden', opacity: ing.isOptional ? 0.85 : 1 }}>
       
@@ -241,6 +249,14 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
   const { lastRecipeTab: activeTab, setLastRecipeTab: setActiveTab } = useZaykaStore();
   const [recipeVersion, setRecipeVersion] = useState<'desi' | 'authentic'>('desi');
   const [servings, setServings] = useState(2);
+    const [tabDirection, setTabDirection] = useState(1);
+    const tabOrder = ['ingredients', 'steps', 'cost', 'chef'];
+    const handleTabChange = (tId: string) => {
+      const currentIndex = tabOrder.indexOf(activeTab);
+      const nextIndex = tabOrder.indexOf(tId);
+      setTabDirection(nextIndex > currentIndex ? 1 : -1);
+      setActiveTab(tId);
+    };
   const [activeTimer, setActiveTimer] = useState<{ stepIndex: number; remaining: number } | null>(null);
   const [aiIngredients, setAiIngredients] = useState<any[] | null>(null);
   const [aiSteps, setAiSteps] = useState<any[] | null>(null);
@@ -380,7 +396,7 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
           </div>
           <div style={{ paddingBottom: 10 }}>
             <h1 style={{ color: 'white', fontSize: 30, fontWeight: 900, lineHeight: 1.1, marginBottom: 6 }}>{recipe.nameHindi || recipe.name}</h1>
-            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{recipe.name}</p>
+            <motion.p layoutId={`recipe-title-${recipe.id}`} style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{recipe.name}</motion.p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.2)', color: 'white', padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}><Star size={12} fill="#FCD34D" color="#FCD34D" /> {recipe.rating || '4.8'}</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.2)', color: 'white', padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}><Clock size={12} /> {(recipe.prepTime || 0) + (recipe.cookTime || 0)} min</span>
@@ -445,14 +461,14 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
             { id: 'cost', label: '💰 Cost', emoji: '' },
             { id: 'chef', label: '🤖 Chef', emoji: '' },
           ].map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id as any)} style={{ padding: '10px 4px', borderRadius: 12, border: 'none', cursor: 'pointer', background: activeTab === t.id ? W.card : 'transparent', color: activeTab === t.id ? W.primary : W.muted, fontWeight: activeTab === t.id ? 800 : 600, fontSize: 11, boxShadow: activeTab === t.id ? '0 2px 8px rgba(0,0,0,0.06)' : 'none', transition: 'all 0.2s' }}>
+            <button key={t.id} onClick={() => handleTabChange(t.id as any)} style={{ padding: '10px 4px', borderRadius: 12, border: 'none', cursor: 'pointer', background: activeTab === t.id ? W.card : 'transparent', color: activeTab === t.id ? W.primary : W.muted, fontWeight: activeTab === t.id ? 800 : 600, fontSize: 11, boxShadow: activeTab === t.id ? '0 2px 8px rgba(0,0,0,0.06)' : 'none', transition: 'all 0.2s' }}>
               {t.label}
             </button>
           ))}
         </div>
 
         <AnimatePresence mode="wait">
-          <motion.div key={activeTab + recipeVersion} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+          <motion.div custom={tabDirection} variants={swipeVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25, type: "spring", bounce: 0 }} key={activeTab + recipeVersion}>
 
             {/* ===== TAB 1: INGREDIENTS (Category-wise) ===== */}
             {activeTab === 'ingredients' && (
@@ -615,7 +631,7 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
 
       {/* Sticky Start Cooking CTA */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 24px 32px', background: 'linear-gradient(to top, rgba(255,248,243,1) 50%, rgba(255,248,243,0))', zIndex: 40, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-        <motion.button whileTap={{ scale: 0.95 }}
+        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }}
           onClick={() => { setCurrentRecipe({ ...recipe, servings, ingredients: enrichedIngredients, steps: displayedSteps }); router.push('/cook'); }}
           style={{ pointerEvents: 'auto', width: '100%', maxWidth: 400, background: 'linear-gradient(135deg, #F97316, #EA580C)', color: 'white', border: 'none', padding: '18px', borderRadius: 100, cursor: 'pointer', fontSize: 18, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, boxShadow: '0 8px 24px rgba(249,115,22,0.3)' }}>
           Start Cooking <Play size={20} fill="white" />
