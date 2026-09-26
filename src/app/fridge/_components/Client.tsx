@@ -16,7 +16,7 @@ export default function FridgePage() {
   const router = useRouter();
   const { language } = useZaykaStore();
   const [stage, setStage] = useState<'camera' | 'scanning' | 'result'>('camera');
-  const [ingredients, setIngredients] = useState<string[]>([]);
+  const { fridgeIngredients: ingredients, setFridgeIngredients: setIngredients } = useZaykaStore();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 

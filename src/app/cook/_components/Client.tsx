@@ -1,3 +1,4 @@
+import Image from 'next/image';
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +15,7 @@ export default function CookPage() {
   const router = useRouter();
   const { currentRecipe, addCookingHistoryEntry, updateMemory, memory, updateStreak } = useZaykaStore();
   const [currentStep, setCurrentStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [showChat, setShowChat] = useState(false);
   
@@ -150,7 +152,15 @@ export default function CookPage() {
       <audio ref={audioRef} autoPlay playsInline style={{ display: 'none' }} />
 
       {/* Voice Active Indicator (Phase 5) */}
-      {isVoiceActive && (
+      
+        {/* Progress Tracker (Phase 8) */}
+        <div style={{ display: 'flex', gap: 4, padding: '16px 20px 0', background: 'white' }}>
+          {steps.map((_, i) => (
+            <div key={i} style={{ flex: 1, height: 4, borderRadius: 10, background: completedSteps.includes(i) ? '#10B981' : i === currentStep ? '#F97316' : '#E5E7EB', transition: 'all 0.3s' }} />
+          ))}
+        </div>
+
+        {isVoiceActive && (
         <div style={{
           position: 'absolute', top: 16, right: 16, background: 'rgba(249,115,22,0.1)',
           border: '1px solid rgba(249,115,22,0.3)', borderRadius: 100,
@@ -218,7 +228,12 @@ export default function CookPage() {
                         <h2 style={{ fontSize: 20, fontWeight: 900, color: W.heading }}>{step?.description?.substring(0,20)}...</h2>
                       </div>
                     </div>
-                    <p style={{ fontSize: 15, color: '#3D2B1F', lineHeight: 1.7, fontWeight: 600 }}>{step?.description}</p>
+                    
+                      <div style={{ width: '100%', height: 200, position: 'relative', borderRadius: 16, overflow: 'hidden', marginBottom: 16, background: '#F3F4F6' }}>
+                        <Image src={'https://image.pollinations.ai/prompt/' + encodeURIComponent('cooking step realistic top down ' + (currentRecipe?.name || '') + ' ' + (step?.description || '')) + '?width=600&height=400&nologo=true&seed=' + currentStep} alt="Step Visualization" fill style={{ objectFit: 'cover' }} />
+                      </div>
+
+                      <p style={{ fontSize: 15, color: '#3D2B1F', lineHeight: 1.7, fontWeight: 600 }}>{step?.description}</p>
                   </div>
                 </>
               )}
@@ -244,17 +259,17 @@ export default function CookPage() {
       </div>
 
       <div style={{ background: 'rgba(255,248,243,0.96)', backdropFilter: 'blur(20px)', borderTop: `1px solid ${W.border}`, padding: '14px 16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, zIndex: 20 }}>
-        <button onClick={prevStep} disabled={currentStep === 0}
+        <button aria-label="Previous Step" onClick={prevStep} disabled={currentStep === 0}
           style={{ padding: '12px 20px', borderRadius: 16, fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 14, cursor: currentStep === 0 ? 'not-allowed' : 'pointer', background: currentStep === 0 ? '#F0E6DC' : W.card, color: currentStep === 0 ? '#C4A882' : W.heading, border: `1.5px solid ${W.border}`, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', opacity: currentStep === 0 ? 0.5 : 1 }}>
           <ChevronLeft style={{ width: 16, height: 16 }} /> Prev
         </button>
 
-        <button onClick={toggleCamera}
+        <button aria-label={isCameraActive ? "Deactivate Camera" : "Activate Camera"} onClick={toggleCamera}
           style={{ width: 56, height: 56, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: 'none', background: isCameraActive ? '#EF4444' : 'linear-gradient(135deg, #3B82F6, #06B6D4)', boxShadow: isCameraActive ? '0 4px 16px rgba(239,68,68,0.4)' : '0 4px 16px rgba(59,130,246,0.3)', transition: 'all 0.3s' }}>
           <Camera style={{ width: 22, height: 22, color: 'white' }} />
         </button>
 
-        <button onClick={nextStep}
+        <button aria-label={isLastStep ? "Finish Cooking" : "Next Step"} onClick={nextStep}
           style={{ padding: '12px 20px', borderRadius: 16, fontFamily: 'Nunito, sans-serif', fontWeight: 800, fontSize: 14, cursor: 'pointer', background: 'linear-gradient(135deg, #F97316, #FB923C)', color: 'white', border: 'none', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 4px 16px rgba(249,115,22,0.35)', transition: 'all 0.2s' }}>
           {isLastStep ? (<><CheckCircle2 style={{ width: 16, height: 16 }} /> Done!</>) : (<>Next <ChevronRight style={{ width: 16, height: 16 }} /></>)}
         </button>

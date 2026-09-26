@@ -153,6 +153,7 @@ const DUMMY_RECIPES: Record<string, any> = {
 
 function IngredientCard({ ing, servings, baseServings }: { ing: any, servings: number, baseServings: number }) {
   const [expanded, setExpanded] = useState(false);
+  const { fridgeIngredients } = useZaykaStore();
   const displayAmount = Math.round(((ing.amount / baseServings) * servings) * 10) / 10;
   const displayCost = ing.cost ? Math.round((ing.cost / baseServings) * servings) : null;
   const avBg = ing.availability === 'kirana' ? '#DCFCE7' : ing.availability === 'supermarket' ? '#DBEAFE' : '#F3E8FF';
@@ -237,7 +238,7 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
   const { isFavourite, addFavourite, removeFavourite, setCurrentRecipe, savedRecipes, memory } = useZaykaStore() as any;
 
   const [recipe, setRecipe] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'ingredients' | 'steps' | 'cost' | 'chef'>('ingredients');
+  const { lastRecipeTab: activeTab, setLastRecipeTab: setActiveTab } = useZaykaStore();
   const [recipeVersion, setRecipeVersion] = useState<'desi' | 'authentic'>('desi');
   const [servings, setServings] = useState(2);
   const [activeTimer, setActiveTimer] = useState<{ stepIndex: number; remaining: number } | null>(null);
@@ -384,6 +385,7 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
               <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.2)', color: 'white', padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}><Star size={12} fill="#FCD34D" color="#FCD34D" /> {recipe.rating || '4.8'}</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.2)', color: 'white', padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700 }}><Clock size={12} /> {(recipe.prepTime || 0) + (recipe.cookTime || 0)} min</span>
               <span style={{ background: recipe.isVeg ? '#22C55E' : '#EF4444', color: 'white', padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 800 }}>{recipe.isVeg ? 'VEG' : 'NON-VEG'}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.2)', color: 'white', padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700, textTransform: 'capitalize' }}>{recipe.difficulty || 'Beginner'}</span>
             </div>
           </div>
         </div>

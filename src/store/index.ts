@@ -13,6 +13,10 @@ import {
 } from '@/types';
 
 interface ZaykaStore {
+  // Fridge
+  fridgeIngredients: string[];
+  setFridgeIngredients: (ingredients: string[]) => void;
+
   // User state
   user: User | null;
   setUser: (user: User | null) => void;
@@ -24,6 +28,10 @@ interface ZaykaStore {
   // Selected chef
   selectedChef: ChefId;
   setChef: (chefId: ChefId) => void;
+
+  // Recipe UI
+  lastRecipeTab: string;
+  setLastRecipeTab: (tab: string) => void;
 
   // Current recipe (cooking mode)
   currentRecipe: Recipe | null;
@@ -82,6 +90,14 @@ interface ZaykaStore {
 export const useZaykaStore = create<ZaykaStore>()(
   persist(
     (set, get) => ({
+        // Recipe UI
+        lastRecipeTab: 'overview',
+        setLastRecipeTab: (lastRecipeTab) => set({ lastRecipeTab }),
+
+        // Fridge
+        fridgeIngredients: [],
+        setFridgeIngredients: (fridgeIngredients) => set({ fridgeIngredients }),
+
       // User
       user: null,
       setUser: async (user) => {
@@ -209,6 +225,8 @@ export const useZaykaStore = create<ZaykaStore>()(
         selectedChef: state.selectedChef,
         favourites: state.favourites,
         user: state.user,
+          fridgeIngredients: state.fridgeIngredients,
+          lastRecipeTab: state.lastRecipeTab,
         memory: state.memory,
         savedRecipes: state.savedRecipes,
         familyRecipes: state.familyRecipes,
@@ -223,7 +241,7 @@ export const useZaykaStore = create<ZaykaStore>()(
 let syncTimeout: any = null;
 useZaykaStore.subscribe((state, prevState) => {
   if (state.user?.id) {
-    const keys = ['memory', 'favourites', 'savedRecipes', 'familyRecipes', 'currentStreak', 'lastCookDate'] as const;
+    const keys = ['fridgeIngredients', 'memory', 'favourites', 'savedRecipes', 'familyRecipes', 'currentStreak', 'lastCookDate'] as const;
     const changed = keys.some(key => state[key] !== prevState[key]);
     
     if (changed) {
