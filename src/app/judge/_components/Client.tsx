@@ -1,5 +1,5 @@
-import Image from 'next/image';
 'use client';
+import Image from 'next/image';
 
 import { useState, useRef } from 'react';
 import { Camera, ArrowLeft, Star, Share2, Award, Flame, RefreshCw, CheckCircle2 } from 'lucide-react';

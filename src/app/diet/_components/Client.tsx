@@ -1,5 +1,5 @@
-import Image from 'next/image';
 'use client';
+import Image from 'next/image';
 
 import { useState, useRef } from 'react';
 import { ArrowLeft, Activity, Flame, Beef, Camera, Scan } from 'lucide-react';

@@ -25,7 +25,7 @@ export const CHEF_PROFILES: Record<string, ChefProfile> = {
       'Arre, oil itna mat daal — hum pakode nahi bana rahe! 😂',
       'Kya hai yaar, chef ban raha hai ya DJ? Thoda mix kar properly!',
     ],
-    avatarUrl: '/avatars/rohan.png',
+    avatarUrl: '/avatars/rohan.svg',
     voiceId: 'rohan_voice',
   },
   arjun: {
@@ -47,7 +47,7 @@ export const CHEF_PROFILES: Record<string, ChefProfile> = {
     humor: [
       'Masala itna mat daalo — MasterChef judge aayenge to seedha disqualify karenge! 😄',
     ],
-    avatarUrl: '/avatars/arjun.png',
+    avatarUrl: '/avatars/arjun.svg',
     voiceId: 'arjun_voice',
   },
   rajan: {
@@ -69,7 +69,7 @@ export const CHEF_PROFILES: Record<string, ChefProfile> = {
     humor: [
       'Beta, itna namak daaloge to pani bhi pite rahoge sari raat! 😄',
     ],
-    avatarUrl: '/avatars/rajan.png',
+    avatarUrl: '/avatars/rajan.svg',
     voiceId: 'rajan_voice',
   },
   ananya: {
@@ -91,7 +91,7 @@ export const CHEF_PROFILES: Record<string, ChefProfile> = {
     humor: [
       'Itna oil daala ki filter bhi nahi bachayega! 😂',
     ],
-    avatarUrl: '/avatars/ananya.png',
+    avatarUrl: '/avatars/ananya.svg',
     voiceId: 'ananya_voice',
   },
   priya: {
@@ -113,7 +113,7 @@ export const CHEF_PROFILES: Record<string, ChefProfile> = {
     humor: [
       'Itna masala daalenge to guest paani maangenge pehle! 😄',
     ],
-    avatarUrl: '/avatars/priya.png',
+    avatarUrl: '/avatars/priya.svg',
     voiceId: 'priya_voice',
   },
   savita: {
@@ -135,7 +135,7 @@ export const CHEF_PROFILES: Record<string, ChefProfile> = {
     humor: [
       'Itna namak daala beta? Ab paani bhi meetha lagega! 😄',
     ],
-    avatarUrl: '/avatars/savita.png',
+    avatarUrl: '/avatars/savita.svg',
     voiceId: 'savita_voice',
   },
 };

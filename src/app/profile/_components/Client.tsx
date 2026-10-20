@@ -1,6 +1,6 @@
+'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-'use client';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Flame, Trophy, Heart, Star, Medal } from 'lucide-react';

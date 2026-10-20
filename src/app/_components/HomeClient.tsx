@@ -1,5 +1,6 @@
-import Image from 'next/image';
 'use client';
+import Image from 'next/image';
+import DishImage from '@/components/DishImage';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -210,7 +211,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                   <motion.div whileTap={{ scale: 0.95 }} style={{
                     width: 160, height: 180, borderRadius: 16, position: 'relative', overflow: 'hidden', flexShrink: 0
                   }}>
-                    <Image src={recipe.image} alt={recipe.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
+                    <DishImage src={recipe.image} alt={recipe.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
                     <div style={{
                       position: 'absolute', inset: 0,
                       background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)',
@@ -268,7 +269,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                       boxShadow: '0 8px 20px rgba(0,0,0,0.06)', cursor: 'pointer'
                     }}
                   >
-                    <Image src={recipe.image} alt={recipe.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
+                    <DishImage src={recipe.image} alt={recipe.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
                     <div style={{
                       position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                       background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)',

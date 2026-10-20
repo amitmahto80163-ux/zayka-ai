@@ -1,53 +1,21 @@
-
-import { adminDb } from './firebase-admin';
-import { FieldValue } from 'firebase-admin/firestore';
-
-function trackOpenRouterUsage() {
-  if (!adminDb) return;
-  (async () => {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const docRef = adminDb.collection('api_usage').doc(today);
-      await docRef.set({ openrouter: FieldValue.increment(1) }, { merge: true });
-
-      const snap = await docRef.get();
-      if (snap.exists) {
-         const count = snap.data()?.openrouter || 0;
-         if (count >= 40) {
-            console.warn(`WARNING: OpenRouter usage is at ${count}/50 for today!`);
-         }
-      }
-    } catch(e) {
-      console.error('Usage tracking error:', e);
-    }
-  })();
-}
-
-
-
-
 // ============================================
-// ZAYKA AI — Unified AI Client
-// Groq  → Text generation (fast + free)
-// OpenRouter → Vision tasks (image analysis)
-// Pollinations → Dish images (unlimited, no key)
+// ZAYKA AI — Unified AI Client (Server-safe)
+// Multi-Provider: 7 free AIs auto-rotating
+// Groq → DeepSeek → Zhipu → Yi → Qwen → Kimi → OpenRouter
 // ============================================
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+// Re-export from providers (pure fetch, no Node.js deps)
+export { callAI, getProviderStats } from './providers';
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 
 export const GEMINI_VISION_MODEL = 'gemini-2.5-flash';
+export const GROQ_FAST_MODEL = 'llama-3.1-8b-instant';
 
-// Working Models (tested 25-Sep-2026)
-const GROQ_TEXT_MODEL = 'llama-3.3-70b-versatile';
-export const GROQ_FAST_MODEL = 'llama-3.1-8b-instant';           // Fast + JSON support ✅
-      // Vision capable free model ✅
-const OR_VISION_FALLBACK = 'openrouter/free';          // Fallback if main fails
-
+// ─── JSON Parser ────────────────────────────────────────────
 export function parseJSONResponse(text: string) {
   try {
-    // Find the first { or [ and the last } or ]
     const startObj = text.indexOf('{');
     const startArr = text.indexOf('[');
     const endObj = text.lastIndexOf('}');
@@ -65,11 +33,9 @@ export function parseJSONResponse(text: string) {
     }
 
     if (startIndex !== -1 && endIndex !== -1 && endIndex >= startIndex) {
-      const cleanText = text.substring(startIndex, endIndex + 1);
-      return JSON.parse(cleanText);
+      return JSON.parse(text.substring(startIndex, endIndex + 1));
     }
-    
-    // Fallback if no brackets found (unlikely if it's JSON, but just in case)
+
     const cleanText = text.replace(/^```(?:json)?/gim, '').replace(/```$/gim, '').trim();
     return JSON.parse(cleanText);
   } catch (e) {
@@ -78,89 +44,49 @@ export function parseJSONResponse(text: string) {
   }
 }
 
-// ─── TEXT GENERATION (Groq) ───────────────────
+// ─── TEXT GENERATION — 7 free providers auto-rotating ───────
 export async function callGroq(
   prompt: string,
   systemPrompt?: string,
   jsonMode = true,
   modelOverride?: string
 ): Promise<string> {
-  const messages: { role: string; content: string }[] = [];
-  if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
-  
-  // Append JSON instruction directly in prompt (qwen doesn't support response_format)
-  const finalPrompt = jsonMode
-    ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON. No markdown, no explanation, no code blocks. Just raw JSON.'
-    : prompt;
-  messages.push({ role: 'user', content: finalPrompt });
-
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${GROQ_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: modelOverride || GROQ_TEXT_MODEL,
-      messages,
-      temperature: 0.7,
-      max_tokens: 4096,
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    if (res.status === 401 && OPENROUTER_API_KEY) {
-      console.warn('Groq failed with 401. Falling back to OpenRouter text model.');
-      const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + OPENROUTER_API_KEY,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://zayka-ai.vercel.app',
-          'X-Title': 'Zayka AI'
-        },
-        body: JSON.stringify({
-          model: 'meta-llama/llama-3.1-8b-instruct:free',
-          messages: messages,
-          temperature: 0.7
-        })
-      });
-      if (orRes.ok) {
-        const orData = await orRes.json();
-        return orData.choices[0].message.content;
-      }
-    }
-    throw new Error('Groq Error: ' + res.status + ' - ' + err);
-  }
-
-  const data = await res.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error('Groq returned empty response');
-  return content;
+  const { callAI } = await import('./providers');
+  const isFast = modelOverride
+    ? modelOverride.includes('8b') || modelOverride.includes('instant') || modelOverride.includes('flash')
+    : false;
+  return callAI(prompt, { systemPrompt, jsonMode, fast: isFast });
 }
 
-// ─── VISION (OpenRouter with Groq fallback) ──────
-
-export async function callGeminiVision(prompt: string, imageBase64: string, jsonMode = true): Promise<string> {
+// ─── VISION — Gemini first, OpenRouter fallback ─────────────
+export async function callGeminiVision(
+  prompt: string,
+  imageBase64: string,
+  jsonMode = true
+): Promise<string> {
   if (!GEMINI_API_KEY) throw new Error('Missing GEMINI_API_KEY');
-  
-  const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
-  const finalPrompt = jsonMode ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text.' : prompt;
 
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{
-        parts: [
-          { text: finalPrompt },
-          { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
-        ]
-      }],
-      generationConfig: { temperature: 0.7 }
-    })
-  });
+  const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+  const finalPrompt = jsonMode
+    ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text.'
+    : prompt;
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: finalPrompt },
+            { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
+          ]
+        }],
+        generationConfig: { temperature: 0.7 }
+      })
+    }
+  );
 
   if (!res.ok) {
     const err = await res.text();
@@ -178,55 +104,73 @@ export async function callVision(
   imageBase64: string,
   jsonMode = true
 ): Promise<string> {
-  // Strip data URL prefix if present
-  const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
-  const imageUrl = `data:image/jpeg;base64,${base64Data}`;
-
-  // Try OpenRouter vision models in order
-  const visionModels = ['google/gemma-3-27b-it:free', OR_VISION_FALLBACK];
-  
-  for (const model of visionModels) {
+  // Try Gemini first
+  if (GEMINI_API_KEY) {
     try {
-      trackOpenRouterUsage();
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://zayka-ai.vercel.app',
-          'X-Title': 'Zayka AI',
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                { type: 'text', text: jsonMode ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text.' : prompt },
-                { type: 'image_url', image_url: { url: imageUrl } },
-              ],
-            },
-          ],
-          max_tokens: 2048,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        const content = data.choices?.[0]?.message?.content;
-        if (content) return content;
-      }
+      return await callGeminiVision(prompt, imageBase64, jsonMode);
     } catch (e) {
-      console.warn(`Vision model ${model} failed, trying next...`);
+      console.warn('Gemini vision failed, trying OpenRouter...');
     }
   }
 
-  // Final fallback: Use Groq text model (no image, just context)
-  console.warn('All vision models failed, using Groq text fallback');
-  return await callGroq(prompt + '\n\n(Note: Image analysis unavailable, provide best estimate based on context)', undefined, jsonMode);
+  // Fallback: OpenRouter vision models
+  if (OPENROUTER_API_KEY) {
+    const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+    const imageUrl = `data:image/jpeg;base64,${base64Data}`;
+    const visionModels = [
+      'google/gemma-3-27b-it:free',
+      'meta-llama/llama-3.2-11b-vision-instruct:free',
+    ];
+
+    for (const model of visionModels) {
+      try {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://zayka-ai.vercel.app',
+            'X-Title': 'Zayka AI',
+          },
+          body: JSON.stringify({
+            model,
+            messages: [{
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: jsonMode
+                    ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown.'
+                    : prompt
+                },
+                { type: 'image_url', image_url: { url: imageUrl } },
+              ],
+            }],
+            max_tokens: 2048,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const content = data.choices?.[0]?.message?.content;
+          if (content) return content;
+        }
+      } catch (e) {
+        console.warn(`Vision model ${model} failed`);
+      }
+    }
+  }
+
+  // Final fallback: text-only
+  console.warn('All vision models failed, using text fallback');
+  return callGroq(
+    prompt + '\n\n(Note: Image unavailable, give best estimate)',
+    undefined,
+    jsonMode
+  );
 }
 
-// ─── DISH IMAGE (Pollinations — No key needed) ─
+// ─── DISH IMAGE (Pollinations — unlimited, no key) ───────────
 export function getDishImageUrl(dishName: string): string {
   const encoded = encodeURIComponent(dishName).replace(/%20/g, '+');
   return `https://image.pollinations.ai/prompt/${encoded}+delicious+indian+food+photography+highly+detailed?width=800&height=800&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
