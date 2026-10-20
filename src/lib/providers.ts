@@ -20,6 +20,18 @@ export interface AIProvider {
 // All 7 providers — all free tiers
 export const AI_PROVIDERS: AIProvider[] = [
   {
+    id: 'groq',
+    name: 'Groq',
+    baseUrl: 'https://api.groq.com/openai/v1',
+    model: 'qwen/qwen3.8-27b',
+    fastModel: 'openai/gpt-oss-20b',
+    apiKeyEnv: 'GROQ_API_KEY',
+    maxDailyRequests: 14400,
+    avgLatencyMs: 300,
+    supportsJSON: true,
+    priority: 1, // PRIMARY AI — 100% Free, active & ultra-fast!
+  },
+  {
     id: 'deepseek',
     name: 'DeepSeek',
     baseUrl: 'https://api.deepseek.com/v1',
@@ -29,19 +41,7 @@ export const AI_PROVIDERS: AIProvider[] = [
     maxDailyRequests: 5000,
     avgLatencyMs: 1200,
     supportsJSON: true,
-    priority: 1, // PRIMARY AI — DeepSeek handles everything first!
-  },
-  {
-    id: 'groq',
-    name: 'Groq',
-    baseUrl: 'https://api.groq.com/openai/v1',
-    model: 'llama-3.3-70b-versatile',
-    fastModel: 'llama-3.1-8b-instant',
-    apiKeyEnv: 'GROQ_API_KEY',
-    maxDailyRequests: 1440,
-    avgLatencyMs: 500,
-    supportsJSON: true,
-    priority: 2, // Backup fallback
+    priority: 2, // Secondary fallback
   },
   {
     id: 'zhipu',
