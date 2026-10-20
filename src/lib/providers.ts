@@ -20,6 +20,18 @@ export interface AIProvider {
 // All 7 providers — all free tiers
 export const AI_PROVIDERS: AIProvider[] = [
   {
+    id: 'deepseek',
+    name: 'DeepSeek',
+    baseUrl: 'https://api.deepseek.com/v1',
+    model: 'deepseek-chat',
+    fastModel: 'deepseek-chat',
+    apiKeyEnv: 'DEEPSEEK_API_KEY',
+    maxDailyRequests: 5000,
+    avgLatencyMs: 1200,
+    supportsJSON: true,
+    priority: 1, // PRIMARY AI — DeepSeek handles everything first!
+  },
+  {
     id: 'groq',
     name: 'Groq',
     baseUrl: 'https://api.groq.com/openai/v1',
@@ -29,19 +41,7 @@ export const AI_PROVIDERS: AIProvider[] = [
     maxDailyRequests: 1440,
     avgLatencyMs: 500,
     supportsJSON: true,
-    priority: 1, // Fastest — try first
-  },
-  {
-    id: 'deepseek',
-    name: 'DeepSeek',
-    baseUrl: 'https://api.deepseek.com/v1',
-    model: 'deepseek-chat',
-    fastModel: 'deepseek-chat',
-    apiKeyEnv: 'DEEPSEEK_API_KEY',
-    maxDailyRequests: 1000,
-    avgLatencyMs: 2000,
-    supportsJSON: true,
-    priority: 2, // GPT-4 quality, 500M tokens/month
+    priority: 2, // Backup fallback
   },
   {
     id: 'zhipu',
