@@ -1,4 +1,5 @@
 'use client';
+import DishImage from '@/components/DishImage';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -233,7 +234,7 @@ export default function WorldCuisinePage() {
                       }}
                     >
                       <div style={{ width: 80, height: 80, borderRadius: 16, overflow: 'hidden', flexShrink: 0, border: '1.5px solid #F0E6DC' }}>
-                        <Image src={dish.img} alt={dish.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
+                        <DishImage src={dish.img} alt={dish.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={80} height={80} />
                       </div>
                       <div style={{ flex: 1 }}>
                         <span style={{ fontSize: 9, fontWeight: 800,   padding: '3px 8px', borderRadius: 50, background: tc.bg, color: tc.text, display: 'inline-block', marginBottom: 6 }}>
@@ -268,7 +269,7 @@ export default function WorldCuisinePage() {
               
               {/* Dish Image in Bottom Sheet */}
               <div style={{ height: 240, position: 'relative' }}>
-                <Image src={selectedDish.img} alt={selectedDish.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '24px 24px 0 0' }} width={400} height={400} />
+                <DishImage src={selectedDish.img} alt={selectedDish.name} fill priority style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '24px 24px 0 0' }} />
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(28,16,9,0.9) 0%, transparent 60%)', borderRadius: '24px 24px 0 0' }} />
                 <div style={{ position: 'absolute', bottom: 16, left: 20 }}>
                   <h2 style={{ color: 'white', fontSize: 28, fontWeight: 900 }}>{selectedDish.name}</h2>

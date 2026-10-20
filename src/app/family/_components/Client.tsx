@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Lock, Globe, BookOpen, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Lock, Globe, BookOpen, Trash2, Camera, X } from 'lucide-react';
+import DishImage from '@/components/DishImage';
 import { useZaykaStore } from '@/store';
 import toast from 'react-hot-toast';
 import { W } from '@/lib/theme';
@@ -20,6 +21,8 @@ export default function FamilyVaultPage() {
   const [ingredients, setIngredients] = useState('');
   const [steps, setSteps] = useState('');
   const [isPrivate, setIsPrivate] = useState(true);
+  const [photoUrl, setPhotoUrl] = useState<string>('');
+  const fileRef = useState<any>(null);
 
   const handleSave = () => {
     if (!title || !ingredients || !steps) {
@@ -36,13 +39,14 @@ export default function FamilyVaultPage() {
       steps: steps.split('\n').filter(s => s.trim()),
       isPrivate,
       createdAt: new Date().toISOString(),
+      imageUrl: photoUrl || undefined,
     });
     
     toast.success('Recipe saved in vault! 🔐');
     setShowAdd(false);
     
     // Reset
-    setTitle(''); setOrigin(''); setIngredients(''); setSteps(''); setIsPrivate(true);
+    setTitle(''); setOrigin(''); setIngredients(''); setSteps(''); setIsPrivate(true); setPhotoUrl('');
   };
 
   return (
@@ -108,7 +112,7 @@ export default function FamilyVaultPage() {
                       description: recipe.description || `From ${recipe.origin}`,
                       cuisine: 'family',
                       prepTime: 10, cookTime: 20, servings: 2, isVeg: true, calories: 300, rating: 5,
-                      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
+                      image: recipe.imageUrl || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
                       ingredients: recipe.ingredients.map((i, idx) => ({ id: `i-${idx}`, name: i, amount: 1, unit: 'as needed', category: 'other' })),
                       steps: recipe.steps.map((s, idx) => ({ stepNumber: idx + 1, title: `Step ${idx + 1}`, description: s, duration: 5 })),
                       category: 'dinner', difficulty: 'easy',
@@ -140,8 +144,22 @@ export default function FamilyVaultPage() {
               <h2 style={{ fontSize: 20, fontWeight: 900, color: W.text, marginBottom: 20 }}>New Family Recipe 🍲</h2>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 800, color: W.muted, marginBottom: 6, display: 'block' }}>Recipe Name</label>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '12px', background: W.card, border: `1.5px dashed ${W.border}`, borderRadius: 18 }}>
+                    {photoUrl ? (
+                      <div style={{ position: 'relative', width: '100%', height: 140, borderRadius: 14, overflow: 'hidden' }}>
+                        <DishImage src={photoUrl} alt={title || 'Family recipe'} fill style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <button onClick={() => setPhotoUrl('')} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><X size={16} /></button>
+                      </div>
+                    ) : (
+                      <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', padding: '12px 0', width: '100%' }}>
+                        <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FFF0E6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: W.primary }}><Camera size={22} /></div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: W.primary }}>Add Recipe Photo (Optional)</span>
+                        <input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onload = (re) => { setPhotoUrl(re.target?.result as string); }; reader.readAsDataURL(file); } }} style={{ display: 'none' }} />
+                      </label>
+                    )}
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 800, color: W.muted, marginBottom: 6, display: 'block' }}>Recipe Name</label>
                   <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Nani ki Dal Baati"
                     style={{ width: '100%', background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 16, padding: '14px', fontSize: 16, fontWeight: 700, color: W.text, outline: 'none' }} />
                 </div>

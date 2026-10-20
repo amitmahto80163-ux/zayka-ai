@@ -1,4 +1,5 @@
 'use client';
+import DishImage from '@/components/DishImage';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -230,7 +231,7 @@ export default function CookPage() {
                     </div>
                     
                       <div style={{ width: '100%', height: 200, position: 'relative', borderRadius: 16, overflow: 'hidden', marginBottom: 16, background: '#F3F4F6' }}>
-                        <Image src={'https://image.pollinations.ai/prompt/' + encodeURIComponent('cooking step realistic top down ' + (currentRecipe?.name || '') + ' ' + (step?.description || '')) + '?width=600&height=400&nologo=true&seed=' + currentStep} alt="Step Visualization" fill style={{ objectFit: 'cover' }} />
+                        <DishImage src={'https://image.pollinations.ai/prompt/' + encodeURIComponent('cooking step realistic top down ' + (currentRecipe?.name || '') + ' ' + (step?.description || '')) + '?width=600&height=400&nologo=true&seed=' + currentStep} alt="Step Visualization" fill style={{ objectFit: 'cover' }} />
                       </div>
 
                       <p style={{ fontSize: 15, color: '#3D2B1F', lineHeight: 1.7, fontWeight: 600 }}>{step?.description}</p>

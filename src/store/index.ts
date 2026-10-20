@@ -81,6 +81,11 @@ interface ZaykaStore {
   addFamilyRecipe: (recipe: FamilyRecipe) => void;
   deleteFamilyRecipe: (id: string) => void;
 
+  // Custom Recipe Images (User uploaded)
+  customRecipeImages: Record<string, string>;
+  setCustomRecipeImage: (recipeId: string, imageUrl: string) => void;
+  removeCustomRecipeImage: (recipeId: string) => void;
+
   // Streak
   currentStreak: number;
   lastCookDate: string | null;
@@ -205,6 +210,11 @@ export const useZaykaStore = create<ZaykaStore>()(
         familyRecipes: state.familyRecipes.filter(r => r.id !== id)
       })),
 
+      // Custom Recipe Images
+      customRecipeImages: {},
+      setCustomRecipeImage: (recipeId, imageUrl) => set((state) => ({ customRecipeImages: { ...state.customRecipeImages, [recipeId]: imageUrl } })),
+      removeCustomRecipeImage: (recipeId) => set((state) => { const updated = { ...state.customRecipeImages }; delete updated[recipeId]; return { customRecipeImages: updated }; }),
+
       // Streak
       currentStreak: 0,
       lastCookDate: null,
@@ -230,6 +240,7 @@ export const useZaykaStore = create<ZaykaStore>()(
         memory: state.memory,
         savedRecipes: state.savedRecipes,
         familyRecipes: state.familyRecipes,
+        customRecipeImages: state.customRecipeImages,
         currentStreak: state.currentStreak,
         lastCookDate: state.lastCookDate,
       }),

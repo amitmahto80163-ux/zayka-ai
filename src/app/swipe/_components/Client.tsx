@@ -1,4 +1,5 @@
 'use client';
+import DishImage from '@/components/DishImage';
 import Image from 'next/image';
 
 import { useState } from 'react';
@@ -138,7 +139,7 @@ export default function SwipePage() {
                   {/* Background cards */}
                   {cards.slice(1, 3).map((c, i) => (
                     <div key={c.id} style={{ position: 'absolute', inset: 0, borderRadius: 28, overflow: 'hidden', border: `1.5px solid ${W.border}`, transform: `scale(${0.95 - i * 0.04}) translateY(${(i + 1) * 8}px)`, zIndex: -i - 1, boxShadow: '0 4px 20px rgba(249,115,22,0.1)' }}>
-                      <Image src={c.img} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} width={400} height={400} />
+                      <DishImage src={c.img} alt={c.name} fill style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} />
                     </div>
                   ))}
 
@@ -151,7 +152,7 @@ export default function SwipePage() {
                       onDragEnd={handleDragEnd}
                       style={{ x, opacity, rotate, position: 'absolute', inset: 0, borderRadius: 28, overflow: 'hidden', border: `1.5px solid ${W.border}`, boxShadow: '0 12px 48px rgba(249,115,22,0.2)', cursor: 'grab' }}
                     >
-                      <Image src={top.img} alt={top.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
+                      <DishImage src={top.img} alt={top.name} fill priority style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(28,16,9,0.9) 0%, transparent 60%)' }} />
                       <div style={{ position: 'absolute', bottom: 24, left: 20, right: 20, pointerEvents: 'none' }}>
                         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 700, marginBottom: 4 }}>{top.cuisine}</p>

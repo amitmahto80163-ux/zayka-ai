@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // ZAYKA AI - Type Definitions
 // ============================================
 
@@ -238,4 +238,5 @@ export interface FamilyRecipe {
   steps: string[];
   isPrivate: boolean;
   createdAt: string;
+  imageUrl?: string;
 }

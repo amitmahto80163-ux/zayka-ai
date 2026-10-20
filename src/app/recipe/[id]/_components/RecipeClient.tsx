@@ -1,9 +1,10 @@
 'use client';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import DishImage from '@/components/DishImage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Share2, Heart, Star, Clock, Play, Globe, MapPin, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ArrowLeft, Share2, Heart, Star, Clock, Play, Globe, MapPin, ChevronDown, ChevronUp, Loader2, Camera, RotateCcw } from 'lucide-react';
 import { useZaykaStore } from '@/store';
 import toast from 'react-hot-toast';
 import ChefChat from '@/components/chat/ChefChat';
@@ -243,9 +244,36 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
   const params = useParams();
   const router = useRouter();
   const id = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
-  const { isFavourite, addFavourite, removeFavourite, setCurrentRecipe, savedRecipes, memory } = useZaykaStore() as any;
+  const { isFavourite, addFavourite, removeFavourite, setCurrentRecipe, savedRecipes, memory, customRecipeImages, setCustomRecipeImage, removeCustomRecipeImage } = useZaykaStore() as any;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast.error('Kripya valid photo chunein!'); return; }
+    const reader = new FileReader();
+    reader.onload = (re) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_DIM = 960;
+        let w = img.width; let h = img.height;
+        if (w > h) { if (w > MAX_DIM) { h = Math.round((h * MAX_DIM) / w); w = MAX_DIM; } }
+        else { if (h > MAX_DIM) { w = Math.round((w * MAX_DIM) / h); h = MAX_DIM; } }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        setCustomRecipeImage(id, dataUrl);
+        toast.success('Recipe photo updated! ???');
+      };
+      img.src = re.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const [recipe, setRecipe] = useState<any>(null);
+  const customImg = customRecipeImages?.[id];
+  const displayImage = customImg || recipe?.image || recipe?.imageUrl;
   const { lastRecipeTab: activeTab, setLastRecipeTab: setActiveTab } = useZaykaStore();
   const [recipeVersion, setRecipeVersion] = useState<'desi' | 'authentic'>('desi');
   const [servings, setServings] = useState(2);
