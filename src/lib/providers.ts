@@ -95,13 +95,13 @@ export const AI_PROVIDERS: AIProvider[] = [
     id: 'openrouter',
     name: 'OpenRouter',
     baseUrl: 'https://openrouter.ai/api/v1',
-    model: 'meta-llama/llama-3.1-8b-instruct:free',
-    fastModel: 'meta-llama/llama-3.1-8b-instruct:free',
+    model: 'minimax/minimax-m3.1-flash:free',
+    fastModel: 'minimax/minimax-m3.1-flash:free',
     apiKeyEnv: 'OPENROUTER_API_KEY',
-    maxDailyRequests: 200,
-    avgLatencyMs: 3000,
+    maxDailyRequests: 500,
+    avgLatencyMs: 1500,
     supportsJSON: false,
-    priority: 7, // Last resort fallback
+    priority: 3, // Verified free backup
   },
 ];
 
