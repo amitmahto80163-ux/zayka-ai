@@ -90,7 +90,7 @@ const QUICK_TOOLS = [
   },
 ];
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 12;
 
 function getTimeGreeting(userName: string): { greeting: string; sub: string } {
   const hour = new Date().getHours();
@@ -122,7 +122,6 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
   // Spotlight Featured Recipe (Dish of the day)
   const spotlightDish = useMemo(() => {
     if (!initialDishes || initialDishes.length === 0) return null;
-    // Pick highest rated or signature dish
     return initialDishes.find((d: any) => d.rating >= 4.8) || initialDishes[0];
   }, [initialDishes]);
 
@@ -187,156 +186,158 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
   return (
     <div className="min-h-screen safe-bottom" style={{ backgroundColor: W.bg }}>
       
-      {/* ===== LUXURY STICKY HEADER ===== */}
+      {/* ===== LUXURY STICKY HEADER (RESPONSIVE CENTERED) ===== */}
       <header 
         style={{
           position: 'sticky',
           top: 0,
           zIndex: 50,
-          background: 'rgba(255, 249, 245, 0.92)',
+          background: 'rgba(255, 249, 245, 0.94)',
           backdropFilter: 'blur(24px)',
           borderBottom: `1px solid ${W.borderSubtle}`,
-          padding: '44px 20px 16px',
+          padding: '24px 20px 14px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-              <Sparkles size={14} color={W.gold} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: W.muted }}>
-                {timeInfo.greeting}
-              </span>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                <Sparkles size={14} color={W.gold} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: W.muted }}>
+                  {timeInfo.greeting}
+                </span>
+              </div>
+              <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.5px', color: W.heading, lineHeight: 1.1, margin: 0 }}>
+                Zayka <span style={{ color: W.saffron }}>AI</span>
+              </h1>
             </div>
-            <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.5px', color: W.heading, lineHeight: 1.1 }}>
-              Zayka <span style={{ color: W.saffron }}>AI</span>
-            </h1>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {/* Streak Counter Badge */}
+              <motion.div 
+                whileTap={{ scale: 0.94 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: 'linear-gradient(135deg, #FFF1E8 0%, #FFEDD5 100%)',
+                  border: `1.5px solid ${W.border}`,
+                  borderRadius: W.radiusPill,
+                  padding: '6px 14px',
+                  boxShadow: W.shadowSm,
+                  cursor: 'pointer'
+                }}
+              >
+                <span style={{ fontSize: 16 }}>🔥</span>
+                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: W.primary }}>{streak} din</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: W.muted }}>Streak</span>
+                </div>
+              </motion.div>
+
+              {/* Profile Avatar */}
+              <Link href="/profile" style={{ textDecoration: 'none' }}>
+                <motion.div 
+                  whileTap={{ scale: 0.94 }}
+                  style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)',
+                    border: `2px solid ${W.card}`,
+                    boxShadow: W.shadowSm,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {user?.photoUrl ? (
+                    <Image 
+                      src={user.photoUrl} 
+                      alt="User" 
+                      width={42} 
+                      height={42} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  ) : (
+                    <User size={20} color={W.primary} />
+                  )}
+                </motion.div>
+              </Link>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {/* Streak Counter Badge */}
+          {/* Grand Search Bar */}
+          <Link href="/search" style={{ textDecoration: 'none' }}>
             <motion.div 
-              whileTap={{ scale: 0.94 }}
+              whileTap={{ scale: 0.99 }}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                background: 'linear-gradient(135deg, #FFF1E8 0%, #FFEDD5 100%)',
+                background: W.card,
                 border: `1.5px solid ${W.border}`,
                 borderRadius: W.radiusPill,
-                padding: '6px 14px',
+                padding: '10px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
                 boxShadow: W.shadowSm,
                 cursor: 'pointer'
               }}
             >
-              <span style={{ fontSize: 16 }}>🔥</span>
-              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-                <span style={{ fontSize: 13, fontWeight: 900, color: W.primary }}>{streak} din</span>
-                <span style={{ fontSize: 9, fontWeight: 700, color: W.muted }}>Streak</span>
+              <div style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: '#FFF0E6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Search size={16} color={W.primary} />
               </div>
-            </motion.div>
+              
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: W.heading }}>
+                  Aaj kya khana pasand karenge?
+                </p>
+                <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: W.muted }}>
+                  Boliye ya search karein (Butter Chicken, Dal Tadka, Biryani...)
+                </p>
+              </div>
 
-            {/* Profile Avatar */}
-            <Link href="/profile" style={{ textDecoration: 'none' }}>
+              <div style={{ width: 1, height: 22, background: W.borderSubtle }} />
+              
               <motion.div 
-                whileTap={{ scale: 0.94 }}
+                whileHover={{ scale: 1.08 }}
                 style={{
-                  width: 44,
-                  height: 44,
+                  width: 34,
+                  height: 34,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)',
-                  border: `2px solid ${W.card}`,
-                  boxShadow: W.shadowSm,
+                  background: W.primaryGradient,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  overflow: 'hidden',
-                  cursor: 'pointer'
+                  boxShadow: '0 4px 10px rgba(234, 88, 12, 0.3)'
                 }}
               >
-                {user?.photoUrl ? (
-                  <Image 
-                    src={user.photoUrl} 
-                    alt="User" 
-                    width={44} 
-                    height={44} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                  />
-                ) : (
-                  <User size={22} color={W.primary} />
-                )}
+                <Mic size={16} color="white" />
               </motion.div>
-            </Link>
-          </div>
-        </div>
-
-        {/* Grand Search Bar */}
-        <Link href="/search" style={{ textDecoration: 'none' }}>
-          <motion.div 
-            whileTap={{ scale: 0.98 }}
-            style={{
-              background: W.card,
-              border: `1.5px solid ${W.border}`,
-              borderRadius: W.radiusPill,
-              padding: '12px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              boxShadow: W.shadowMd,
-              cursor: 'pointer'
-            }}
-          >
-            <div style={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              background: '#FFF0E6',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Search size={16} color={W.primary} />
-            </div>
-            
-            <div style={{ flex: 1 }}>
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: W.heading }}>
-                Aaj kya khana pasand karenge?
-              </p>
-              <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: W.muted }}>
-                Boliye ya type karein (e.g. Butter Chicken, Dal Tadka)
-              </p>
-            </div>
-
-            <div style={{ width: 1, height: 24, background: W.borderSubtle }} />
-            
-            <motion.div 
-              whileHover={{ scale: 1.1 }}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                background: W.primaryGradient,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(234, 88, 12, 0.35)'
-              }}
-            >
-              <Mic size={18} color="white" />
             </motion.div>
-          </motion.div>
-        </Link>
+          </Link>
+        </div>
       </header>
 
-      {/* ===== BODY CONTENT ===== */}
-      <main style={{ padding: '16px 20px 100px', display: 'flex', flexDirection: 'column', gap: 28 }}>
+      {/* ===== BODY CONTENT (CONSTRAINED RESPONSIVE MAX-WIDTH) ===== */}
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px 16px 120px', display: 'flex', flexDirection: 'column', gap: 26 }}>
 
-        {/* ===== SPOTLIGHT FEATURED HERO (THALI OF THE DAY) ===== */}
+        {/* ===== SPOTLIGHT FEATURED HERO (COMPACT & SLEEK) ===== */}
         {spotlightDish && (
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 18 }}>👑</span>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: W.heading, margin: 0 }}>
+                <span style={{ fontSize: 16 }}>👑</span>
+                <h2 style={{ fontSize: 16, fontWeight: 900, color: W.heading, margin: 0 }}>
                   Chef's Special Spotlight
                 </h2>
               </div>
@@ -345,7 +346,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                 fontWeight: 800, 
                 color: W.gold, 
                 background: W.goldLight, 
-                padding: '4px 10px', 
+                padding: '3px 10px', 
                 borderRadius: W.radiusPill 
               }}>
                 ⭐ Aaj Ka Best
@@ -354,14 +355,14 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
 
             <Link href={`/recipe/${spotlightDish.id}`} style={{ textDecoration: 'none' }}>
               <motion.div
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ y: -3 }}
+                whileTap={{ scale: 0.99 }}
                 style={{
                   position: 'relative',
-                  height: 240,
-                  borderRadius: W.radiusCard,
+                  height: 200,
+                  borderRadius: 22,
                   overflow: 'hidden',
-                  boxShadow: W.shadowLg,
+                  boxShadow: W.shadowMd,
                   border: `1.5px solid ${W.border}`,
                   cursor: 'pointer'
                 }}
@@ -372,7 +373,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                   priority 
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                   width={800} 
-                  height={500} 
+                  height={400} 
                 />
                 
                 {/* Cinematic Desi Gradient Overlay */}
@@ -380,8 +381,8 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'linear-gradient(to top, rgba(30, 18, 10, 0.95) 0%, rgba(30, 18, 10, 0.4) 50%, rgba(0, 0, 0, 0.1) 100%)',
-                    padding: '20px',
+                    background: 'linear-gradient(to top, rgba(25, 14, 7, 0.92) 0%, rgba(25, 14, 7, 0.35) 50%, rgba(0, 0, 0, 0.1) 100%)',
+                    padding: '16px 20px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between'
@@ -394,21 +395,21 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                       color: 'white',
                       fontWeight: 900,
                       fontSize: 10,
-                      padding: '4px 10px',
+                      padding: '3px 9px',
                       borderRadius: W.radiusPill,
-                      letterSpacing: '0.5px'
+                      letterSpacing: '0.4px'
                     }}>
-                      {spotlightDish.isVeg ? '🟢 100% PURE VEG' : '🔴 NON-VEG SPECIAL'}
+                      {spotlightDish.isVeg ? '🟢 PURE VEG' : '🔴 NON-VEG'}
                     </span>
 
                     <button 
                       onClick={(e) => handleFavoriteToggle(e, spotlightDish.id)}
                       style={{
-                        width: 36,
-                        height: 36,
+                        width: 32,
+                        height: 32,
                         borderRadius: '50%',
                         background: 'rgba(255, 255, 255, 0.25)',
-                        backdropFilter: 'blur(10px)',
+                        backdropFilter: 'blur(8px)',
                         border: '1px solid rgba(255, 255, 255, 0.4)',
                         display: 'flex',
                         alignItems: 'center',
@@ -417,7 +418,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                       }}
                     >
                       <Heart 
-                        size={18} 
+                        size={16} 
                         fill={favourites.includes(spotlightDish.id) ? '#EF4444' : 'transparent'} 
                         color={favourites.includes(spotlightDish.id) ? '#EF4444' : 'white'} 
                       />
@@ -426,35 +427,35 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
 
                   {/* Bottom Dish Info */}
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                       <span style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 4,
+                        gap: 3,
                         background: 'rgba(245, 158, 11, 0.95)',
                         color: 'white',
                         fontWeight: 900,
-                        fontSize: 11,
-                        padding: '3px 8px',
-                        borderRadius: 6
+                        fontSize: 10,
+                        padding: '2px 7px',
+                        borderRadius: 5
                       }}>
-                        <Star size={11} fill="white" color="white" /> {spotlightDish.rating}
+                        <Star size={10} fill="white" color="white" /> {spotlightDish.rating}
                       </span>
-                      <span style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.85)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Timer size={13} /> {spotlightDish.time} mins
+                      <span style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.85)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <Timer size={12} /> {spotlightDish.time}m
                       </span>
-                      <span style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.85)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Flame size={13} color="#FB923C" /> {spotlightDish.calories} kcal
+                      <span style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.85)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <Flame size={12} color="#FB923C" /> {spotlightDish.calories} kcal
                       </span>
                     </div>
 
-                    <h3 style={{ color: 'white', fontSize: 22, fontWeight: 900, margin: '0 0 6px 0', lineHeight: 1.2 }}>
+                    <h3 style={{ color: 'white', fontSize: 19, fontWeight: 900, margin: '0 0 4px 0', lineHeight: 1.2 }}>
                       {spotlightDish.nameHindi ? `${spotlightDish.nameHindi} (${spotlightDish.name})` : spotlightDish.name}
                     </h3>
 
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-                      <p style={{ margin: 0, fontSize: 12, color: 'rgba(255, 255, 255, 0.75)', fontWeight: 600 }}>
-                        MasterChef Special Recipe & Guided Steps
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <p style={{ margin: 0, fontSize: 11, color: 'rgba(255, 255, 255, 0.75)', fontWeight: 600 }}>
+                        MasterChef Guided Steps & Timer
                       </p>
                       <span style={{
                         display: 'flex',
@@ -464,7 +465,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                         fontWeight: 800,
                         fontSize: 12
                       }}>
-                        Abhi Banao <ArrowRight size={14} />
+                        Abhi Banao <ArrowRight size={13} />
                       </span>
                     </div>
                   </div>
@@ -476,12 +477,12 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
 
         {/* ===== MOOD & CRAVINGS SELECTOR ===== */}
         <section>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, color: W.heading, margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 900, color: W.heading, margin: 0 }}>
               Aaj Mood Kaisa Hai? 😋
             </h2>
-            <span style={{ fontSize: 12, fontWeight: 700, color: W.muted }}>
-              Instant Recommendations
+            <span style={{ fontSize: 11, fontWeight: 700, color: W.muted }}>
+              Instant Pick
             </span>
           </div>
 
@@ -489,9 +490,9 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
             className="no-scrollbar" 
             style={{ 
               display: 'flex', 
-              gap: 12, 
+              gap: 10, 
               overflowX: 'auto', 
-              paddingBottom: 6,
+              paddingBottom: 4,
               paddingTop: 2 
             }}
           >
@@ -503,20 +504,20 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 10,
+                    gap: 8,
                     background: W.card,
                     border: `1.5px solid ${W.border}`,
-                    padding: '10px 16px',
+                    padding: '8px 14px',
                     borderRadius: W.radiusPill,
                     boxShadow: W.shadowSm,
                     whiteSpace: 'nowrap',
                     cursor: 'pointer'
                   }}
                 >
-                  <span style={{ fontSize: 20 }}>{mood.emoji}</span>
+                  <span style={{ fontSize: 17 }}>{mood.emoji}</span>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: W.heading }}>{mood.label}</span>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: W.muted }}>{mood.sub}</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: W.heading }}>{mood.label}</span>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: W.muted }}>{mood.sub}</span>
                   </div>
                 </motion.div>
               </Link>
@@ -524,23 +525,23 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
           </div>
         </section>
 
-        {/* ===== QUICK AI TOOLS ===== */}
+        {/* ===== QUICK AI TOOLS (RESPONSIVE: 3 ON MOBILE, 6 ON DESKTOP) ===== */}
         <section>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 18 }}>⚡</span>
-              <h2 style={{ fontSize: 18, fontWeight: 900, color: W.heading, margin: 0 }}>
+              <span style={{ fontSize: 16 }}>⚡</span>
+              <h2 style={{ fontSize: 16, fontWeight: 900, color: W.heading, margin: 0 }}>
                 Smart AI Kitchen Tools
               </h2>
             </div>
             <Link href="/x-labs" style={{ textDecoration: 'none' }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: W.primary, display: 'flex', alignItems: 'center', gap: 2 }}>
-                Explore All <ArrowRight size={13} />
+              <span style={{ fontSize: 11, fontWeight: 800, color: W.primary, display: 'flex', alignItems: 'center', gap: 2 }}>
+                Explore All <ArrowRight size={12} />
               </span>
             </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-2.5 sm:gap-3">
             {QUICK_TOOLS.map((tool, i) => (
               <Link href={tool.href} key={i} style={{ textDecoration: 'none' }}>
                 <motion.div
@@ -549,21 +550,21 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                   style={{
                     background: tool.gradient,
                     border: `1.5px solid ${tool.border}`,
-                    borderRadius: 20,
-                    padding: '16px 10px',
+                    borderRadius: 18,
+                    padding: '12px 8px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     textAlign: 'center',
                     boxShadow: W.shadowSm,
-                    minHeight: 110,
+                    minHeight: 96,
                     cursor: 'pointer'
                   }}
                 >
-                  <span style={{ fontSize: 28, marginBottom: 6 }}>{tool.emoji}</span>
+                  <span style={{ fontSize: 24, marginBottom: 4 }}>{tool.emoji}</span>
                   <span style={{ 
-                    fontSize: 12, 
+                    fontSize: 11, 
                     fontWeight: 900, 
                     color: W.heading, 
                     lineHeight: 1.2,
@@ -588,15 +589,15 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
         {/* ===== FOR YOU (PERSONALIZED CAROUSEL) ===== */}
         {recommendedRecipes.length > 0 && (
           <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 18 }}>🎯</span>
-                  <h2 style={{ fontSize: 18, fontWeight: 900, color: W.heading, margin: 0 }}>
+                  <span style={{ fontSize: 16 }}>🎯</span>
+                  <h2 style={{ fontSize: 16, fontWeight: 900, color: W.heading, margin: 0 }}>
                     Khaas Aapke Liye
                   </h2>
                 </div>
-                <p style={{ margin: '2px 0 0 0', fontSize: 11, fontWeight: 600, color: W.muted }}>
+                <p style={{ margin: '1px 0 0 0', fontSize: 11, fontWeight: 600, color: W.muted }}>
                   Aapke taste aur preferences ke aadhar par chune gaye
                 </p>
               </div>
@@ -606,24 +607,24 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
               className="no-scrollbar" 
               style={{ 
                 display: 'flex', 
-                gap: 14, 
+                gap: 12, 
                 overflowX: 'auto', 
-                paddingBottom: 6 
+                paddingBottom: 4 
               }}
             >
-              {recommendedRecipes.slice(0, 6).map((recipe: any) => (
+              {recommendedRecipes.slice(0, 8).map((recipe: any) => (
                 <Link href={`/recipe/${recipe.id}`} key={`rec-${recipe.id}`} style={{ textDecoration: 'none' }}>
                   <motion.div
                     whileHover={{ y: -3 }}
                     whileTap={{ scale: 0.95 }}
                     style={{
-                      width: 170,
-                      height: 210,
-                      borderRadius: 20,
+                      width: 150,
+                      height: 185,
+                      borderRadius: 18,
                       position: 'relative',
                       overflow: 'hidden',
                       flexShrink: 0,
-                      boxShadow: W.shadowMd,
+                      boxShadow: W.shadowSm,
                       border: `1.5px solid ${W.border}`,
                       cursor: 'pointer'
                     }}
@@ -632,16 +633,15 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                       src={recipe.image} 
                       alt={recipe.name} 
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                      width={400} 
-                      height={400} 
+                      width={300} 
+                      height={300} 
                     />
                     
-                    {/* Dark gradient for text readability */}
                     <div style={{
                       position: 'absolute',
                       inset: 0,
-                      background: 'linear-gradient(to top, rgba(28, 16, 9, 0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
-                      padding: 12,
+                      background: 'linear-gradient(to top, rgba(25, 14, 7, 0.92) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+                      padding: 10,
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between'
@@ -652,7 +652,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                           color: 'white',
                           fontWeight: 800,
                           fontSize: 9,
-                          padding: '2px 6px',
+                          padding: '2px 5px',
                           borderRadius: 4
                         }}>
                           {recipe.isVeg ? 'VEG' : 'NON-VEG'}
@@ -662,7 +662,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                           background: 'rgba(0,0,0,0.4)',
                           backdropFilter: 'blur(4px)',
                           borderRadius: '50%',
-                          padding: 4,
+                          padding: 3,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center'
@@ -672,15 +672,15 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                       </div>
 
                       <div>
-                        <h3 style={{ color: 'white', fontWeight: 900, fontSize: 13, lineHeight: 1.25, margin: '0 0 4px 0' }}>
+                        <h3 style={{ color: 'white', fontWeight: 900, fontSize: 12, lineHeight: 1.25, margin: '0 0 3px 0' }}>
                           {recipe.nameHindi || recipe.name}
                         </h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Timer size={10} /> {recipe.time}m
+                          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Timer size={9} /> {recipe.time}m
                           </span>
-                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Flame size={10} color="#FB923C" /> {recipe.calories} kcal
+                          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Flame size={9} color="#FB923C" /> {recipe.calories}
                           </span>
                         </div>
                       </div>
@@ -694,11 +694,11 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
 
         {/* ===== CUISINE CATEGORY SELECTOR TABS ===== */}
         <section>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, color: W.heading, margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 900, color: W.heading, margin: 0 }}>
               Cuisine & Categories 🍲
             </h2>
-            <span style={{ fontSize: 12, fontWeight: 700, color: W.muted }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: W.muted }}>
               {filteredAll.length} Dishes
             </span>
           </div>
@@ -723,7 +723,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                     setPage(1);
                   }}
                   style={{
-                    padding: '8px 16px',
+                    padding: '7px 14px',
                     borderRadius: W.radiusPill,
                     display: 'flex',
                     alignItems: 'center',
@@ -732,14 +732,14 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                     color: isSelected ? 'white' : W.muted,
                     border: isSelected ? 'none' : `1.5px solid ${W.border}`,
                     fontWeight: 800,
-                    fontSize: 13,
+                    fontSize: 12,
                     whiteSpace: 'nowrap',
                     boxShadow: isSelected ? W.shadowGold : 'none',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  <span style={{ fontSize: 15 }}>{category.icon}</span>
+                  <span style={{ fontSize: 14 }}>{category.icon}</span>
                   <span>{category.label}</span>
                 </motion.button>
               );
@@ -747,18 +747,19 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
           </div>
         </section>
 
-        {/* ===== MAIN DISHES FEED (2-COLUMN LUXURY GRID) ===== */}
+        {/* ===== MAIN DISHES FEED (COMPACT, ATTRACTIVE RESPONSIVE WEB GRID) ===== */}
         <section>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, color: W.heading, margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 900, color: W.heading, margin: 0 }}>
               {activeCategory === 'all' ? `Sabhi Lazeez Dishes 🚀` : `Found Recipes (${filteredAll.length})`}
             </h2>
-            <span style={{ fontSize: 12, fontWeight: 600, color: W.muted }}>
-              Auto-expanding Feed
+            <span style={{ fontSize: 11, fontWeight: 600, color: W.muted }}>
+              Gourmet Grid
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
+          {/* ATTRACTIVE COMPACT RESPONSIVE GRID: 2 cols on mobile, 3 on tablet, 4 on small laptop, 5/6 on desktop */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-3.5 md:gap-4">
             <AnimatePresence>
               {displayedDishes.map((recipe: any) => {
                 const isFav = favourites.includes(recipe.id);
@@ -766,17 +767,17 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                   <Link href={`/recipe/${recipe.id}`} key={recipe.id} style={{ textDecoration: 'none' }}>
                     <motion.div
                       layout
-                      initial={{ opacity: 0, scale: 0.94 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.94 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       whileHover={{ y: -4 }}
                       whileTap={{ scale: 0.96 }}
                       style={{
-                        height: 230,
-                        borderRadius: 22,
+                        height: 185,
+                        borderRadius: 18,
                         position: 'relative',
                         overflow: 'hidden',
-                        boxShadow: W.shadowMd,
+                        boxShadow: W.shadowSm,
                         border: `1.5px solid ${W.border}`,
                         background: W.card,
                         cursor: 'pointer'
@@ -787,16 +788,16 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                         alt={recipe.name} 
                         loading="lazy" 
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        width={400} 
-                        height={400} 
+                        width={350} 
+                        height={350} 
                       />
                       
                       {/* Gradient Overlay */}
                       <div style={{
                         position: 'absolute',
                         inset: 0,
-                        background: 'linear-gradient(to top, rgba(25, 14, 7, 0.95) 0%, rgba(25, 14, 7, 0.25) 50%, rgba(0,0,0,0.15) 100%)',
-                        padding: 12,
+                        background: 'linear-gradient(to top, rgba(25, 14, 7, 0.94) 0%, rgba(25, 14, 7, 0.2) 50%, rgba(0,0,0,0.15) 100%)',
+                        padding: 10,
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between'
@@ -807,8 +808,8 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                             background: recipe.isVeg ? '#15803D' : '#B91C1C',
                             color: 'white',
                             fontWeight: 900,
-                            fontSize: 9,
-                            padding: '2px 6px',
+                            fontSize: 8.5,
+                            padding: '2px 5px',
                             borderRadius: 4
                           }}>
                             {recipe.isVeg ? 'VEG' : 'NON-VEG'}
@@ -817,8 +818,8 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                           <button
                             onClick={(e) => handleFavoriteToggle(e, recipe.id)}
                             style={{
-                              width: 30,
-                              height: 30,
+                              width: 28,
+                              height: 28,
                               borderRadius: '50%',
                               background: 'rgba(255, 255, 255, 0.25)',
                               backdropFilter: 'blur(8px)',
@@ -830,7 +831,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                             }}
                           >
                             <Heart 
-                              size={14} 
+                              size={13} 
                               fill={isFav ? '#EF4444' : 'transparent'} 
                               color={isFav ? '#EF4444' : 'white'} 
                             />
@@ -839,31 +840,34 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
 
                         {/* Bottom Text Info */}
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
                             <div style={{
                               background: 'rgba(255, 255, 255, 0.92)',
-                              padding: '2px 6px',
-                              borderRadius: 6,
-                              fontSize: 10,
+                              padding: '1px 5px',
+                              borderRadius: 5,
+                              fontSize: 9.5,
                               fontWeight: 900,
                               color: W.heading,
                               display: 'flex',
                               alignItems: 'center',
-                              gap: 3
+                              gap: 2.5
                             }}>
-                              <Star size={10} fill="#F59E0B" color="#F59E0B" /> {recipe.rating}
+                              <Star size={9} fill="#F59E0B" color="#F59E0B" /> {recipe.rating}
                             </div>
-                            <span style={{ fontSize: 10, color: 'rgba(255, 255, 255, 0.9)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
-                              <Timer size={10} /> {recipe.time}m
+                            <span style={{ fontSize: 9.5, color: 'rgba(255, 255, 255, 0.9)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <Timer size={9} /> {recipe.time}m
                             </span>
                           </div>
 
                           <h3 style={{ 
                             color: 'white', 
                             fontWeight: 900, 
-                            fontSize: 14, 
+                            fontSize: 13, 
                             lineHeight: 1.25, 
                             margin: 0,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
                             textShadow: '0 1px 3px rgba(0,0,0,0.5)'
                           }}>
                             {recipe.nameHindi || recipe.name}
@@ -883,15 +887,15 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
               background: W.card, 
               border: `1.5px solid ${W.border}`, 
               borderRadius: W.radiusCard, 
-              padding: '40px 20px', 
+              padding: '36px 20px', 
               textAlign: 'center',
-              marginTop: 20 
+              marginTop: 16 
             }}>
-              <span style={{ fontSize: 44 }}>🍳</span>
-              <h3 style={{ fontSize: 16, fontWeight: 900, color: W.heading, marginTop: 12, marginBottom: 4 }}>
+              <span style={{ fontSize: 40 }}>🍳</span>
+              <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginTop: 10, marginBottom: 4 }}>
                 Is category me koi dish nahi mili!
               </h3>
-              <p style={{ fontSize: 13, color: W.muted, margin: '0 0 16px 0' }}>
+              <p style={{ fontSize: 12, color: W.muted, margin: '0 0 14px 0' }}>
                 Filter hata kar dekhein ya search karein.
               </p>
               <button
@@ -901,9 +905,9 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                   color: 'white',
                   border: 'none',
                   borderRadius: W.radiusPill,
-                  padding: '8px 20px',
+                  padding: '7px 18px',
                   fontWeight: 800,
-                  fontSize: 13,
+                  fontSize: 12,
                   cursor: 'pointer'
                 }}
               >
@@ -918,26 +922,26 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
               ref={observerRef} 
               style={{ 
                 width: '100%', 
-                padding: '36px 0 10px', 
+                padding: '30px 0 10px', 
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center', 
-                gap: 12 
+                gap: 10 
               }}
             >
               {isGeneratingFallback ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                   <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-                    <Loader2 size={30} color={W.primary} />
+                    <Loader2 size={26} color={W.primary} />
                   </motion.div>
-                  <p style={{ color: W.primary, fontSize: 13, fontWeight: 800 }}>
+                  <p style={{ color: W.primary, fontSize: 12, fontWeight: 800 }}>
                     AI Nayi Lazeez Dishes Bana Raha Hai... 👨‍🍳
                   </p>
                 </div>
               ) : displayedDishes.length < filteredAll.length ? (
-                <div style={{ width: 44, height: 4, background: W.border, borderRadius: 10 }} />
+                <div style={{ width: 40, height: 4, background: W.border, borderRadius: 10 }} />
               ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: W.muted, fontSize: 13, fontWeight: 700 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: W.muted, fontSize: 12, fontWeight: 700 }}>
                   <span>🌟</span>
                   <span>Aapne sabhi dishes dekh li hain!</span>
                 </div>

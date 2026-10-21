@@ -34,20 +34,12 @@ export default function BottomNav() {
 
   return (
     <nav 
+      className="fixed bottom-0 md:bottom-6 left-0 md:left-1/2 md:-translate-x-1/2 right-0 md:right-auto md:w-[440px] md:rounded-full md:border md:shadow-2xl z-50 flex justify-around items-center px-3.5 py-2 pb-6 md:pb-2 transition-all duration-300"
       style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
         background: 'rgba(255, 249, 245, 0.94)',
         backdropFilter: 'blur(24px)',
-        borderTop: `1px solid ${W.border}`,
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        padding: '10px 14px 24px 14px',
-        zIndex: 50,
-        boxShadow: '0 -4px 24px rgba(154, 52, 18, 0.06)'
+        borderColor: W.border,
+        boxShadow: '0 -4px 24px rgba(154, 52, 18, 0.08)'
       }}
     >
       {tabs.map(tab => {
@@ -61,7 +53,7 @@ export default function BottomNav() {
               href="/cook" 
               onClick={handleCookClick} 
               key={tab.id} 
-              style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', width: 64 }}
+              style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', width: 60 }}
             >
               <motion.div 
                 whileTap={{ scale: 0.92 }} 
@@ -70,13 +62,13 @@ export default function BottomNav() {
                   flexDirection: 'column',
                   alignItems: 'center',
                   position: currentRecipe ? 'absolute' : 'relative',
-                  top: currentRecipe ? -24 : 0
+                  top: currentRecipe ? -22 : 0
                 }}
               >
                 <div 
                   style={{
-                    width: currentRecipe ? 56 : 42,
-                    height: currentRecipe ? 56 : 42,
+                    width: currentRecipe ? 52 : 38,
+                    height: currentRecipe ? 52 : 38,
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
@@ -90,20 +82,20 @@ export default function BottomNav() {
                     transition: 'all 0.3s ease'
                   }}
                 >
-                  <Icon size={currentRecipe ? 26 : 22} strokeWidth={2.2} />
+                  <Icon size={currentRecipe ? 24 : 20} strokeWidth={2.2} />
                 </div>
                 {!currentRecipe && (
                   <span style={{ 
-                    fontSize: 11, 
+                    fontSize: 10.5, 
                     fontWeight: isActive ? 800 : 600, 
                     color: isActive ? W.heading : W.muted, 
-                    marginTop: 3 
+                    marginTop: 2 
                   }}>
                     {tab.label}
                   </span>
                 )}
                 {currentRecipe && (
-                  <div style={{ width: 4, height: 4, borderRadius: '50%', background: W.primary, marginTop: 6 }} />
+                  <div style={{ width: 4, height: 4, borderRadius: '50%', background: W.primary, marginTop: 4 }} />
                 )}
               </motion.div>
             </a>
@@ -118,18 +110,18 @@ export default function BottomNav() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: 3,
-                width: 52,
+                gap: 2,
+                width: 48,
                 position: 'relative'
               }}
             >
               <Icon 
-                size={22} 
+                size={20} 
                 color={isActive ? W.primary : W.muted} 
                 strokeWidth={isActive ? 2.5 : 2} 
               />
               <span style={{ 
-                fontSize: 11, 
+                fontSize: 10.5, 
                 fontWeight: isActive ? 800 : 600, 
                 color: isActive ? W.heading : W.muted 
               }}>
@@ -141,12 +133,12 @@ export default function BottomNav() {
                 <motion.div 
                   layoutId="activeNavDot" 
                   style={{
-                    width: 5,
-                    height: 5,
+                    width: 4,
+                    height: 4,
                     borderRadius: '50%',
                     background: W.primary,
                     position: 'absolute',
-                    bottom: -8
+                    bottom: -6
                   }} 
                 />
               )}
