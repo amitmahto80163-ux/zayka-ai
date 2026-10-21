@@ -10,7 +10,7 @@ export { callAI, getProviderStats } from './providers';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 
-export const GEMINI_VISION_MODEL = 'gemini-2.5-flash';
+export const GEMINI_VISION_MODEL = 'gemini-1.5-flash';
 export const GROQ_FAST_MODEL = 'llama-3.1-8b-instant';
 
 // ─── JSON Parser ────────────────────────────────────────────

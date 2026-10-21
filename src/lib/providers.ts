@@ -32,6 +32,18 @@ export const AI_PROVIDERS: AIProvider[] = [
     priority: 1, // PRIMARY AI — 100% Free, active & ultra-fast!
   },
   {
+    id: 'gemini',
+    name: 'Google Gemini',
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    model: 'gemini-1.5-flash',
+    fastModel: 'gemini-1.5-flash',
+    apiKeyEnv: 'GEMINI_API_KEY',
+    maxDailyRequests: 1500,
+    avgLatencyMs: 600,
+    supportsJSON: true,
+    priority: 2, // 100% Free Google AI — Text & Multimodal
+  },
+  {
     id: 'deepseek',
     name: 'DeepSeek',
     baseUrl: 'https://api.deepseek.com/v1',
