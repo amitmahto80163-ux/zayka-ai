@@ -1,14 +1,6 @@
-const CACHE_NAME = 'zayka-cache-v1';
+const CACHE_NAME = 'zayka-cache-v2';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll([
-        '/',
-        '/manifest.json',
-      ]);
-    })
-  );
   self.skipWaiting();
 });
 
@@ -28,7 +20,23 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   
-  // Stale-while-revalidate for API and navigation
+  // For page navigations (HTML), use Network-First to never serve stale app versions
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // For static assets, stale-while-revalidate
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request).then((networkResponse) => {
@@ -38,7 +46,7 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return networkResponse;
-      });
+      }).catch(() => cachedResponse);
       return cachedResponse || fetchPromise;
     })
   );
