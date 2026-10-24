@@ -240,10 +240,11 @@ function IngredientCard({ ing, servings, baseServings }: { ing: any, servings: n
   );
 }
 
-export default function RecipeClient({ initialDish }: { initialDish: any }) {
+export default function RecipeClient({ initialDish, recipeId }: { initialDish?: any; recipeId?: string }) {
   const params = useParams();
   const router = useRouter();
-  const id = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
+  const rawParamId = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
+  const id = decodeURIComponent(recipeId || rawParamId || initialDish?.id || '');
   const { isFavourite, addFavourite, removeFavourite, setCurrentRecipe, savedRecipes, memory, customRecipeImages, setCustomRecipeImage, removeCustomRecipeImage } = useZaykaStore() as any;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -271,7 +272,22 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
     reader.readAsDataURL(file);
   };
 
-  const [recipe, setRecipe] = useState<any>(null);
+  const [recipe, setRecipe] = useState<any>(() => {
+    if (id && DUMMY_RECIPES[id]) return { id, ...DUMMY_RECIPES[id] };
+    if (initialDish) {
+      return {
+        ...initialDish,
+        description: initialDish.description || `Enjoy this delicious ${initialDish.nameHindi || initialDish.name} prepared Zayka style!`,
+        prepTime: initialDish.prepTime || 10,
+        cookTime: initialDish.cookTime || initialDish.time || 20,
+        servings: initialDish.servings || 2,
+        image: initialDish.image || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
+        ingredients: initialDish.ingredients || [],
+        steps: initialDish.steps || [],
+      };
+    }
+    return null;
+  });
   const customImg = customRecipeImages?.[id];
   const displayImage = customImg || recipe?.image || recipe?.imageUrl;
   const { lastRecipeTab: rawActiveTab, setLastRecipeTab: setActiveTab } = useZaykaStore();
@@ -302,25 +318,41 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
     }
     
     const generated = savedRecipes?.find((r: any) => r.id === id);
-    let r = generated || DUMMY_RECIPES[id];
+    let r = generated || (DUMMY_RECIPES[id] ? { id, ...DUMMY_RECIPES[id] } : null);
     
     if (!r) {
-      const fromAllDishes = ALL_DISHES.find(d => d.id === id);
+      const fromAllDishes = initialDish || ALL_DISHES.find(d => d.id === id);
       if (fromAllDishes) {
         r = {
           ...fromAllDishes,
-          description: `Enjoy this delicious ${fromAllDishes.nameHindi || fromAllDishes.name} prepared Zayka style!`,
-          prepTime: 10, cookTime: fromAllDishes.time || 20, servings: 2,
+          description: fromAllDishes.description || `Enjoy this delicious ${fromAllDishes.nameHindi || fromAllDishes.name} prepared Zayka style!`,
+          prepTime: fromAllDishes.prepTime || 10,
+          cookTime: fromAllDishes.cookTime || fromAllDishes.time || 20,
+          servings: fromAllDishes.servings || 2,
           image: fromAllDishes.image || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
-          ingredients: [], steps: []
+          ingredients: fromAllDishes.ingredients || [],
+          steps: fromAllDishes.steps || [],
         };
       }
+    }
+
+    if (!r && id && id !== 'fallback') {
+      const humanName = id.replace(/^gen_[^_]+_\d+_?/, '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Special Dish';
+      r = {
+        ...DUMMY_RECIPES['fallback'],
+        id,
+        name: humanName,
+        nameHindi: humanName,
+        description: `Enjoy this delicious ${humanName} prepared Zayka style!`,
+        ingredients: [],
+        steps: [],
+      };
     }
     
     const finalRecipe = r || DUMMY_RECIPES['fallback'];
     setRecipe(finalRecipe);
     setServings(finalRecipe.servings || 2);
-  }, [id, savedRecipes]);
+  }, [id, savedRecipes, initialDish]);
 
   // Timer
   useEffect(() => {

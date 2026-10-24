@@ -5,6 +5,7 @@ import DishImage from '@/components/DishImage';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Search, Mic, Timer, Flame, Star, User, Loader2, 
   Sparkles, Heart, ArrowRight, Utensils, Award, Compass 
@@ -106,7 +107,8 @@ function getTimeGreeting(userName: string): { greeting: string; sub: string } {
 }
 
 export default function HomeClient({ initialDishes }: { initialDishes: any[] }) {
-  const { user, memory, currentStreak, language, favourites, addFavourite, removeFavourite } = useZaykaStore();
+  const router = useRouter();
+  const { user, memory, currentStreak, language, favourites, addFavourite, removeFavourite, addSavedRecipe } = useZaykaStore();
   const [activeCategory, setActiveCategory] = useState('all');
   
   // Infinite Scroll & Generation States
@@ -160,6 +162,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
           setIsGeneratingFallback(true);
           generateMoreDishesAction(activeCategory, language).then(res => {
             if (res.success && res.data) {
+              res.data.forEach((d: any) => addSavedRecipe(d));
               setGeneratedDishes(prev => [...prev, ...res.data]);
               setPage(p => p + 1);
             }
@@ -353,7 +356,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
               </span>
             </div>
 
-            <Link href={`/recipe/${spotlightDish.id}`} style={{ textDecoration: 'none' }}>
+            <Link href={`/recipe/${spotlightDish.id}`} onClick={() => router.push(`/recipe/${spotlightDish.id}`)} style={{ textDecoration: 'none', display: 'block' }}>
               <motion.div
                 whileHover={{ y: -3 }}
                 whileTap={{ scale: 0.99 }}
@@ -613,7 +616,7 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
               }}
             >
               {recommendedRecipes.slice(0, 8).map((recipe: any) => (
-                <Link href={`/recipe/${recipe.id}`} key={`rec-${recipe.id}`} style={{ textDecoration: 'none' }}>
+                <Link href={`/recipe/${recipe.id}`} key={`rec-${recipe.id}`} onClick={() => router.push(`/recipe/${recipe.id}`)} style={{ textDecoration: 'none', display: 'block', flexShrink: 0 }}>
                   <motion.div
                     whileHover={{ y: -3 }}
                     whileTap={{ scale: 0.95 }}
@@ -760,16 +763,13 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
 
           {/* ATTRACTIVE COMPACT RESPONSIVE GRID: 2 cols on mobile, 3 on tablet, 4 on small laptop, 5/6 on desktop */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-3.5 md:gap-4">
-            <AnimatePresence>
               {displayedDishes.map((recipe: any) => {
                 const isFav = favourites.includes(recipe.id);
                 return (
-                  <Link href={`/recipe/${recipe.id}`} key={recipe.id} style={{ textDecoration: 'none' }}>
+                  <Link href={`/recipe/${recipe.id}`} key={recipe.id} onClick={() => router.push(`/recipe/${recipe.id}`)} style={{ textDecoration: 'none', display: 'block' }}>
                     <motion.div
-                      layout
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
                       whileHover={{ y: -4 }}
                       whileTap={{ scale: 0.96 }}
                       style={{
@@ -878,7 +878,6 @@ export default function HomeClient({ initialDishes }: { initialDishes: any[] }) 
                   </Link>
                 );
               })}
-            </AnimatePresence>
           </div>
 
           {/* Empty State */}
