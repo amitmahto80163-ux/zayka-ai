@@ -6,8 +6,13 @@ import { z } from 'zod';
 
 const chatSchema = z.object({
   message: z.string().min(1, 'Message is required').max(1000, 'Message too long'),
-  chefId: z.enum(['arjun', 'zara', 'nani', 'sanjeev_kapoor']).default('arjun'),
-  language: z.enum(['hinglish', 'hindi', 'english']).default('hinglish'),
+  chefId: z.enum([
+    'rohan', 'arjun', 'rajan', 'ananya', 'priya', 'savita',
+    'zara', 'nani', 'sanjeev_kapoor'
+  ]).default('arjun'),
+  language: z.enum([
+    'hindi', 'english', 'hinglish', 'punjabi', 'tamil', 'telugu', 'bengali', 'gujarati'
+  ]).default('hinglish'),
   currentRecipe: z.any().nullable().optional(),
   chatHistory: z.array(z.object({
     role: z.string(),

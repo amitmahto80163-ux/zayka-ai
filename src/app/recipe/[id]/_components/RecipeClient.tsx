@@ -264,7 +264,7 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
         ctx?.drawImage(img, 0, 0, w, h);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
         setCustomRecipeImage(id, dataUrl);
-        toast.success('Recipe photo updated! ???');
+        toast.success('Recipe photo updated! 📸');
       };
       img.src = re.target?.result as string;
     };
@@ -274,7 +274,8 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
   const [recipe, setRecipe] = useState<any>(null);
   const customImg = customRecipeImages?.[id];
   const displayImage = customImg || recipe?.image || recipe?.imageUrl;
-  const { lastRecipeTab: activeTab, setLastRecipeTab: setActiveTab } = useZaykaStore();
+  const { lastRecipeTab: rawActiveTab, setLastRecipeTab: setActiveTab } = useZaykaStore();
+  const activeTab = ['ingredients', 'steps', 'cost', 'chef'].includes(rawActiveTab) ? rawActiveTab : 'ingredients';
   const [recipeVersion, setRecipeVersion] = useState<'desi' | 'authentic'>('desi');
   const [servings, setServings] = useState(2);
     const [tabDirection, setTabDirection] = useState(1);
@@ -411,7 +412,7 @@ export default function RecipeClient({ initialDish }: { initialDish: any }) {
     <div style={{ minHeight: '100vh', background: W.bg, paddingBottom: 100 }}>
       {/* Hero */}
       <div style={{ position: 'relative', height: 300, background: '#ccc' }}>
-        <Image src={recipe.image || recipe.imageUrl} alt={recipe.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
+        <DishImage src={displayImage} alt={recipe.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 35%, rgba(28,16,9,0.92) 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '24px 20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
             <motion.button whileTap={{ scale: 0.9 }} onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', color: 'white', cursor: 'pointer' }}>

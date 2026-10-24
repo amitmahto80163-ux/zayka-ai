@@ -96,7 +96,7 @@ export const useZaykaStore = create<ZaykaStore>()(
   persist(
     (set, get) => ({
         // Recipe UI
-        lastRecipeTab: 'overview',
+        lastRecipeTab: 'ingredients',
         setLastRecipeTab: (lastRecipeTab) => set({ lastRecipeTab }),
 
         // Fridge

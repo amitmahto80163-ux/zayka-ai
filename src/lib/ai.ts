@@ -10,7 +10,7 @@ export { callAI, getProviderStats } from './providers';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 
-export const GEMINI_VISION_MODEL = 'gemini-3.5-flash';
+export const GEMINI_VISION_MODEL = 'gemini-2.5-flash';
 export const GROQ_FAST_MODEL = 'llama-3.1-8b-instant';
 
 // ─── JSON Parser ────────────────────────────────────────────
@@ -64,7 +64,8 @@ export async function callGeminiVision(
   imageBase64: string,
   jsonMode = true
 ): Promise<string> {
-  if (!GEMINI_API_KEY) throw new Error('Missing GEMINI_API_KEY');
+  const geminiKey = process.env.GEMINI_API_KEY || GEMINI_API_KEY;
+  if (!geminiKey) throw new Error('Missing GEMINI_API_KEY');
 
   const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
   const finalPrompt = jsonMode
@@ -72,7 +73,7 @@ export async function callGeminiVision(
     : prompt;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}:generateContent?key=${geminiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -105,7 +106,7 @@ export async function callVision(
   jsonMode = true
 ): Promise<string> {
   // Try Gemini first
-  if (GEMINI_API_KEY) {
+  if (process.env.GEMINI_API_KEY || GEMINI_API_KEY) {
     try {
       return await callGeminiVision(prompt, imageBase64, jsonMode);
     } catch (e) {
@@ -114,7 +115,8 @@ export async function callVision(
   }
 
   // Fallback: OpenRouter vision models
-  if (OPENROUTER_API_KEY) {
+  const openRouterKey = process.env.OPENROUTER_API_KEY || OPENROUTER_API_KEY;
+  if (openRouterKey) {
     const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
     const imageUrl = `data:image/jpeg;base64,${base64Data}`;
     const visionModels = [
@@ -127,7 +129,7 @@ export async function callVision(
         const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+            'Authorization': `Bearer ${openRouterKey}`,
             'Content-Type': 'application/json',
             'HTTP-Referer': 'https://zayka-ai.vercel.app',
             'X-Title': 'Zayka AI',

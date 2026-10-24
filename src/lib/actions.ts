@@ -86,7 +86,22 @@ Return ONLY valid JSON (no markdown, no extra text):
 }`;
 
     const text = await callGroq(prompt);
-    const data = parseJSONResponse(text);
+    const raw = parseJSONResponse(text);
+    const normalizedIngredients = Array.isArray(raw.ingredients)
+      ? raw.ingredients.map((ing: any) => ({
+          ...ing,
+          cost: ing.cost ?? ing.estimatedCost ?? 10,
+          estimatedCost: ing.estimatedCost ?? ing.cost ?? 10,
+        }))
+      : [];
+    const data = {
+      ...raw,
+      name: raw.name || raw.dishName || 'Budget Special Meal',
+      dishName: raw.dishName || raw.name || 'Budget Special Meal',
+      quickRecipe: raw.quickRecipe || raw.instructions || '',
+      instructions: raw.instructions || raw.quickRecipe || '',
+      ingredients: normalizedIngredients,
+    };
     return { success: true, data };
   } catch (error) {
     console.error('generateBudgetMealAction error:', error);
@@ -94,14 +109,16 @@ Return ONLY valid JSON (no markdown, no extra text):
       success: true,
       data: {
         name: 'Masala Maggi Special',
+        dishName: 'Masala Maggi Special',
         description: 'Quick, filling aur budget-friendly. Student ka sabse accha dost!',
-        totalCost: Math.min(budget, 45),
+        totalCost: Math.min(budget, 42),
         ingredients: [
-          { name: 'Maggi Noodles', nameHindi: 'मैगी', amount: '2 packets', cost: 28 },
-          { name: 'Onion', nameHindi: 'प्याज़', amount: '1 medium', cost: 8 },
-          { name: 'Tomato', nameHindi: 'टमाटर', amount: '1 small', cost: 6 },
+          { name: 'Maggi Noodles (2 packets)', nameHindi: 'मैगी', amount: '2 packets', cost: 28, estimatedCost: 28 },
+          { name: 'Onion (1 medium)', nameHindi: 'प्याज़', amount: '1 medium', cost: 8, estimatedCost: 8 },
+          { name: 'Tomato (1 small)', nameHindi: 'टमाटर', amount: '1 small', cost: 6, estimatedCost: 6 },
         ],
-        instructions: 'Step 1: Pani boil karo.\nStep 2: Pyaaz aur tamatar bhuno 2 min.\nStep 3: Maggi + masala daalo, 2 min pakao.',
+        instructions: 'Step 1: Kadhai mein 2 cup pani boil karo.\nStep 2: Barik kata pyaaz aur tamatar 2 min bhuno.\nStep 3: Maggi noodles aur tastemaker masala daalkar 2 min pakao aur garma-garam serve karo.',
+        quickRecipe: 'Step 1: Kadhai mein 2 cup pani boil karo.\nStep 2: Barik kata pyaaz aur tamatar 2 min bhuno.\nStep 3: Maggi noodles aur tastemaker masala daalkar 2 min pakao aur garma-garam serve karo.',
         tips: 'Extra sabzi daalo — taste better hoga aur cost nahi badhega!',
         nutrition: { calories: 380, protein: 9, carbs: 52 },
       },
@@ -225,7 +242,11 @@ Generate complete list for ALL ingredients needed.`;
     return {
       success: true,
       data: [
-        { id: 'ai-1', name: 'Main Ingredient (ERROR: ' + (error instanceof Error ? error.message : 'Unknown') + ')', nameHindi: 'मुख्य सामग्री', amount: 200, unit: 'g', cost: 50, availability: 'kirana', category: 'other', note: 'Internet se connect hokar dobara try karo.' },
+        { id: 'ai-1', name: 'Onions (Finely Chopped)', nameHindi: 'प्याज़', shopName: 'Pyaaz', amount: 150, unit: 'g', visualMeasure: '2 medium pyaaz', prepState: 'Barik kaat lo', whenToAdd: 'Tadka ke waqt', cost: 12, availability: 'kirana', category: 'vegetable', note: 'Medium flame pe golden brown hone tak bhuno.' },
+        { id: 'ai-2', name: 'Ripe Tomatoes', nameHindi: 'टमाटर', shopName: 'Laal Tamatar', amount: 150, unit: 'g', visualMeasure: '2 medium tamatar', prepState: 'Barik chop ya puree bana lo', whenToAdd: 'Pyaaz bhunne ke baad', cost: 15, availability: 'kirana', category: 'vegetable', note: 'Jab tak tel alag na ho tab tak pakao.' },
+        { id: 'ai-3', name: 'Ginger-Garlic Paste', nameHindi: 'अदरक-लहसुन पेस्ट', shopName: 'Adrak Lehsun Paste', amount: 1, unit: 'tbsp', visualMeasure: '1 bada chammach', prepState: 'Fresh koot lo ya ready paste use karo', whenToAdd: 'Pyaaz ke baad', cost: 10, availability: 'kirana', category: 'spice', note: 'Kachapan jaane tak 1 min bhuno.' },
+        { id: 'ai-4', name: 'Indian Masala Mix (Haldi, Mirch, Dhaniya, Garam Masala)', nameHindi: 'सूखे मसाले', shopName: 'Basic Masale', amount: 2, unit: 'tbsp', visualMeasure: 'Swad anusaar', prepState: 'Ek katori mein nikaal ke rakho', whenToAdd: 'Tamatar ke saath', cost: 15, availability: 'kirana', category: 'spice', note: 'Low flame pe masale daalo taaki jale nahi.' },
+        { id: 'ai-5', name: 'Cooking Oil / Ghee', nameHindi: 'तेल या घी', shopName: 'Refined Oil / Desi Ghee', amount: 2, unit: 'tbsp', visualMeasure: '2 bade chammach', prepState: 'Direct kadhai mein garam karo', whenToAdd: 'Sabse pehle', cost: 15, availability: 'kirana', category: 'oil', note: 'Tadka lagane se pehle tel achhe se garam hona chahiye.' },
       ],
     };
   }

@@ -126,7 +126,7 @@ export default function BudgetPage() {
               {/* Meal Header */}
               <div style={{ background: 'linear-gradient(135deg, #10B981, #059669)', borderRadius: 24, padding: '20px', color: 'white' }}>
                 <p style={{ fontSize: 11, fontWeight: 800, opacity: 0.8, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>AI ne suggest kiya</p>
-                <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>{mealData.dishName || 'Budget Meal'}</h2>
+                <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 4 }}>{mealData.dishName || mealData.name || 'Budget Meal'}</h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
                   <div style={{ background: 'rgba(255,255,255,0.25)', borderRadius: 50, padding: '4px 14px' }}>
                     <span style={{ fontSize: 13, fontWeight: 800 }}>Total: ₹{mealData.totalCost || budget}</span>
@@ -146,18 +146,18 @@ export default function BudgetPage() {
                   {mealData.ingredients.map((item: any, i: number) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: i < mealData.ingredients.length - 1 ? `1px solid ${W.border}` : 'none' }}>
                       <span style={{ fontSize: 14, fontWeight: 700, color: W.heading }}>{item.name}</span>
-                      <span style={{ fontSize: 14, fontWeight: 900, color: '#10B981' }}>₹{item.estimatedCost || '~'}</span>
+                      <span style={{ fontSize: 14, fontWeight: 900, color: '#10B981' }}>₹{item.estimatedCost ?? item.cost ?? '~'}</span>
                     </div>
                   ))}
                 </div>
               )}
 
               {/* Quick Recipe */}
-              {mealData.quickRecipe && (
+              {(mealData.quickRecipe || mealData.instructions) && (
                 <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 16 }}>
                   <h3 style={{ fontSize: 15, fontWeight: 900, color: W.heading, marginBottom: 16 }}>👨‍🍳 Step-by-Step Recipe</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {mealData.quickRecipe.split(/(?:Step \d+:|\n)/i).filter((s: string) => s.trim().length > 3).map((step: string, index: number) => (
+                    {(mealData.quickRecipe || mealData.instructions).split(/(?:Step \d+:|\n)/i).filter((s: string) => s.trim().length > 3).map((step: string, index: number) => (
                       <div key={index} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#FFF8F3', padding: 14, borderRadius: 16, border: '1px solid #FFE4CD' }}>
                         <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'linear-gradient(135deg, #F97316, #FBBF24)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, flexShrink: 0 }}>
                           {index + 1}
@@ -175,13 +175,13 @@ export default function BudgetPage() {
                 <button onClick={() => {
                   useZaykaStore.getState().setCurrentRecipe({
                     id: `budget-${Date.now()}`,
-                    name: mealData.dishName || 'Budget Meal',
+                    name: mealData.dishName || mealData.name || 'Budget Meal',
                     description: `A delicious budget meal for ₹${mealData.totalCost || budget}`,
                     cuisine: 'indian',
                     prepTime: 10, cookTime: 20, servings: 2, isVeg: true, calories: 400, rating: 5,
                     image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
                     ingredients: mealData.ingredients?.map((i: any, idx: number) => ({ id: `i-${idx}`, name: i.name, amount: 1, unit: 'as needed', category: 'other' })) || [],
-                    steps: mealData.quickRecipe?.split(/(?:Step \d+:|\n)/i).filter((s: string) => s.trim().length > 3).map((s: string, idx: number) => ({ stepNumber: idx + 1, title: `Step ${idx + 1}`, description: s.trim().replace(/^[-*•]\s*/, ''), duration: 5 })) || [],
+                    steps: (mealData.quickRecipe || mealData.instructions)?.split(/(?:Step \d+:|\n)/i).filter((s: string) => s.trim().length > 3).map((s: string, idx: number) => ({ stepNumber: idx + 1, title: `Step ${idx + 1}`, description: s.trim().replace(/^[-*•]\s*/, ''), duration: 5 })) || [],
                     category: 'lunch', difficulty: 'easy',
                     nutrition: { calories: 400, protein: 15, carbs: 50, fat: 12 },
                     tags: ['budget'], createdAt: new Date().toISOString()

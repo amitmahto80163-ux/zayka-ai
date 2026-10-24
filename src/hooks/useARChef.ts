@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { chatWithChef, analyzeCookingFrame } from '@/lib/gemini';
+import { analyzeFrameAction } from '@/lib/actions';
 import { useZaykaStore } from '@/store'; // Or get chef/lang from props. Wait, useARChefProps doesn't have them? Let's check store
 
 interface UseARChefProps {
@@ -102,7 +102,9 @@ export function useARChef({ videoRef, audioRef, currentStepDescription, isActive
         setIsThinking(true);
         setLastFeedback(`You: "${transcript}"`);
         try {
-          const reply = await chatWithChef(transcript, selectedChef, language, null, []);
+          const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: transcript, chefId: selectedChef, language, currentRecipe: null, chatHistory: [] }) });
+          const data = await res.json();
+          const reply = data.response || 'Bilkul sahi ja rahe ho! Continue karo.';
           setLastFeedback(`Chef: "${reply}"`);
           speak(reply);
         } catch(e) {
@@ -130,7 +132,8 @@ export function useARChef({ videoRef, audioRef, currentStepDescription, isActive
         const base64 = captureFrame();
         if (!base64) return;
         try {
-          const feedback = await analyzeCookingFrame(base64, currentStepDescription || "Cooking", selectedChef, language);
+          const frameRes = await analyzeFrameAction(base64, currentStepDescription || "Cooking", selectedChef, language);
+          const feedback = frameRes.feedback;
           setLastFeedback(`Chef saw: "${feedback}"`);
           speak(feedback);
         } catch(e) {

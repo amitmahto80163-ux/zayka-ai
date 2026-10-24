@@ -19,7 +19,7 @@ import { callGroq, callVision, parseJSONResponse, getDishImageUrl, GROQ_FAST_MOD
 // ============================================
 
 function buildChefSystemPrompt(chefId: ChefId, language: AppLanguage): string {
-  const chef = CHEF_PROFILES[chefId];
+  const chef = CHEF_PROFILES[chefId] || CHEF_PROFILES['arjun'];
 
   const languageInstructions: Record<AppLanguage, string> = {
     hindi: 'Sirf Hindi mein baat karo.',
@@ -259,7 +259,7 @@ export async function analyzeCookingFrame(
   language: AppLanguage
 ): Promise<string> {
   try {
-    const chef = CHEF_PROFILES[chefId];
+    const chef = CHEF_PROFILES[chefId] || CHEF_PROFILES['arjun'];
     const prompt = `You are ${chef.name}, an expert chef. The user is doing this cooking step: "${currentStep}".
 Look at the image and give ONE short helpful sentence (max 15 words) in ${language}. Be encouraging!`;
 

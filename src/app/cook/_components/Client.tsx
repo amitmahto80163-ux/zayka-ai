@@ -44,7 +44,7 @@ export default function CookPage() {
 
   // Phase 5: Voice Commands Logic
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || isCameraActive) return;
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
@@ -83,7 +83,7 @@ export default function CookPage() {
       recognition.onend = null;
       recognition.stop();
     };
-  }, [currentStep]); // Restart on step change
+  }, [currentStep, isCameraActive]); // Restart on step change
 
   const speakStep = () => {
     if (!step) return;
