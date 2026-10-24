@@ -1,11 +1,11 @@
 // ============================================
-// ZAYKA AI — Unified AI Client (Server-safe)
-// Multi-Provider: 7 free AIs auto-rotating
-// Groq → DeepSeek → Zhipu → Yi → Qwen → Kimi → OpenRouter
+// ZAYKA AI — Unified Free Market AI Client (Server-safe)
+// Multi-Provider: 12 Free Market AIs Auto-Rotating
+// Keyed Free Tiers: Groq → Cerebras → Gemini → SambaNova → GitHub Models → Mistral → OpenRouter → Cohere → HuggingFace
+// Zero-Key Free Tiers (Always Active): Pollinations OpenAI → Pollinations Llama → Pollinations Mistral
 // ============================================
 
-// Re-export from providers (pure fetch, no Node.js deps)
-export { callAI, getProviderStats } from './providers';
+export { callAI, getProviderStats, AI_PROVIDERS } from './providers';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
@@ -44,7 +44,7 @@ export function parseJSONResponse(text: string) {
   }
 }
 
-// ─── TEXT GENERATION — 7 free providers auto-rotating ───────
+// ─── TEXT GENERATION — 12 free market providers auto-rotating ───────
 export async function callGroq(
   prompt: string,
   systemPrompt?: string,
@@ -55,10 +55,11 @@ export async function callGroq(
   const isFast = modelOverride
     ? modelOverride.includes('8b') || modelOverride.includes('instant') || modelOverride.includes('flash')
     : false;
+
   return callAI(prompt, { systemPrompt, jsonMode, fast: isFast });
 }
 
-// ─── VISION — Gemini first, OpenRouter fallback ─────────────
+// ─── VISION — Multi-provider Free Vision (Gemini -> Groq -> Mistral -> OpenRouter -> Pollinations Keyless) ───
 export async function callGeminiVision(
   prompt: string,
   imageBase64: string,
@@ -105,20 +106,86 @@ export async function callVision(
   imageBase64: string,
   jsonMode = true
 ): Promise<string> {
-  // Try Gemini first
+  const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+  const imageUrl = `data:image/jpeg;base64,${base64Data}`;
+  const finalPrompt = jsonMode
+    ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown.'
+    : prompt;
+
+  // 1. Try Google Gemini Vision (Free Tier)
   if (process.env.GEMINI_API_KEY || GEMINI_API_KEY) {
     try {
       return await callGeminiVision(prompt, imageBase64, jsonMode);
     } catch (e) {
-      console.warn('Gemini vision failed, trying OpenRouter...');
+      console.warn('Gemini vision failed, trying next free vision provider...');
     }
   }
 
-  // Fallback: OpenRouter vision models
+  // 2. Try Groq Llama-4 Scout Vision (Free Tier)
+  if (process.env.GROQ_API_KEY) {
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'text', text: finalPrompt },
+              { type: 'image_url', image_url: { url: imageUrl } },
+            ],
+          }],
+          max_tokens: 2048,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) return content;
+      }
+    } catch {
+      console.warn('Groq vision failed, trying next free vision provider...');
+    }
+  }
+
+  // 3. Try Mistral Pixtral 12B Vision (Free Tier)
+  if (process.env.MISTRAL_API_KEY) {
+    try {
+      const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.MISTRAL_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'pixtral-12b-2409',
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'text', text: finalPrompt },
+              { type: 'image_url', image_url: { url: imageUrl } },
+            ],
+          }],
+          max_tokens: 2048,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) return content;
+      }
+    } catch {
+      console.warn('Mistral Pixtral vision failed, trying next free vision provider...');
+    }
+  }
+
+  // 4. Try OpenRouter Free Vision Models
   const openRouterKey = process.env.OPENROUTER_API_KEY || OPENROUTER_API_KEY;
   if (openRouterKey) {
-    const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
-    const imageUrl = `data:image/jpeg;base64,${base64Data}`;
     const visionModels = [
       'google/gemma-3-27b-it:free',
       'meta-llama/llama-3.2-11b-vision-instruct:free',
@@ -139,12 +206,7 @@ export async function callVision(
             messages: [{
               role: 'user',
               content: [
-                {
-                  type: 'text',
-                  text: jsonMode
-                    ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown.'
-                    : prompt
-                },
+                { type: 'text', text: finalPrompt },
                 { type: 'image_url', image_url: { url: imageUrl } },
               ],
             }],
@@ -163,8 +225,32 @@ export async function callVision(
     }
   }
 
+  // 5. Try Pollinations Keyless Free Vision (100% Free, NO API KEY REQUIRED!)
+  try {
+    const res = await fetch('https://text.pollinations.ai/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'openai',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: finalPrompt },
+            { type: 'image_url', image_url: { url: imageUrl } },
+          ],
+        }],
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (content) return content;
+    }
+  } catch {
+    console.warn('Pollinations keyless vision failed, using text fallback');
+  }
+
   // Final fallback: text-only
-  console.warn('All vision models failed, using text fallback');
   return callGroq(
     prompt + '\n\n(Note: Image unavailable, give best estimate)',
     undefined,
