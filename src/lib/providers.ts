@@ -52,12 +52,12 @@ export const AI_PROVIDERS: AIProvider[] = [
     id: 'gemini',
     name: 'Google Gemini AI Studio (Free Tier)',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
-    model: 'gemini-2.5-flash',
-    fastModel: 'gemini-2.0-flash',
+    model: 'gemini-3.1-flash-lite',
+    fastModel: 'gemini-flash-latest',
     apiKeyEnv: 'GEMINI_API_KEY',
     requiresKey: true,
     maxDailyRequests: 1500,
-    avgLatencyMs: 550,
+    avgLatencyMs: 350,
     supportsJSON: true,
     priority: 2,
   },
@@ -252,6 +252,12 @@ async function callProvider(
     temperature: 0.7,
     max_tokens: maxTokens,
   };
+
+  // Ultra-fast Gemini: disable thinking tokens when calling Gemini via OpenAI compatibility
+  if (provider.id === 'gemini') {
+    body.thinking_config = { thinking_budget: 0 };
+    body.extra_body = { thinking_config: { thinking_budget: 0 } };
+  }
 
   if (jsonMode && provider.supportsJSON) {
     body.response_format = { type: 'json_object' };

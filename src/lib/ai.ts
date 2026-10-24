@@ -10,7 +10,8 @@ export { callAI, getProviderStats, AI_PROVIDERS } from './providers';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 
-export const GEMINI_VISION_MODEL = 'gemini-2.5-flash';
+export const GEMINI_VISION_MODEL = 'gemini-3.1-flash-lite';
+export const GEMINI_FALLBACK_VISION_MODEL = 'gemini-flash-latest';
 export const GROQ_FAST_MODEL = 'llama-3.1-8b-instant';
 
 // ─── JSON Parser ────────────────────────────────────────────
@@ -66,39 +67,55 @@ export async function callGeminiVision(
   jsonMode = true
 ): Promise<string> {
   const geminiKey = process.env.GEMINI_API_KEY || GEMINI_API_KEY;
-  if (!geminiKey) throw new Error('Missing GEMINI_API_KEY');
+  if (!geminiKey) throw new Error("Missing GEMINI_API_KEY");
 
-  const base64Data = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+  const base64Data = imageBase64.includes(",") ? imageBase64.split(",")[1] : imageBase64;
   const finalPrompt = jsonMode
-    ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text.'
+    ? prompt + "\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text."
     : prompt;
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_VISION_MODEL}:generateContent?key=${geminiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: finalPrompt },
-            { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
-          ]
-        }],
-        generationConfig: { temperature: 0.7 }
-      })
-    }
-  );
+  // Ultra-fast Gemini Vision: zero thinking budget + auto model fallback
+  const modelsToTry = [GEMINI_VISION_MODEL, GEMINI_FALLBACK_VISION_MODEL, "gemini-3.8-flash"];
+  let lastError = "";
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Gemini Error: ${res.status} - ${err}`);
+  for (const model of modelsToTry) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: finalPrompt },
+                { inline_data: { mime_type: "image/jpeg", data: base64Data } }
+              ]
+            }],
+            generationConfig: {
+              temperature: 0.4,
+              maxOutputTokens: 2048,
+              thinkingConfig: {
+                thinkingBudget: 0,
+              },
+            }
+          })
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+      } else {
+        lastError = await res.text();
+      }
+    } catch (e: any) {
+      lastError = e?.message || String(e);
+    }
   }
 
-  const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Empty response from Gemini');
-  return text;
+  throw new Error(`Gemini Error: ${lastError || "All fast vision models failed"}`);
 }
 
 export async function callVision(
