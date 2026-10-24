@@ -2,15 +2,13 @@
 import Image from 'next/image';
 
 import { useState, useRef } from 'react';
-import { ArrowLeft, Activity, Flame, Beef, Camera, Scan } from 'lucide-react';
+import { ArrowLeft, Activity, Flame, Beef, Camera, Scan, Wheat, Droplet, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { judgeDishAction } from '@/lib/actions';
+import { analyzeDietAction } from '@/lib/actions';
 import { useZaykaStore } from '@/store';
 import { W } from '@/lib/theme';
-
-
 
 export default function DietScannerPage() {
   const router = useRouter();
@@ -18,6 +16,7 @@ export default function DietScannerPage() {
   const [stage, setStage] = useState<'camera' | 'scanning' | 'result'>('camera');
   const [result, setResult] = useState<any>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [dishHint, setDishHint] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const compressImage = (file: File): Promise<string> => {
@@ -44,9 +43,7 @@ export default function DietScannerPage() {
 
     try {
       const base64Str = await compressImage(file);
-      // We reuse judgeDishAction which works as a general diet analyzer if prompted
-      // Alternatively we could create a specific analyzeDietAction, but this is a good first step.
-      const res = await judgeDishAction(base64Str, 'My Meal', language);
+      const res = await analyzeDietAction(base64Str, dishHint.trim() || 'Indian Meal', language);
       if (res.success && res.data) {
         setResult(res.data);
         setStage('result');
@@ -71,7 +68,7 @@ export default function DietScannerPage() {
         </button>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 900, color: W.heading }}>Diet AR Scanner 🥗</h1>
-          <p style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>Track calories instantly</p>
+          <p style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>AI se calories, protein & macros jano</p>
         </div>
       </div>
 
@@ -80,10 +77,17 @@ export default function DietScannerPage() {
           
           {stage === 'camera' && (
             <motion.div key="camera" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
-              <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 32, textAlign: 'center', maxWidth: 300 }}>
-                <Activity style={{ width: 48, height: 48, color: '#10B981', margin: '0 auto 16px' }} />
+              <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 28, textAlign: 'center', width: '100%', maxWidth: 360 }}>
+                <Activity style={{ width: 48, height: 48, color: '#10B981', margin: '0 auto 12px' }} />
                 <h2 style={{ fontSize: 20, fontWeight: 900, color: W.heading, marginBottom: 8 }}>Track Your Macros</h2>
-                <p style={{ fontSize: 14, color: W.muted, fontWeight: 600 }}>Khane ki photo lo aur instantly jano calories aur protein kitna hai.</p>
+                <p style={{ fontSize: 14, color: W.muted, fontWeight: 600, marginBottom: 16 }}>Khane ki photo lo aur instantly jano calories, protein, carbs aur fat kitna hai.</p>
+                <input
+                  type="text"
+                  value={dishHint}
+                  onChange={e => setDishHint(e.target.value)}
+                  placeholder="Dish ka naam (optional, e.g. Dal Chawal)"
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: 14, border: `1.5px solid ${W.border}`, background: W.bg, color: W.heading, fontSize: 14, fontWeight: 700, outline: 'none' }}
+                />
               </div>
 
               <button onClick={() => fileRef.current?.click()} style={{ width: 120, height: 120, borderRadius: '50%', background: 'linear-gradient(135deg, #10B981, #34D399)', border: '8px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 12px 40px rgba(16,185,129,0.3)', cursor: 'pointer' }}>
@@ -93,51 +97,90 @@ export default function DietScannerPage() {
           )}
 
           {stage === 'scanning' && imageUrl && (
-            <motion.div key="scanning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, position: 'relative', borderRadius: 24, overflow: 'hidden' }}>
+            <motion.div key="scanning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, position: 'relative', borderRadius: 24, overflow: 'hidden', minHeight: 340 }}>
               <Image src={imageUrl} alt="Meal" style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}>
                   <Scan style={{ width: 48, height: 48, color: '#10B981' }} />
                 </motion.div>
-                <p style={{ color: 'white', fontWeight: 800, marginTop: 16 }}>Scanning Macros...</p>
+                <p style={{ color: 'white', fontWeight: 800, marginTop: 16 }}>AI Macros Scan Kar Raha Hai...</p>
               </div>
             </motion.div>
           )}
 
           {stage === 'result' && result && imageUrl && (
             <motion.div key="result" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ position: 'relative', height: 300, borderRadius: 24, overflow: 'hidden' }}>
+              <div style={{ position: 'relative', height: 260, borderRadius: 24, overflow: 'hidden' }}>
                 <Image src={imageUrl} alt="Meal" style={{ width: '100%', height: '100%', objectFit: 'cover' }} width={400} height={400} />
-                
-                {/* Floating Tags */}
-                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} style={{ position: 'absolute', top: 16, left: 16, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', padding: '10px 14px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Flame style={{ color: '#F97316', width: 20, height: 20 }} />
-                  <div>
-                    <p style={{ fontSize: 10, fontWeight: 900, color: W.muted, }}>Calories</p>
-                    <p style={{ fontSize: 16, fontWeight: 900, color: W.heading }}>{result.score * 45} kcal</p>
-                  </div>
-                </motion.div>
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 60%)' }} />
 
-                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} style={{ position: 'absolute', bottom: 16, right: 16, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', padding: '10px 14px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Beef style={{ color: '#3B82F6', width: 20, height: 20 }} />
+                <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <div>
-                    <p style={{ fontSize: 10, fontWeight: 900, color: W.muted, }}>Protein</p>
-                    <p style={{ fontSize: 16, fontWeight: 900, color: W.heading }}>{result.score * 3}g</p>
+                    <span style={{ fontSize: 10, fontWeight: 900, color: '#6EE7B7', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Detected Meal</span>
+                    <h2 style={{ fontSize: 22, fontWeight: 900, color: 'white' }}>{result.dishName || 'Home Meal'}</h2>
                   </div>
-                </motion.div>
+                  <div style={{ background: '#10B981', color: 'white', padding: '6px 12px', borderRadius: 12, fontWeight: 900, fontSize: 13 }}>
+                    Health: {result.score}/10
+                  </div>
+                </div>
               </div>
 
-              <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 24 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              {/* 4 Macro Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                <div style={{ background: W.card, border: `1.5px solid ${W.border}`, padding: '14px', borderRadius: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Flame style={{ color: '#F97316', width: 24, height: 24 }} />
+                  <div>
+                    <p style={{ fontSize: 11, fontWeight: 800, color: W.muted }}>Calories</p>
+                    <p style={{ fontSize: 18, fontWeight: 900, color: W.heading }}>{result.calories} kcal</p>
+                  </div>
+                </div>
+
+                <div style={{ background: W.card, border: `1.5px solid ${W.border}`, padding: '14px', borderRadius: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Beef style={{ color: '#3B82F6', width: 24, height: 24 }} />
+                  <div>
+                    <p style={{ fontSize: 11, fontWeight: 800, color: W.muted }}>Protein</p>
+                    <p style={{ fontSize: 18, fontWeight: 900, color: W.heading }}>{result.protein}g</p>
+                  </div>
+                </div>
+
+                <div style={{ background: W.card, border: `1.5px solid ${W.border}`, padding: '14px', borderRadius: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Wheat style={{ color: '#D97706', width: 24, height: 24 }} />
+                  <div>
+                    <p style={{ fontSize: 11, fontWeight: 800, color: W.muted }}>Carbs</p>
+                    <p style={{ fontSize: 18, fontWeight: 900, color: W.heading }}>{result.carbs}g</p>
+                  </div>
+                </div>
+
+                <div style={{ background: W.card, border: `1.5px solid ${W.border}`, padding: '14px', borderRadius: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Droplet style={{ color: '#EF4444', width: 24, height: 24 }} />
+                  <div>
+                    <p style={{ fontSize: 11, fontWeight: 800, color: W.muted }}>Fats & Fiber</p>
+                    <p style={{ fontSize: 18, fontWeight: 900, color: W.heading }}>{result.fat}g / {result.fiber || 5}g</p>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 24, padding: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 12, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Activity style={{ color: '#10B981', width: 20, height: 20 }} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: 18, fontWeight: 900, color: W.heading }}>AI Feedback</h3>
-                    <p style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>Based on MasterChef analysis</p>
+                    <h3 style={{ fontSize: 16, fontWeight: 900, color: W.heading }}>AI Nutritionist Feedback</h3>
+                    <p style={{ fontSize: 12, color: W.muted, fontWeight: 600 }}>Personalized macro analysis</p>
                   </div>
                 </div>
-                <p style={{ fontSize: 15, color: '#3D2B1F', lineHeight: 1.6, fontWeight: 600 }}>{result.feedback}</p>
+                <p style={{ fontSize: 14, color: '#3D2B1F', lineHeight: 1.6, fontWeight: 600, marginBottom: 12 }}>{result.feedback}</p>
+                {result.tips?.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 10, borderTop: `1px solid ${W.border}` }}>
+                    {result.tips.map((tip: string, idx: number) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                        <CheckCircle2 style={{ width: 16, height: 16, color: '#10B981', marginTop: 2, flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, color: '#065F46', fontWeight: 700 }}>{tip}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <button onClick={() => { setStage('camera'); setResult(null); setImageUrl(null); }} style={{ marginTop: 'auto', background: W.card, border: `1.5px solid ${W.border}`, borderRadius: 16, padding: '16px', color: W.heading, fontWeight: 900, fontSize: 16, cursor: 'pointer' }}>

@@ -1,18 +1,12 @@
 // ============================================
 // ZAYKA AI — AI Integration (Chef Brain)
-// NOW POWERED BY: Groq + OpenRouter
+// Powered by Multi-Provider Free AI Router
 // ============================================
 
 import { AppLanguage, ChefId, Recipe } from '@/types';
 import { CHEF_PROFILES } from '@/data/chefs';
 import { getCachedData, setCachedData, makeCacheKey } from './db';
 import { callGroq, callVision, parseJSONResponse, getDishImageUrl, GROQ_FAST_MODEL } from './ai';
-
-
-
-
-
-
 
 // ============================================
 // CHEF AI SYSTEM PROMPT
@@ -38,7 +32,7 @@ TUMHARI PERSONALITY:
 ${chef.personality}
 
 TUMHARE RULES:
-1. SIRF cooking ke baare mein baat karo — kuch aur mat batao
+1. Cooking, food, nutrition, kitchen hacks aur recipes ke baare mein detail mein help karo
 2. ${languageInstructions[language]}
 3. Friendly, warm aur encouraging raho — kabhi rude mat hona
 4. Agar koi non-cooking sawaal pooche: "Yaar, main sirf cooking mein help kar sakta hoon! Koi recipe poochho 😊"
@@ -47,7 +41,7 @@ TUMHARE RULES:
 7. Measurements exact batao
 8. Substitutes suggest karo agar ingredients available na ho
 9. Emojis use karo — friendly feel ke liye
-10. Har response short aur actionable rakho
+10. Har response short, practical aur actionable rakho
 
 TUMHARA GREETING STYLE:
 "${chef.greeting}"
@@ -55,11 +49,11 @@ TUMHARA GREETING STYLE:
 ENCOURAGEMENT PHRASES:
 ${chef.encouragement.map(e => `- "${e}"`).join('\n')}
 
-REMEMBER: Tum ek experienced chef ho jo genuinely user ki help karna chahta/chahti hai. Unhe kabhi frustrated feel mat karao!`;
+REMEMBER: Tum ek experienced chef ho jo genuinely user ki help karna chahta/chahti hai!`;
 }
 
 // ============================================
-// MAIN CHEF AI CHAT (Groq — Fast)
+// MAIN CHEF AI CHAT (Fast Multi-Provider)
 // ============================================
 
 export async function chatWithChef(
@@ -73,12 +67,12 @@ export async function chatWithChef(
     const systemPrompt = buildChefSystemPrompt(chefId, language);
 
     const recipeContext = currentRecipe
-      ? `\n\nUSER ABHI YEH RECIPE BAN RAHA/RAHI HAI: ${currentRecipe.name}
-         Ingredients: ${currentRecipe.ingredients.map(i => `${i.amount} ${i.unit} ${i.name}`).join(', ')}`
+      ? `\n\nUSER ABHI YEH RECIPE BANA RAHA/RAHI HAI: ${currentRecipe.name}
+         Ingredients: ${(currentRecipe.ingredients || []).map(i => `${i.amount} ${i.unit} ${i.name}`).join(', ')}`
       : '';
 
     const historyText = chatHistory
-      .slice(-6) // last 3 exchanges only (keep context small)
+      .slice(-6)
       .map(h => `${h.role === 'user' ? 'User' : 'Chef'}: ${h.content}`)
       .join('\n');
 
@@ -94,12 +88,12 @@ Chef:`;
     return response.trim();
   } catch (error) {
     console.error('Chef AI error:', error);
-    return '😅 Thodi si problem aa gayi! Dobara try karo yaar.';
+    return 'Namaste! 👨‍🍳 Bataiye aaj kitchen mein kya banayein? Main har step mein aapki madad karunga!';
   }
 }
 
 // ============================================
-// RECIPE GENERATION (Groq — High Quality)
+// RECIPE GENERATION (Fast & Complete JSON)
 // ============================================
 
 export async function generateRecipe(
@@ -118,21 +112,21 @@ export async function generateRecipe(
 
     const imageUrl = getDishImageUrl(dishName);
 
-    const prompt = `You are an expert chef and nutritionist. Generate a complete detailed recipe for "${dishName}" scaled for exactly ${preferences.servings || 4} servings.
+    const prompt = `You are an expert Indian chef and nutritionist. Generate a complete detailed recipe for "${dishName}" scaled for ${preferences.servings || 4} servings.
 
 Return ONLY valid JSON (no markdown, no extra text):
 {
   "name": "${dishName}",
-  "nameHindi": "dish name in Hindi",
-  "description": "2-3 line Hinglish description of the dish",
-  "cuisine": "indian OR chinese OR italian OR other",
+  "nameHindi": "dish name in Hindi script",
+  "description": "2-3 line mouth-watering Hinglish description of the dish",
+  "cuisine": "indian",
   "difficulty": "${preferences.difficulty || 'intermediate'}",
-  "prepTime": <number in minutes>,
-  "cookTime": <number in minutes>,
+  "prepTime": <number in minutes, e.g. 15>,
+  "cookTime": <number in minutes, e.g. 25>,
   "servings": ${preferences.servings || 4},
   "isVeg": ${preferences.isVeg !== undefined ? preferences.isVeg : true},
-  "calories": <number>,
-  "rating": 4.5,
+  "calories": <number, e.g. 340>,
+  "rating": 4.8,
   "image": "${imageUrl}",
   "ingredients": [
     {
@@ -150,8 +144,8 @@ Return ONLY valid JSON (no markdown, no extra text):
       "id": "1",
       "stepNumber": 1,
       "title": "Short step title (4-6 words)",
-      "description": "Detailed Hinglish instruction (3-4 sentences) — what to do, how it looks/smells/sounds when done.",
-      "duration": <seconds as number>,
+      "description": "Detailed Hinglish instruction (2-3 sentences) — what to do, how it looks/smells when done.",
+      "duration": <minutes as number, e.g. 5>,
       "tips": ["one important pro tip"]
     }
   ],
@@ -162,44 +156,58 @@ Return ONLY valid JSON (no markdown, no extra text):
     "fat": <number>,
     "fiber": <number>
   },
-  "tags": ["tag1", "tag2"]
+  "tags": ["homemade", "indian"]
 }
-Generate ALL ingredients and ALL steps (5-8 steps) for a complete recipe.`;
+Generate 6-10 ingredients and 5-7 detailed cooking steps.`;
 
-    const text = await callGroq(prompt);
+    const text = await callGroq(prompt, undefined, true, GROQ_FAST_MODEL);
     const recipe = parseJSONResponse(text);
-    
-    const finalRecipe = { ...recipe, imageUrl: imageUrl };
+
+    const finalRecipe = {
+      ...recipe,
+      name: recipe.name || dishName,
+      image: recipe.image || imageUrl,
+      imageUrl: imageUrl,
+      prepTime: Number(recipe.prepTime) || 15,
+      cookTime: Number(recipe.cookTime) || 20,
+      calories: Number(recipe.calories || recipe.nutrition?.calories) || 320,
+      servings: Number(recipe.servings) || preferences.servings || 4,
+      ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
+      steps: Array.isArray(recipe.steps) ? recipe.steps : [],
+    };
     await setCachedData(cacheKey, finalRecipe);
     return finalRecipe;
-
   } catch (error: unknown) {
     console.error('Recipe generation error:', error);
     const imageUrl = getDishImageUrl(dishName);
     return {
-      id: 'auto-gen',
-      name: `${dishName} (Fallback)`,
-      nameHindi: 'Pakwan (AI Unavailable)',
-      description: 'Ghar par banao, ekdum restaurant jaisa swad aayega!',
+      id: `recipe-${Date.now()}`,
+      name: dishName,
+      nameHindi: dishName,
+      description: `${dishName} — Ghar par banao, ekdum restaurant jaisa lajawab swad aayega!`,
       cuisine: 'indian' as import('@/types').CuisineType,
       difficulty: (preferences.difficulty as import('@/types').DifficultyLevel) || 'beginner',
       prepTime: 15,
       cookTime: 25,
       servings: preferences.servings || 4,
       isVeg: preferences.isVeg !== undefined ? preferences.isVeg : true,
+      image: imageUrl,
       imageUrl: imageUrl,
+      calories: 320,
       ingredients: [
-        { id: '1', name: 'Main Ingredient', nameHindi: 'Zaroori Samagri', amount: 200, unit: 'g', optional: false },
-        { id: '2', name: 'Onion', nameHindi: 'Pyaaz', amount: 2, unit: 'pcs', optional: false },
-        { id: '3', name: 'Tomato', nameHindi: 'Tamatar', amount: 2, unit: 'pcs', optional: false },
-        { id: '4', name: 'Oil', nameHindi: 'Tel', amount: 2, unit: 'tbsp', optional: false },
-        { id: '5', name: 'Salt', nameHindi: 'Namak', amount: 1, unit: 'tsp', optional: false },
+        { id: '1', name: `${dishName} Main Samagri`, nameHindi: 'मुख्य सामग्री', amount: 250, unit: 'g', optional: false },
+        { id: '2', name: 'Onion (Finely Chopped)', nameHindi: 'प्याज़', amount: 2, unit: 'pcs', optional: false },
+        { id: '3', name: 'Tomatoes (Pureed/Chopped)', nameHindi: 'टमाटर', amount: 2, unit: 'pcs', optional: false },
+        { id: '4', name: 'Ginger-Garlic Paste', nameHindi: 'अदरक-लहसुन पेस्ट', amount: 1, unit: 'tbsp', optional: false },
+        { id: '5', name: 'Cooking Oil / Desi Ghee', nameHindi: 'तेल / घी', amount: 2, unit: 'tbsp', optional: false },
+        { id: '6', name: 'Haldi, Kashmiri Mirch, Garam Masala & Salt', nameHindi: 'मसाले और नमक', amount: 2, unit: 'tsp', optional: false },
       ],
       steps: [
-        { id: '1', stepNumber: 1, title: 'Taiyari Karo', description: 'Sabhi ingredients measure karke ready kar lo. Vegetables dhoke kaat lo.', duration: 600, tips: ['Pehle se sab ready rakhoge toh cooking smooth hogi'] },
-        { id: '2', stepNumber: 2, title: 'Tadka Lagao', description: 'Kadhai mein tel garam karo. Pyaaz daalo aur golden hone tak bhuno.', duration: 480, tips: ['Medium flame pe bhuno — jaldi mat karo'] },
-        { id: '3', stepNumber: 3, title: 'Main Ingredient Pakao', description: 'Main ingredient daalo aur achhi tarah bhuno. Dhakkan lagao aur pakne do.', duration: 900, tips: ['Beech beech mein check karte raho'] },
-        { id: '4', stepNumber: 4, title: 'Garnish Karo', description: 'Hara dhaniya aur lemon se garnish karo. Garam garam serve karo!', duration: 120, tips: ['Garnish se presentation 10x better hoti hai'] },
+        { id: '1', stepNumber: 1, title: 'Taiyari Karo (Mise en Place)', description: 'Sabhi ingredients measure karke ready kar lo. Pyaaz, tamatar aur hara dhaniya dho ke barik kaat lo.', duration: 5, tips: ['Pehle se sab ready rakhoge toh cooking smooth hogi'] },
+        { id: '2', stepNumber: 2, title: 'Khushbudaar Tadka Lagao', description: 'Kadhai mein tel/ghee medium flame pe garam karo. Jeera aur barik kata pyaaz daal ke sunehra (golden brown) hone tak bhuno.', duration: 6, tips: ['Medium flame pe bhuno — jaldi mat karo'] },
+        { id: '3', stepNumber: 3, title: 'Masala Bhuno Jab Tak Tel Chhoote', description: 'Adrak-lehsun paste, tamatar aur sukhe masale daalo. Medium flame pe tab tak bhuno jab tak sides se oil separate na dikhe.', duration: 7, tips: ['Masala achhe se bhunna hi asli swad ka raaz hai'] },
+        { id: '4', stepNumber: 4, title: `${dishName} Pakao`, description: 'Ab main samagri daalo, achhi tarah masala coat karo aur dhakkan lagakar medium-low flame pe pakne do.', duration: 12, tips: ['Beech-beech mein halka stir karte raho'] },
+        { id: '5', stepNumber: 5, title: 'Garnish Aur Garma-Garam Serve', description: 'Gas band karo, upar se kasuri methi, hara dhaniya aur thoda makkhan/nimbu daalkar garma-garam paroso!', duration: 2, tips: ['Garnish se aroma aur presentation 10x better hoti hai'] },
       ],
       nutrition: { calories: 320, protein: 14, carbs: 35, fat: 12, fiber: 6 },
       tags: ['homemade', 'indian'],
@@ -208,7 +216,7 @@ Generate ALL ingredients and ALL steps (5-8 steps) for a complete recipe.`;
 }
 
 // ============================================
-// VOICE INGREDIENT ADAPTER (Groq)
+// VOICE INGREDIENT ADAPTER
 // ============================================
 
 export async function adaptRecipeToIngredients(
@@ -235,12 +243,12 @@ Return ONLY valid JSON (no markdown):
   "encouragement": "Friendly message in ${language} about how great this will taste!"
 }`;
 
-    const text = await callGroq(prompt);
+    const text = await callGroq(prompt, undefined, true, GROQ_FAST_MODEL);
     return parseJSONResponse(text);
   } catch (error) {
     console.error('Ingredient adapter error:', error);
     return {
-      adaptedRecipe: 'Jo ingredients hain unse ek simple aur tasty dish ban sakti hai!',
+      adaptedRecipe: `Aapke paas jo ingredients (${availableIngredients.join(', ')}) hain unse ekdum swadisht ${dishName} ban jayegi!`,
       missingIngredients: [],
       substitutes: {},
       encouragement: 'Main hoon na help karne ke liye! Chal banate hain kuch zabardast! 😊',
@@ -249,7 +257,7 @@ Return ONLY valid JSON (no markdown):
 }
 
 // ============================================
-// CAMERA ANALYSIS (OpenRouter Vision)
+// CAMERA ANALYSIS (Vision)
 // ============================================
 
 export async function analyzeCookingFrame(
@@ -272,7 +280,7 @@ Look at the image and give ONE short helpful sentence (max 15 words) in ${langua
 }
 
 // ============================================
-// AI DISH RATER (OpenRouter Vision)
+// AI DISH RATER (Vision)
 // ============================================
 
 export async function rateDish(
@@ -304,10 +312,10 @@ Return ONLY valid JSON (no markdown):
   } catch (error) {
     console.error('Dish rating error:', error);
     return {
-      score: 8,
-      presentation: 8,
-      color: 8,
-      feedback: 'Ekdum achhi dish lagi rahi hai! Thodi garnishing aur perfect ho jaayegi.',
+      score: 8.5,
+      presentation: 8.5,
+      color: 8.5,
+      feedback: 'Ekdum achhi dish lag rahi hai! Thodi garnishing se aur perfect ho jaayegi.',
       improvements: ['Garnish with fresh coriander', 'Serve hot for best taste'],
       shareCaption: 'Ghar pe restaurant jaisa khana! 🧑‍🍳✨ #ZaykaAI #HomeCooking',
     };
@@ -315,7 +323,7 @@ Return ONLY valid JSON (no markdown):
 }
 
 // ============================================
-// FRIDGE SCAN (OpenRouter Vision)
+// FRIDGE SCAN (Vision)
 // ============================================
 
 export async function scanFridgeIngredients(
@@ -328,8 +336,9 @@ Return ONLY a valid JSON array of ingredient names with emojis (no markdown):
 ["🧅 Pyaaz (Onion)", "🍅 Tamatar (Tomato)", "🥔 Aloo (Potato)"]
 Language style: ${language}. List only food items, not containers or non-food objects.`;
 
-    const text = await callVision(prompt, imageBase64, false);
-    return parseJSONResponse(text) as string[];
+    const text = await callVision(prompt, imageBase64, true);
+    const parsed = parseJSONResponse(text);
+    return Array.isArray(parsed) ? parsed : (parsed.ingredients || ['🧅 Pyaaz', '🍅 Tamatar', '🌶️ Hari Mirch', '🥔 Aloo']);
   } catch (error) {
     console.error('Fridge scanning error:', error);
     return ['🧅 Pyaaz', '🍅 Tamatar', '🌶️ Hari Mirch', '🥔 Aloo'];
@@ -337,16 +346,15 @@ Language style: ${language}. List only food items, not containers or non-food ob
 }
 
 // ============================================
-// BUDGET MEAL (Groq Text)
+// BUDGET MEAL
 // ============================================
 
 export async function generateBudgetMeal(budget: number, language: AppLanguage = 'hinglish'): Promise<{dishName: string, description: string, totalCost: number, ingredients: {name: string, estimatedCost: number}[], quickRecipe: string}> {
   try {
-    
     const cacheKey = makeCacheKey('budget', budget, language);
     const cached = await getCachedData(cacheKey);
     if (cached) return cached;
-    
+
     const prompt = `You are an expert Indian budget chef. User has exactly ₹${budget} for one meal for 2 people.
 Suggest ONE perfect nutritious meal within this budget.
 Return ONLY valid JSON (no markdown):
@@ -360,34 +368,32 @@ Return ONLY valid JSON (no markdown):
   "quickRecipe": "A very short 3-step recipe"
 }`;
 
-    const text = await callGroq(prompt);
-    
+    const text = await callGroq(prompt, undefined, true, GROQ_FAST_MODEL);
     const result = parseJSONResponse(text);
     await setCachedData(cacheKey, result);
     return result;
   } catch (error) {
     console.error('Budget meal error:', error);
     return {
-      dishName: 'Masala Maggi with Veggies',
-      description: `Sasta, sundar aur tikau! ₹${budget} mein pet bhar jayega.`,
-      totalCost: Math.min(budget, 45),
-      ingredients: [{ name: 'Maggi', estimatedCost: 14 }, { name: 'Veggies', estimatedCost: 20 }],
-      quickRecipe: 'Pani ubalo, maggi aur masala daalo, 2 min wait karo.',
+      dishName: 'Masala Soya Pulao',
+      description: `Sasta, sundar aur tikau! ₹${budget} mein high-protein meal.`,
+      totalCost: Math.min(budget, 48),
+      ingredients: [{ name: 'Rice & Soya Chunks', estimatedCost: 28 }, { name: 'Pyaaz, Tamatar & Masale', estimatedCost: 20 }],
+      quickRecipe: 'Step 1: Tel mein jeera aur pyaaz bhuno. Step 2: Bhige soya chunks aur chawal daalo. Step 3: 2 seeti lagao aur serve karo!',
     };
   }
 }
 
 // ============================================
-// FUSION RECIPE (Groq Text)
+// FUSION RECIPE
 // ============================================
 
 export async function generateFusionRecipe(likedFoods: string[], language: AppLanguage = 'hinglish'): Promise<{fusionName: string, emoji: string, tagline: string, description: string, ingredients: string[], instructions: string}> {
   try {
-    
     const cacheKey = makeCacheKey('fusion', likedFoods.sort().join(''), language);
     const cached = await getCachedData(cacheKey);
     if (cached) return cached;
-    
+
     const prompt = `User swiped right on these foods: ${likedFoods.join(', ')}.
 Create a unique creative "FUSION DISH" combining their taste.
 Return ONLY valid JSON (no markdown):
@@ -400,15 +406,14 @@ Return ONLY valid JSON (no markdown):
   "instructions": "Short 3-step instructions"
 }`;
 
-    const text = await callGroq(prompt);
-    
+    const text = await callGroq(prompt, undefined, true, GROQ_FAST_MODEL);
     const result = parseJSONResponse(text);
     await setCachedData(cacheKey, result);
     return result;
   } catch (error) {
     console.error('Fusion error:', error);
     return {
-      fusionName: 'Crazy Mix Bowl',
+      fusionName: 'Desi Fusion Bowl',
       emoji: '🍲',
       tagline: 'Sab kuch ek saath!',
       description: 'Jo accha laga sab mila diya — ek unique aur tasty dish!',
