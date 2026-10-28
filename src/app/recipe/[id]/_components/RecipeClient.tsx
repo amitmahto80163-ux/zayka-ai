@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import DishImage from '@/components/DishImage';
+import { getExactDishImage } from '@/lib/dishImages';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Share2, Heart, Star, Clock, Play, Globe, MapPin, ChevronDown, ChevronUp, Loader2, Camera, RotateCcw } from 'lucide-react';
@@ -48,7 +49,7 @@ const DUMMY_RECIPES: Record<string, any> = {
     name: 'Butter Chicken', nameHindi: 'बटर चिकन',
     description: 'Creamy, rich, authentic Punjabi style butter chicken with a smoky tandoori aroma.',
     cuisine: 'indian', prepTime: 30, cookTime: 45, servings: 4, isVeg: false, calories: 380, rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&q=80&w=800',
+    image: getExactDishImage('Butter Chicken'),
     ingredients: DISH_INGREDIENTS['butter-chicken'] || [],
     steps: [
       { stepNumber: 1, title: 'Marination (30 min)', description: 'Chicken ko dahi, ginger-garlic paste, Kashmiri mirch, namak aur thoda oil mein ache se coat karo. Dhak ke 30 min ke liye rakh do — jitna zyada waqt utna better.', duration: 30, tips: ['Raat bhar bhi marain sakte ho fridge mein — flavour 10x ho jaata hai'] },
@@ -62,7 +63,7 @@ const DUMMY_RECIPES: Record<string, any> = {
     name: 'Dal Makhani', nameHindi: 'दाल मखनी',
     description: 'Slow-cooked black dal with rajma in a rich buttery tomato gravy. Restaurant wali taste ghar pe.',
     cuisine: 'indian', prepTime: 20, cookTime: 60, servings: 4, isVeg: true, calories: 290, rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
+    image: getExactDishImage('Dal Makhani'),
     ingredients: DISH_INGREDIENTS['dal-makhani'] || [],
     steps: [
       { stepNumber: 1, title: 'Dal Pressure Cook Karo', description: 'Bhigi hui urad dal aur rajma ko pressure cooker mein 4-5 cups pani ke saath daalo. 5-6 seeti aane do. Phir 20 min sim pe pakne do — woh jitni naram hogi, dish utni creamy hogi.', duration: 30, tips: ['Bahut naram karo — spoon se easily mashal ho jaaye'] },
@@ -76,7 +77,7 @@ const DUMMY_RECIPES: Record<string, any> = {
     name: 'Paneer Tikka', nameHindi: 'पनीर टिक्का',
     description: 'Smoky, charred restaurant-style paneer tikka — ghar ke tawa pe bhi ekdum same taste.',
     cuisine: 'indian', prepTime: 20, cookTime: 15, servings: 2, isVeg: true, calories: 250, rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&q=80&w=800',
+    image: getExactDishImage('Paneer Tikka'),
     ingredients: DISH_INGREDIENTS['paneer-tikka'] || [],
     steps: [
       { stepNumber: 1, title: 'Marinade Banao', description: 'Hung curd mein sab masale, ginger-garlic paste, Kashmiri mirch, mustard oil mix karo. Paneer aur veggies isme coat karo. 30 min minimum rest do.', duration: 35 },
@@ -90,7 +91,7 @@ const DUMMY_RECIPES: Record<string, any> = {
     name: 'Aloo Paratha', nameHindi: 'आलू पराठा',
     description: 'Crispy golden parathas stuffed with spiced mashed potato — Punjab ka breakfast king.',
     cuisine: 'indian', prepTime: 30, cookTime: 20, servings: 4, isVeg: true, calories: 320, rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&q=80&w=800',
+    image: getExactDishImage('Aloo Paratha'),
     ingredients: DISH_INGREDIENTS['aloo-paratha'] || [],
     steps: [
       { stepNumber: 1, title: 'Dough Banao (20 min rest)', description: 'Atta, namak, thoda oil mix karo. Dheere dheere pani daalo aur soft dough banaao. Ek kapde se dhak ke 20 min rest do — bahut zaroori step.', duration: 25, tips: ['Jitna soft dough, utna soft paratha'] },
@@ -104,7 +105,7 @@ const DUMMY_RECIPES: Record<string, any> = {
     name: 'Chole Bhature', nameHindi: 'छोले भटूरे',
     description: 'Spicy tangy chole with fluffy puffed bhature — Delhi ki famous street food.',
     cuisine: 'indian', prepTime: 20, cookTime: 40, servings: 4, isVeg: true, calories: 450, rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&q=80&w=800',
+    image: getExactDishImage('Chole Bhature'),
     ingredients: DISH_INGREDIENTS['chole-bhature'] || [],
     steps: [
       { stepNumber: 1, title: 'Chole Pakao', description: 'Bhige hue chane pressure cooker mein 5-6 seeti ke saath pakao. Soft hone chahiye.', duration: 30 },
@@ -118,7 +119,7 @@ const DUMMY_RECIPES: Record<string, any> = {
     name: 'Veggie Sushi Roll', nameHindi: 'वेज सुशी',
     description: 'Japanese classic re-imagined with Indian kirana store ingredients.',
     cuisine: 'japanese', prepTime: 20, cookTime: 20, servings: 2, isVeg: true, calories: 310, rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&q=80&w=800',
+    image: getExactDishImage('Veggie Sushi Roll'),
     isGlobalWithDesiOptions: true,
     desiSubstituteNote: 'Nori ki jagah thin spinach paratha, sushi rice ki jagah sticky jeera rice!',
     ingredients: [
@@ -149,7 +150,7 @@ const DUMMY_RECIPES: Record<string, any> = {
     name: 'Special Recipe', nameHindi: 'खास रेसिपी',
     description: 'A delicious Zayka AI special recipe generated just for you.',
     cuisine: 'indian', prepTime: 10, cookTime: 20, servings: 2, isVeg: true, calories: 250, rating: 4.5,
-    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=800',
+    image: getExactDishImage('Special Recipe'),
     ingredients: [],
     steps: [
       { stepNumber: 1, title: 'Prep', description: 'Chop everything nicely.', duration: 10 },

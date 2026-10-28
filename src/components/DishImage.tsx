@@ -1,6 +1,7 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
+import { findVerifiedDishImage, getExactDishImage } from '@/lib/dishImages';
 
 interface DishImageProps {
   src?: string | null;
@@ -37,6 +38,8 @@ const FOOD_EMOJI_MAP: [string, string][] = [
   ['chole', '🥘'], ['rajma', '🫘'], ['maggi', '🍜'], ['sandwich', '🥪'],
 ];
 
+const wikiResolvedCache = new Map<string, string>();
+
 function getFallbackEmoji(name: string): string {
   const lower = (name || '').toLowerCase();
   for (const [key, emoji] of FOOD_EMOJI_MAP) {
@@ -67,15 +70,60 @@ export default function DishImage({
 }: DishImageProps) {
   const [imgError, setImgError] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [liveWikiSrc, setLiveWikiSrc] = useState<string | null>(null);
 
-  // Normalize src
-  const validSrc = useMemo(() => {
-    if (!src || typeof src !== 'string' || src.trim() === '') return null;
-    return src.trim();
-  }, [src]);
+  // Resolve exact verified dish image by dish name (`alt`) or fallback to `src`
+  const resolvedSrc = useMemo(() => {
+    setImgError(false);
+    setLoaded(false);
+    if (liveWikiSrc) return liveWikiSrc;
+    return getExactDishImage(alt, src);
+  }, [alt, src, liveWikiSrc]);
 
-  // If no source or error occurred, show rich gradient + emoji fallback
-  if (!validSrc || imgError) {
+  // For custom/unseen AI dishes not in EXACT_DISH_IMAGE_MAP, query Wikipedia pageimages API client-side
+  useEffect(() => {
+    setLiveWikiSrc(null);
+    if (!alt || findVerifiedDishImage(alt)) return;
+    if (src && (src.startsWith('data:') || src.startsWith('blob:'))) return;
+
+    const queryKey = alt.trim().toLowerCase();
+    const cached = wikiResolvedCache.get(queryKey);
+    if (cached) {
+      setLiveWikiSrc(cached);
+      return;
+    }
+
+    let cancelled = false;
+    const cleanQuery = alt.replace(/\([^)]*\)/g, '').trim();
+    const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
+      cleanQuery
+    )}&prop=pageimages&format=json&pithumbsize=800&redirects=1&origin=*`;
+
+    fetch(url)
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        const pages = data?.query?.pages;
+        if (!pages) return;
+        for (const p of Object.values(pages) as Array<{ thumbnail?: { source?: string } }>) {
+          const thumb = p?.thumbnail?.source;
+          if (thumb) {
+            wikiResolvedCache.set(queryKey, thumb);
+            setLiveWikiSrc(thumb);
+            break;
+          }
+        }
+      })
+      .catch(() => {
+        // Keep default fallback
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [alt, src]);
+
+  if (!resolvedSrc || imgError) {
     return (
       <div
         className={className}
@@ -120,8 +168,11 @@ export default function DishImage({
     );
   }
 
-  const isExternalOrData = validSrc.startsWith('http') || validSrc.startsWith('data:') || validSrc.startsWith('blob:');
-  const isPollinations = validSrc.includes('pollinations.ai');
+  const bypassNextOptimizer =
+    resolvedSrc.includes('wikimedia.org') ||
+    resolvedSrc.includes('pollinations.ai') ||
+    resolvedSrc.startsWith('data:') ||
+    resolvedSrc.startsWith('blob:');
 
   return (
     <div
@@ -154,7 +205,7 @@ export default function DishImage({
       )}
       {fill ? (
         <Image
-          src={validSrc}
+          src={resolvedSrc}
           alt={alt}
           fill
           sizes={sizes || '(max-width: 768px) 100vw, 400px'}
@@ -167,11 +218,11 @@ export default function DishImage({
           loading={loading}
           onError={() => setImgError(true)}
           onLoad={() => setLoaded(true)}
-          unoptimized={isPollinations || validSrc.startsWith('data:') || validSrc.startsWith('blob:')}
+          unoptimized={bypassNextOptimizer}
         />
       ) : (
         <Image
-          src={validSrc}
+          src={resolvedSrc}
           alt={alt}
           width={width || 400}
           height={height || 400}
@@ -186,7 +237,7 @@ export default function DishImage({
           loading={loading}
           onError={() => setImgError(true)}
           onLoad={() => setLoaded(true)}
-          unoptimized={isPollinations || validSrc.startsWith('data:') || validSrc.startsWith('blob:')}
+          unoptimized={bypassNextOptimizer}
         />
       )}
     </div>

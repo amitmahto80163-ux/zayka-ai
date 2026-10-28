@@ -8,6 +8,7 @@ import { useZaykaStore } from '@/store';
 import { generateBudgetMealAction } from '@/lib/actions';
 import toast from 'react-hot-toast';
 import { W } from '@/lib/theme';
+import { getExactDishImage } from '@/lib/dishImages';
 
 
 
