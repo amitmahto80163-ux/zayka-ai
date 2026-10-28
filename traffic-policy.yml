@@ -1,0 +1,38 @@
+# traffic-policy.yml
+on_http_request:
+  - name: api
+    expressions:
+      - "req.path.startsWith('/api/')"
+    actions:
+      # optional: enforce auth at the edge
+      - type: oauth
+        config:
+          provider: google
+          # set allowed domains or emails in your IdP config as needed
+      - type: forward-internal
+        config:
+          url: https://api.internal
+
+  - name: webhooks
+    expressions:
+      - "req.path.startsWith('/webhooks/')"
+    actions:
+      # optional: only accept from known source IPs (example CIDRs)
+      - type: restrict-ips
+        config:
+          rules:
+            - action: allow
+              cidrs: ["203.0.113.0/24", "198.51.100.0/24"]
+            - action: deny
+              cidrs: ["0.0.0.0/0"]
+      - type: forward-internal
+        config:
+          url: https://webhooks.internal
+
+  - name: default-deny
+    actions:
+      - type: custom-response
+        config:
+          status_code: 404
+          content_type: text/plain
+          body: "Not found"
