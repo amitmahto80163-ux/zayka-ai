@@ -226,7 +226,7 @@ export function useARChef({
     throw new Error('Unable to access camera or microphone.');
   }, []);
 
-  // ─── Direct Voice Trigger for User Prompt ─────────────────
+  // ─── Direct Voice Trigger for User Prompt (Streaming Cooking Advice) ─────
   const triggerVoicePrompt = useCallback(
     async (promptText: string) => {
       if (!promptText.trim()) return;
@@ -234,6 +234,55 @@ export function useARChef({
       setLastFeedback(`You: "${promptText}"`);
 
       try {
+        const streamRes = await fetch('/api/chef-stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'advice',
+            stepInstruction: currentStepDescription || 'Cooking step in progress',
+            question: promptText,
+            chefId: selectedChef,
+            language,
+          }),
+        });
+
+        if (streamRes.ok && streamRes.body) {
+          const reader = streamRes.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          let accumulated = '';
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed.startsWith('data:')) continue;
+              const rawJson = trimmed.replace(/^data:\s*/, '');
+              try {
+                const payload = JSON.parse(rawJson);
+                if (payload.delta) {
+                  accumulated += payload.delta;
+                  setLastFeedback(`${chef.name}: "${accumulated}"`);
+                }
+              } catch {
+                // Ignore partial JSON chunk
+              }
+            }
+          }
+
+          if (accumulated.trim()) {
+            const finalReply = accumulated.trim();
+            setLastFeedback(`${chef.name}: "${finalReply}"`);
+            speak(finalReply);
+            return;
+          }
+        }
+
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -256,7 +305,7 @@ export function useARChef({
         setIsThinking(false);
       }
     },
-    [chef.name, language, selectedChef, speak]
+    [chef.name, currentStepDescription, language, selectedChef, speak]
   );
 
   // ─── Live AR Initialization ───────────────────────────────

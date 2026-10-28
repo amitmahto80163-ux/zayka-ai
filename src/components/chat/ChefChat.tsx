@@ -63,27 +63,90 @@ export default function ChefChat({ context = 'general', recipeData = null }: { c
     recognition.start();
   };
 
-const handleSendMessage = async () => {
+  const [streamingContent, setStreamingContent] = useState<string>('');
+
+  const handleSendMessage = async () => {
     if (!message.trim()) return;
 
     const userMsg = message.trim();
     setMessage('');
-    
+
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
-    
+
     addChatMessage({
       id: Date.now().toString(),
       role: 'user',
       content: userMsg,
       timestamp: new Date(),
-      language
+      language,
     });
 
     setIsTyping(true);
+    setStreamingContent('');
 
     try {
+      const streamRes = await fetch('/api/chef-stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: context === 'cooking' ? 'advice' : 'chat',
+          message: userMsg,
+          question: userMsg,
+          stepInstruction: recipeData?.name ? `Cooking ${recipeData.name}` : undefined,
+          dishName: recipeData?.name || 'Indian Home Cooking',
+          chefId: selectedChef,
+          language,
+          history: chatHistory.slice(-10),
+        }),
+      });
+
+      if (streamRes.ok && streamRes.body) {
+        const reader = streamRes.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let accumulated = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data:')) continue;
+            const rawJson = trimmed.replace(/^data:\s*/, '');
+            try {
+              const payload = JSON.parse(rawJson);
+              if (payload.delta) {
+                accumulated += payload.delta;
+                setStreamingContent(accumulated);
+              }
+            } catch {
+              // Ignore partial chunk
+            }
+          }
+        }
+
+        if (accumulated.trim()) {
+          const finalReply = accumulated.trim();
+          setStreamingContent('');
+          addChatMessage({
+            id: (Date.now() + 1).toString(),
+            role: 'chef',
+            content: finalReply,
+            timestamp: new Date(),
+            language,
+          });
+          speakResponse(finalReply);
+          return;
+        }
+      }
+
+      // Fallback to standard JSON endpoint
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,19 +155,19 @@ const handleSendMessage = async () => {
           chefId: selectedChef,
           language,
           currentRecipe: recipeData,
-          chatHistory: chatHistory.slice(-10) 
+          chatHistory: chatHistory.slice(-10),
         }),
       });
 
       const data = await res.json();
-      
+
       if (data.success) {
         addChatMessage({
           id: (Date.now() + 1).toString(),
           role: 'chef',
           content: data.response,
           timestamp: new Date(),
-          language
+          language,
         });
         speakResponse(data.response);
       } else {
@@ -114,6 +177,7 @@ const handleSendMessage = async () => {
       console.error(error);
       toast.error('Network error!');
     } finally {
+      setStreamingContent('');
       setIsTyping(false);
     }
   };
@@ -141,7 +205,7 @@ const handleSendMessage = async () => {
           <h3 style={{ fontWeight: 800, color: W.text, fontSize: 16 }}>{chef.name}</h3>
           <p style={{ fontSize: 12, color: W.primary, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: W.primary, display: 'inline-block', animation: 'pulse 2s infinite' }}></span>
-            Online • Ready to help
+            Online • Live Streaming Ready
           </p>
         </div>
       </div>
@@ -169,7 +233,7 @@ const handleSendMessage = async () => {
         )}
 
         {/* Chat History */}
-        {chatHistory.map((msg, idx) => {
+        {chatHistory.map((msg) => {
           const isUser = msg.role === 'user';
           return (
             <motion.div 
@@ -193,8 +257,33 @@ const handleSendMessage = async () => {
           );
         })}
 
+        {/* Live Streaming Chef Bubble */}
+        {streamingContent && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ display: 'flex', justifyContent: 'flex-start' }}
+          >
+            <div style={{
+              background: W.chefBubble,
+              color: W.chefText,
+              padding: '12px 16px',
+              borderRadius: '16px 16px 16px 4px',
+              fontSize: 14,
+              fontWeight: 600,
+              border: `1px solid ${W.border}`,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+              maxWidth: '85%',
+              lineHeight: 1.5,
+            }}>
+              {streamingContent}
+              <span style={{ display: 'inline-block', width: 6, height: 14, marginLeft: 4, background: W.primary, verticalAlign: 'middle', animation: 'pulse 0.8s infinite' }} />
+            </div>
+          </motion.div>
+        )}
+
         {/* Typing Indicator */}
-        {isTyping && (
+        {isTyping && !streamingContent && (
           <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
             <div style={{ 
               background: W.chefBubble, padding: '12px 16px', 
