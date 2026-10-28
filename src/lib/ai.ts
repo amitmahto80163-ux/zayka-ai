@@ -1,3 +1,4 @@
+import { getExactDishImage } from './dishImages';
 // ============================================
 // ZAYKA AI — Unified Free Market AI Client (Server-safe)
 // Multi-Provider: 12 Free Market AIs Auto-Rotating
@@ -289,6 +290,5 @@ export async function callVision(
 
 // ─── DISH IMAGE (Pollinations — unlimited, no key) ───────────
 export function getDishImageUrl(dishName: string): string {
-  const encoded = encodeURIComponent(dishName).replace(/%20/g, '+');
-  return `https://image.pollinations.ai/prompt/${encoded}+delicious+indian+food+photography+highly+detailed?width=800&height=800&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
+  return getExactDishImage(dishName);
 }
