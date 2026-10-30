@@ -101,16 +101,107 @@ Return ONLY valid JSON (no markdown):
   }
 }
 
-// ─── ANALYZE FRAME (Vision) ──────────────────
-export async function analyzeFrameAction(imageBase64: string, currentStep: string, chefId: ChefId, language: AppLanguage) {
-  try {
-    const prompt = `You are an AI cooking assistant. User is doing this cooking step: "${currentStep}".
-Look at the image and give ONE short encouraging sentence (max 15 words) in ${language}. No JSON, just text.`;
+// ─── ANALYZE FRAME (AR Vision Telemetry) ─────
+export interface ARFrameAnalysisContext {
+  dishName?: string;
+  nextStep?: string;
+  previousFeedback?: string[];
+  browningIndex?: number;
+  burnRisk?: boolean;
+}
 
-    const text = await callVision(prompt, imageBase64, false);
-    return { success: true, feedback: text.trim() };
-  } catch (e) {
-    return { success: true, feedback: 'Bilkul sahi ja rahe ho! Step continue karo. 👨‍🍳' };
+export async function analyzeFrameAction(
+  imageBase64: string,
+  currentStep: string,
+  chefId: ChefId,
+  language: AppLanguage,
+  context?: ARFrameAnalysisContext
+) {
+  const { CHEF_PROFILES } = await import('@/data/chefs');
+  const chef = CHEF_PROFILES[chefId] || CHEF_PROFILES['rohan'];
+  const dishTitle = context?.dishName || 'Indian home recipe';
+  const nextStepInfo = context?.nextStep ? `Next upcoming step: "${context.nextStep}".` : '';
+  const avoidList =
+    context?.previousFeedback && context.previousFeedback.length > 0
+      ? `DO NOT repeat any of these previous sentences: ${JSON.stringify(context.previousFeedback.slice(-3))}.`
+      : '';
+  const sensorHint =
+    typeof context?.browningIndex === 'number'
+      ? `On-device optical sensor readings: Browning/Golden Index = ${context.browningIndex}%${
+          context.burnRisk ? ' (WARNING: High dark/char pixel ratio detected — check for overheating!)' : ''
+        }.`
+      : '';
+
+  try {
+    const prompt = `You are ${chef.name} (${chef.title}), guiding a live AR cooking session for "${dishTitle}".
+Personality: ${chef.personality}
+Current active step: "${currentStep}".
+${nextStepInfo}
+${sensorHint}
+${avoidList}
+
+Look carefully at this center-cropped kitchen camera frame. Evaluate:
+1. What is visible in the pan/vessel/counter (raw ingredients, sizzling tadka, golden onions, simmering gravy, dough, or empty/unclear pan).
+2. Estimated completion of the current step (0 to 100%).
+3. Recommended stove flame setting ("Low Flame", "Medium Flame", "High Flame", or "Keep Steady").
+4. Whether the food looks ready to move to the next step.
+
+Language for "feedback": ${language} (use natural conversational Hinglish if hindi/hinglish, max 18 words, specific to what you see in the pan).
+Return ONLY valid JSON (no markdown):
+{
+  "feedback": "<1 specific, actionable spoken sentence from ${chef.name} in ${language}, max 18 words>",
+  "stageStatus": "<short 2-4 word visual badge, e.g. 'Onions Golden Brown', 'Gravy Simmering', 'Pan Heating Up', 'Masala Bhunoing'>",
+  "donenessPercent": <number 15 to 100>,
+  "flameAdvice": "<'Low Flame' | 'Medium Flame' | 'High Flame' | 'Keep Steady'>",
+  "readyForNextStep": <boolean true if step looks >=85% done, else false>,
+  "burnRisk": <boolean true if food looks over-browned/smoking/dry, else false>
+}`;
+
+    const text = await callVision(prompt, imageBase64, true);
+    const raw = parseJSONResponse(text);
+
+    const doneness = Math.max(
+      10,
+      Math.min(100, Number(raw?.donenessPercent) || (context?.browningIndex ? Math.min(95, context.browningIndex + 25) : 55))
+    );
+    const burnRisk = Boolean(raw?.burnRisk || context?.burnRisk);
+
+    return {
+      success: true,
+      feedback:
+        (typeof raw?.feedback === 'string' && raw.feedback.trim()) ||
+        'Masala achhe se bhun raha hai, medium flame pe lagataar chalate raho!',
+      stageStatus:
+        (typeof raw?.stageStatus === 'string' && raw.stageStatus.trim()) ||
+        (burnRisk ? 'High Heat Alert' : doneness >= 85 ? 'Step Almost Ready' : 'Cooking Active'),
+      donenessPercent: doneness,
+      flameAdvice:
+        (typeof raw?.flameAdvice === 'string' && raw.flameAdvice.trim()) ||
+        (burnRisk ? 'Low Flame' : 'Medium Flame'),
+      readyForNextStep: Boolean(raw?.readyForNextStep || doneness >= 88),
+      burnRisk,
+    };
+  } catch {
+    const fallbackPool = [
+      'Aanch medium rakho aur karchi se halka-halka chalate raho taaki masala niche na lage!',
+      'Khushbu kaafi acchi aa rahi hai, 1 minute aur bhuno phir agla step karenge!',
+      'Tel kinare se alag hone laga hai, bilkul sahi pak raha hai!',
+      'Flame thoda control mein rakho, texture ekdum badhiya aa raha hai!',
+    ];
+    const unused = fallbackPool.filter(
+      (f) => !context?.previousFeedback?.some((prev) => prev.includes(f.slice(0, 15)))
+    );
+    const chosen = unused[Math.floor(Math.random() * unused.length)] || fallbackPool[0];
+
+    return {
+      success: true,
+      feedback: chosen,
+      stageStatus: context?.burnRisk ? 'Lower Heat Now' : 'Cooking In Progress',
+      donenessPercent: context?.browningIndex ? Math.min(90, Math.max(25, context.browningIndex + 20)) : 60,
+      flameAdvice: context?.burnRisk ? 'Low Flame' : 'Medium Flame',
+      readyForNextStep: false,
+      burnRisk: Boolean(context?.burnRisk),
+    };
   }
 }
 

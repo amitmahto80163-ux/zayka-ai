@@ -48,11 +48,14 @@ export default function CookPage() {
     [selectedChef]
   );
 
-  // AR Chef Hook with Live Camera, Vision Loop & Spoken Audio Output
+  const nextStepObj = steps[currentStep + 1];
+
+  // AR Chef Hook with Live Camera, Optical Pan Sensor, Vision Loop & Spoken Audio Output
   const {
     isThinking: isARThinking,
     isSpeaking: isARSpeaking,
     isListening: isARListening,
+    isRecordingWhisper,
     lastFeedback: arFeedback,
     micLevel,
     cameraFacing,
@@ -61,10 +64,20 @@ export default function CookPage() {
     setSoundEnabled,
     speak,
     triggerVoicePrompt,
+    scanNow,
+    recordWhisperVoice,
+    browningIndex,
+    burnRisk,
+    stageStatus,
+    donenessPercent,
+    flameAdvice,
+    readyForNextStep,
   } = useARChef({
     videoRef,
     audioRef,
     currentStepDescription: step?.description || '',
+    dishName: currentRecipe?.name || 'Indian Dish',
+    nextStepDescription: nextStepObj?.description || '',
     isActive: isCameraActive,
   });
 
@@ -271,7 +284,7 @@ export default function CookPage() {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                opacity: 0.9,
+                opacity: 0.92,
               }}
             />
 
@@ -291,14 +304,16 @@ export default function CookPage() {
               {/* Live Badge */}
               <div
                 style={{
-                  background: 'rgba(15, 23, 42, 0.75)',
+                  background: 'rgba(15, 23, 42, 0.82)',
                   backdropFilter: 'blur(12px)',
                   borderRadius: 50,
                   padding: '6px 12px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 7,
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: burnRisk
+                    ? '1.5px solid #EF4444'
+                    : '1px solid rgba(255,255,255,0.14)',
                 }}
               >
                 <div
@@ -306,12 +321,16 @@ export default function CookPage() {
                     width: 8,
                     height: 8,
                     borderRadius: '50%',
-                    background: isARThinking
+                    background: burnRisk
+                      ? '#EF4444'
+                      : isARThinking
                       ? '#FBBF24'
                       : isARSpeaking
                       ? '#F97316'
                       : '#10B981',
-                    boxShadow: isARSpeaking
+                    boxShadow: burnRisk
+                      ? '0 0 10px #EF4444'
+                      : isARSpeaking
                       ? '0 0 10px #F97316'
                       : '0 0 8px #10B981',
                   }}
@@ -325,16 +344,43 @@ export default function CookPage() {
                     textTransform: 'uppercase',
                   }}
                 >
-                  {isARThinking
-                    ? 'Thinking...'
+                  {burnRisk
+                    ? '⚠️ High Heat Alert!'
+                    : isARThinking
+                    ? 'Scanning Pan...'
                     : isARSpeaking
                     ? `${chef.name} Speaking 🔊`
-                    : 'AR Live · Watching'}
+                    : 'AR Vision · Locked'}
                 </span>
               </div>
 
               {/* Camera Actions */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {/* Manual Instant Scan Pan Button */}
+                <button
+                  type="button"
+                  onClick={scanNow}
+                  disabled={isARThinking}
+                  aria-label="Scan Pan Now"
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.88)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    borderRadius: 20,
+                    padding: '6px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    cursor: isARThinking ? 'wait' : 'pointer',
+                    color: 'white',
+                    fontSize: 11,
+                    fontWeight: 800,
+                  }}
+                >
+                  <Sparkles size={13} />
+                  <span>{isARThinking ? 'Scanning...' : 'Scan Pan 📸'}</span>
+                </button>
+
                 {/* Sound Toggle */}
                 <button
                   type="button"
@@ -383,30 +429,138 @@ export default function CookPage() {
               </div>
             </div>
 
-            {/* Center Visualizer & Voice Indicator */}
+            {/* Live Optical & AI Telemetry Row (Stage Status + Flame Advice + Doneness Bar) */}
             <div
               style={{
                 position: 'absolute',
-                top: '44%',
+                top: 58,
+                left: 14,
+                right: 14,
+                zIndex: 10,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.78)',
+                    backdropFilter: 'blur(10px)',
+                    padding: '4px 10px',
+                    borderRadius: 12,
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: '#FBBF24',
+                  }}
+                >
+                  🍲 {stageStatus} · Golden {browningIndex}%
+                </div>
+
+                <div
+                  style={{
+                    background: burnRisk
+                      ? 'rgba(239, 68, 68, 0.88)'
+                      : 'rgba(15, 23, 42, 0.78)',
+                    backdropFilter: 'blur(10px)',
+                    padding: '4px 10px',
+                    borderRadius: 12,
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: 'white',
+                  }}
+                >
+                  🔥 {flameAdvice}
+                </div>
+              </div>
+
+              {/* Step Doneness Progress Bar */}
+              <div
+                style={{
+                  background: 'rgba(15, 23, 42, 0.72)',
+                  backdropFilter: 'blur(8px)',
+                  borderRadius: 10,
+                  padding: '5px 10px',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#E2E8F0', whiteSpace: 'nowrap' }}>
+                  Step Doneness
+                </span>
+                <div
+                  style={{
+                    flex: 1,
+                    height: 6,
+                    background: 'rgba(255,255,255,0.15)',
+                    borderRadius: 99,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${donenessPercent}%`,
+                      height: '100%',
+                      background:
+                        donenessPercent >= 85
+                          ? 'linear-gradient(90deg, #10B981, #34D399)'
+                          : 'linear-gradient(90deg, #F97316, #FBBF24)',
+                      transition: 'width 0.5s ease',
+                    }}
+                  />
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 900, color: '#10B981' }}>
+                  {donenessPercent}%
+                </span>
+              </div>
+            </div>
+
+            {/* Center-Pan AR Targeting Reticle + Voice Visualizer */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '46%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
+                width: 240,
+                height: 240,
                 pointerEvents: 'none',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: 14,
+                justifyContent: 'center',
+                gap: 12,
+                border: burnRisk
+                  ? '2px dashed rgba(239, 68, 68, 0.85)'
+                  : readyForNextStep
+                  ? '2px dashed rgba(16, 185, 129, 0.85)'
+                  : '1.5px dashed rgba(251, 191, 36, 0.55)',
+                borderRadius: 32,
+                boxShadow: 'inset 0 0 30px rgba(0,0,0,0.25)',
               }}
             >
               <motion.div
                 animate={{ scale: visualizerScale }}
                 transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                 style={{
-                  width: 110,
-                  height: 110,
+                  width: 92,
+                  height: 92,
                   borderRadius: '50%',
                   border: isARSpeaking
                     ? '3px solid #F97316'
-                    : '2.5px solid rgba(16, 185, 129, 0.7)',
+                    : '2.5px solid rgba(16, 185, 129, 0.75)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -421,8 +575,8 @@ export default function CookPage() {
                 {isARSpeaking ? (
                   <Radio
                     style={{
-                      width: 42,
-                      height: 42,
+                      width: 36,
+                      height: 36,
                       color: 'white',
                       animation: 'pulse 1s infinite',
                     }}
@@ -430,8 +584,8 @@ export default function CookPage() {
                 ) : (
                   <Mic
                     style={{
-                      width: 38,
-                      height: 38,
+                      width: 32,
+                      height: 32,
                       color: 'rgba(255,255,255,0.95)',
                     }}
                   />
@@ -440,26 +594,68 @@ export default function CookPage() {
 
               <div
                 style={{
-                  background: 'rgba(15, 23, 42, 0.75)',
+                  background: 'rgba(15, 23, 42, 0.82)',
                   backdropFilter: 'blur(12px)',
-                  padding: '7px 16px',
+                  padding: '5px 14px',
                   borderRadius: 24,
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  border: '1px solid rgba(255,255,255,0.14)',
                 }}
               >
-                <p style={{ color: 'white', fontWeight: 800, fontSize: 13 }}>
-                  {isARSpeaking
-                    ? `${chef.name} is speaking... 🔊`
-                    : isARListening
-                    ? micLevel > 12
-                      ? 'Listening to you... 🎙️'
-                      : 'Speak to Chef!'
-                    : 'Watching your pan... 👁️'}
+                <p style={{ color: 'white', fontWeight: 800, fontSize: 11 }}>
+                  {isRecordingWhisper
+                    ? 'Whisper AI Recording... 🎙️'
+                    : isARSpeaking
+                    ? `${chef.name} speaking... 🔊`
+                    : isARListening && micLevel > 12
+                    ? 'Listening to you... 🎙️'
+                    : 'Keep Pan Inside Target 🎯'}
                 </p>
               </div>
             </div>
 
-            {/* Quick Interactive Spoken Query Pills */}
+            {/* Step Ready Auto-Advance Banner */}
+            {readyForNextStep && !isLastStep && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                style={{
+                  position: 'absolute',
+                  bottom: arFeedback ? 156 : 74,
+                  left: 14,
+                  right: 14,
+                  background: 'linear-gradient(135deg, rgba(16,185,129,0.95), rgba(5,150,105,0.95))',
+                  borderRadius: 16,
+                  padding: '8px 14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  zIndex: 12,
+                  boxShadow: '0 8px 24px rgba(16,185,129,0.4)',
+                }}
+              >
+                <span style={{ color: 'white', fontSize: 12, fontWeight: 800 }}>
+                  ✅ Step looks ready! Move to Step {currentStep + 2}?
+                </span>
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  style={{
+                    background: 'white',
+                    color: '#059669',
+                    border: 'none',
+                    borderRadius: 12,
+                    padding: '5px 12px',
+                    fontSize: 11,
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Next Step →
+                </button>
+              </motion.div>
+            )}
+
+            {/* Quick Interactive Spoken Query Pills + Whisper Mic Trigger */}
             <div
               style={{
                 position: 'absolute',
@@ -474,7 +670,30 @@ export default function CookPage() {
                 scrollbarWidth: 'none',
               }}
             >
+              <button
+                type="button"
+                onClick={recordWhisperVoice}
+                disabled={isRecordingWhisper}
+                style={{
+                  background: isRecordingWhisper
+                    ? '#EF4444'
+                    : 'linear-gradient(135deg, #F97316, #FB923C)',
+                  color: 'white',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  borderRadius: 20,
+                  padding: '8px 14px',
+                  fontSize: 11,
+                  fontWeight: 800,
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(249,115,22,0.35)',
+                }}
+              >
+                {isRecordingWhisper ? '🔴 Recording 3.5s...' : '🎙️ Speak (Whisper AI)'}
+              </button>
+
               {[
+                { label: '📸 Check Pan', q: '__SCAN__' },
                 { label: '🔥 Flame Sahi Hai?', q: 'Flame check karo, gas kitni rakhu?' },
                 { label: '🧂 Masala Daalun?', q: 'Abhi kaun sa masala daalna hai?' },
                 { label: '⏱️ Kitni Der Pakau?', q: 'Yeh step kitni der aur pakana hai?' },
@@ -483,7 +702,9 @@ export default function CookPage() {
                 <button
                   key={i}
                   type="button"
-                  onClick={() => triggerVoicePrompt(pill.q)}
+                  onClick={() =>
+                    pill.q === '__SCAN__' ? scanNow() : triggerVoicePrompt(pill.q)
+                  }
                   style={{
                     background: 'rgba(15, 23, 42, 0.8)',
                     backdropFilter: 'blur(10px)',

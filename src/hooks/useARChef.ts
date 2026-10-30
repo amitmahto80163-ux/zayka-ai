@@ -10,6 +10,8 @@ interface UseARChefProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   audioRef?: React.RefObject<HTMLAudioElement | null>;
   currentStepDescription: string;
+  dishName?: string;
+  nextStepDescription?: string;
   isActive: boolean;
 }
 
@@ -17,29 +19,53 @@ export function useARChef({
   videoRef,
   audioRef,
   currentStepDescription,
+  dishName,
+  nextStepDescription,
   isActive,
 }: UseARChefProps) {
   const [isThinking, setIsThinking] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isRecordingWhisper, setIsRecordingWhisper] = useState(false);
   const [arPhase, setArPhase] = useState<'idle' | 'connecting' | 'cooking'>('idle');
   const [micLevel, setMicLevel] = useState(0);
   const [lastFeedback, setLastFeedback] = useState<string | null>(null);
   const [cameraFacing, setCameraFacing] = useState<'environment' | 'user'>('environment');
   const [soundEnabled, setSoundEnabled] = useState(true);
 
+  // Live AR Optical & AI Telemetry States
+  const [browningIndex, setBrowningIndex] = useState(28);
+  const [burnRisk, setBurnRisk] = useState(false);
+  const [stageStatus, setStageStatus] = useState('Pan Target Locked');
+  const [donenessPercent, setDonenessPercent] = useState(25);
+  const [flameAdvice, setFlameAdvice] = useState('Medium Flame');
+  const [readyForNextStep, setReadyForNextStep] = useState(false);
+
   const recognitionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const animationFrameRef = useRef<number>(0);
   const visionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const sensorIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const internalAudioRef = useRef<HTMLAudioElement | null>(null);
+  const recentFeedbacksRef = useRef<string[]>([]);
+  const prevPixelSampleRef = useRef<number[] | null>(null);
+  const browningRef = useRef(28);
+  const burnRiskRef = useRef(false);
+
   const soundEnabledRef = useRef(soundEnabled);
   soundEnabledRef.current = soundEnabled;
 
   const { selectedChef, language } = useZaykaStore();
   const chef = CHEF_PROFILES[selectedChef] || CHEF_PROFILES['rohan'];
+
+  // Reset step completion telemetry when user changes cooking step
+  useEffect(() => {
+    setReadyForNextStep(false);
+    setDonenessPercent(25);
+    setStageStatus('Scanning Step...');
+  }, [currentStepDescription]);
 
   // ─── Dual-Engine Voice Synthesizer (MP3 Audio + Web Speech API fallback) ───
   const fallbackSpeechSynthesis = useCallback(
@@ -56,7 +82,7 @@ export function useARChef({
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(cleanText);
-        currentUtteranceRef.current = utterance; // Prevent garbage collection bug
+        currentUtteranceRef.current = utterance;
 
         const voices = window.speechSynthesis.getVoices();
         const hindiVoice = voices.find(
@@ -129,7 +155,6 @@ export function useARChef({
         return;
       }
 
-      // Try Online High-Fidelity MP3 Voice via /api/tts first
       let playedOnline = false;
       try {
         let audioEl = audioRef?.current || internalAudioRef.current;
@@ -139,9 +164,9 @@ export function useARChef({
         }
 
         if (audioEl) {
-          const ttsUrl = `/api/tts?text=${encodeURIComponent(clean.slice(0, 180))}&lang=${
+          const ttsUrl = `/api/tts?text=${encodeURIComponent(clean.slice(0, 200))}&lang=${
             language === 'english' ? 'english' : 'hindi'
-          }`;
+          }&chef=${encodeURIComponent(selectedChef)}`;
           audioEl.src = ttsUrl;
 
           const onEnded = () => {
@@ -169,26 +194,184 @@ export function useARChef({
         fallbackSpeechSynthesis(clean);
       }
     },
-    [audioRef, fallbackSpeechSynthesis, language]
+    [audioRef, fallbackSpeechSynthesis, language, selectedChef]
   );
 
-  // ─── Camera Frame Grabber ──────────────────────────────────
+  // ─── Center-Weighted 70% Pan ROI Frame Grabber (640x640 @ 0.8 JPEG) ─────
   const captureFrame = useCallback((): string | null => {
     if (!videoRef.current || videoRef.current.readyState < 2) return null;
     try {
+      const video = videoRef.current;
+      const vw = video.videoWidth || 640;
+      const vh = video.videoHeight || 480;
+
+      // Crop center 70% region where the kadhai/pan sits
+      const cropRatio = 0.72;
+      const cropW = Math.round(vw * cropRatio);
+      const cropH = Math.round(vh * cropRatio);
+      const startX = Math.round((vw - cropW) / 2);
+      const startY = Math.round((vh - cropH) / 2);
+
       const canvas = document.createElement('canvas');
-      const w = Math.min(videoRef.current.videoWidth || 640, 640);
-      const h = Math.min(videoRef.current.videoHeight || 480, 480);
-      canvas.width = w;
-      canvas.height = h;
+      canvas.width = 640;
+      canvas.height = 640;
       const ctx = canvas.getContext('2d');
       if (!ctx) return null;
-      ctx.drawImage(videoRef.current, 0, 0, w, h);
-      return canvas.toDataURL('image/jpeg', 0.65);
+
+      ctx.drawImage(video, startX, startY, cropW, cropH, 0, 0, 640, 640);
+      return canvas.toDataURL('image/jpeg', 0.8);
     } catch {
       return null;
     }
   }, [videoRef]);
+
+  // ─── Real-Time On-Device Optical Pixel Sensor (60 FPS Lightweight Sampler) ─
+  const sampleOpticalTelemetry = useCallback((): {
+    browning: number;
+    burnDanger: boolean;
+    sceneDelta: number;
+  } => {
+    if (!videoRef.current || videoRef.current.readyState < 2) {
+      return { browning: browningRef.current, burnDanger: false, sceneDelta: 20 };
+    }
+    try {
+      const video = videoRef.current;
+      const vw = video.videoWidth || 320;
+      const vh = video.videoHeight || 240;
+
+      const sampleSize = 48;
+      const canvas = document.createElement('canvas');
+      canvas.width = sampleSize;
+      canvas.height = sampleSize;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return { browning: browningRef.current, burnDanger: false, sceneDelta: 20 };
+
+      // Sample center 60% pan zone
+      const sx = Math.round(vw * 0.2);
+      const sy = Math.round(vh * 0.2);
+      const sw = Math.round(vw * 0.6);
+      const sh = Math.round(vh * 0.6);
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, sampleSize, sampleSize);
+
+      const { data } = ctx.getImageData(0, 0, sampleSize, sampleSize);
+      const totalPixels = sampleSize * sampleSize;
+      let goldenBrownCount = 0;
+      let darkCharCount = 0;
+      const currentLuma: number[] = [];
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+        currentLuma.push(luma);
+
+        // Warm golden/amber/saffron/caramelized masala spectrum
+        if (r > 95 && g > 45 && r > g * 1.18 && g > b * 1.15 && luma > 40 && luma < 215) {
+          goldenBrownCount++;
+        }
+        // Very dark / scorched pixel check
+        if (luma < 28 && r > b) {
+          darkCharCount++;
+        }
+      }
+
+      let sceneDelta = 25;
+      if (prevPixelSampleRef.current && prevPixelSampleRef.current.length === currentLuma.length) {
+        let diffSum = 0;
+        for (let i = 0; i < currentLuma.length; i++) {
+          diffSum += Math.abs(currentLuma[i] - prevPixelSampleRef.current[i]);
+        }
+        sceneDelta = Math.round(diffSum / currentLuma.length);
+      }
+      prevPixelSampleRef.current = currentLuma;
+
+      const rawBrowning = Math.min(100, Math.round((goldenBrownCount / totalPixels) * 185));
+      const smoothedBrowning = Math.round(browningRef.current * 0.6 + rawBrowning * 0.4);
+      const isBurning = darkCharCount / totalPixels > 0.38 && smoothedBrowning > 45;
+
+      browningRef.current = smoothedBrowning;
+      burnRiskRef.current = isBurning;
+      setBrowningIndex(smoothedBrowning);
+      setBurnRisk(isBurning);
+
+      return { browning: smoothedBrowning, burnDanger: isBurning, sceneDelta };
+    } catch {
+      return { browning: browningRef.current, burnDanger: false, sceneDelta: 20 };
+    }
+  }, [videoRef]);
+
+  // ─── Execute Single Vision Inspection (Used by Auto-Loop & "Scan Pan Now") ───
+  const runVisionInspection = useCallback(
+    async (forceSpeak = false) => {
+      const base64 = captureFrame();
+      if (!base64) return;
+
+      const telemetry = sampleOpticalTelemetry();
+      // Skip redundant background calls if pan hasn't moved/changed at all (unless forced or burn risk)
+      if (!forceSpeak && telemetry.sceneDelta < 3 && !telemetry.burnDanger && recentFeedbacksRef.current.length > 0) {
+        return;
+      }
+
+      setIsThinking(true);
+      try {
+        const frameRes = await analyzeFrameAction(
+          base64,
+          currentStepDescription || 'Cooking step in progress',
+          selectedChef,
+          language,
+          {
+            dishName,
+            nextStep: nextStepDescription,
+            previousFeedback: recentFeedbacksRef.current,
+            browningIndex: telemetry.browning,
+            burnRisk: telemetry.burnDanger,
+          }
+        );
+
+        if (frameRes) {
+          if (frameRes.stageStatus) setStageStatus(frameRes.stageStatus);
+          if (typeof frameRes.donenessPercent === 'number') {
+            setDonenessPercent(frameRes.donenessPercent);
+          }
+          if (frameRes.flameAdvice) setFlameAdvice(frameRes.flameAdvice);
+          if (typeof frameRes.readyForNextStep === 'boolean') {
+            setReadyForNextStep(frameRes.readyForNextStep);
+          }
+          if (typeof frameRes.burnRisk === 'boolean') {
+            setBurnRisk(frameRes.burnRisk);
+          }
+
+          if (frameRes.feedback) {
+            const cleanReply = frameRes.feedback.trim();
+            const isDuplicate = recentFeedbacksRef.current.some(
+              (prev) => prev.toLowerCase() === cleanReply.toLowerCase()
+            );
+            if (!isDuplicate || forceSpeak) {
+              recentFeedbacksRef.current = [...recentFeedbacksRef.current.slice(-4), cleanReply];
+              setLastFeedback(`${chef.name}: "${cleanReply}"`);
+              speak(cleanReply);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Vision frame analysis skipped:', e);
+      } finally {
+        setIsThinking(false);
+      }
+    },
+    [
+      captureFrame,
+      chef.name,
+      currentStepDescription,
+      dishName,
+      language,
+      nextStepDescription,
+      sampleOpticalTelemetry,
+      selectedChef,
+      speak,
+    ]
+  );
 
   // ─── Universal Camera Stream Getter (With Graceful Fallbacks) ─
   const getCameraStream = useCallback(async (facing: 'environment' | 'user') => {
@@ -211,7 +394,7 @@ export function useARChef({
       },
       {
         video: true,
-        audio: false, // In case mic is blocked or exclusive
+        audio: false,
       },
     ];
 
@@ -239,7 +422,9 @@ export function useARChef({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             mode: 'advice',
-            stepInstruction: currentStepDescription || 'Cooking step in progress',
+            stepInstruction: `${dishName ? `[Dish: ${dishName}] ` : ''}${
+              currentStepDescription || 'Cooking step in progress'
+            } (Pan Browning Index: ${browningRef.current}%, Stage: ${stageStatus})`,
             question: promptText,
             chefId: selectedChef,
             language,
@@ -305,8 +490,79 @@ export function useARChef({
         setIsThinking(false);
       }
     },
-    [chef.name, currentStepDescription, language, selectedChef, speak]
+    [chef.name, currentStepDescription, dishName, language, selectedChef, speak, stageStatus]
   );
+
+  // ─── Noisy Kitchen Voice Recorder (Groq Whisper Large v3 Turbo /api/stt) ───
+  const recordWhisperVoice = useCallback(async () => {
+    if (isRecordingWhisper) return;
+    try {
+      let audioStream = streamRef.current;
+      let createdTempStream = false;
+      if (!audioStream || audioStream.getAudioTracks().length === 0) {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        createdTempStream = true;
+      }
+
+      const audioTracks = audioStream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        toast.error('Microphone not available');
+        return;
+      }
+
+      const micOnlyStream = new MediaStream([audioTracks[0]]);
+      const recorder = new MediaRecorder(micOnlyStream);
+      const chunks: BlobPart[] = [];
+
+      setIsRecordingWhisper(true);
+      setLastFeedback('🎙️ Listening via Whisper AI (Speak now for 3.5s)...');
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        setIsRecordingWhisper(false);
+        if (createdTempStream) {
+          micOnlyStream.getTracks().forEach((t) => t.stop());
+        }
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        if (blob.size < 400) return;
+
+        setIsThinking(true);
+        try {
+          const form = new FormData();
+          form.append('audio', blob, 'kitchen-voice.webm');
+          form.append('language', language);
+
+          const sttRes = await fetch('/api/stt', { method: 'POST', body: form });
+          if (sttRes.ok) {
+            const sttData = await sttRes.json();
+            if (sttData.text && sttData.text.trim()) {
+              await triggerVoicePrompt(sttData.text.trim());
+              return;
+            }
+          }
+          toast('Using live pan vision to answer your query...', { icon: '👨‍🍳' });
+          await runVisionInspection(true);
+        } catch {
+          await runVisionInspection(true);
+        } finally {
+          setIsThinking(false);
+        }
+      };
+
+      recorder.start();
+      setTimeout(() => {
+        if (recorder.state === 'recording') {
+          recorder.stop();
+        }
+      }, 3500);
+    } catch {
+      setIsRecordingWhisper(false);
+      toast.error('Could not record kitchen audio');
+    }
+  }, [isRecordingWhisper, language, runVisionInspection, triggerVoicePrompt]);
 
   // ─── Live AR Initialization ───────────────────────────────
   const initLiveAI = useCallback(async () => {
@@ -409,35 +665,29 @@ export function useARChef({
         }
       }
 
-      // 4. Periodic Vision Loop (Every 12s - Fast Model)
-      visionIntervalRef.current = setInterval(async () => {
-        const base64 = captureFrame();
-        if (!base64) return;
-        try {
-          const frameRes = await analyzeFrameAction(
-            base64,
-            currentStepDescription || 'Cooking step in progress',
-            selectedChef,
-            language
-          );
-          if (frameRes?.feedback) {
-            setLastFeedback(`${chef.name}: "${frameRes.feedback}"`);
-            speak(frameRes.feedback);
-          }
-        } catch (e) {
-          console.warn('Vision loop frame analysis skipped:', e);
-        }
-      }, 12000);
+      // 4. Real-Time On-Device Optical Pixel Sensor Loop (Every 1.5s)
+      sensorIntervalRef.current = setInterval(() => {
+        sampleOpticalTelemetry();
+      }, 1500);
+
+      // 5. Periodic High-Accuracy Vision Loop (Every 9s - Groq Llama-4 Scout / Gemini 2.5 Flash)
+      visionIntervalRef.current = setInterval(() => {
+        runVisionInspection(false);
+      }, 9000);
 
       setArPhase('cooking');
       setIsThinking(false);
 
-      // 5. Initial Spoken Chef Greeting (Voice from Chef!)
+      // 6. Initial Spoken Chef Greeting + First Vision Scan after 2.5s
       const initialGreeting =
-        chef.greeting || `Namaste! Main hoon ${chef.name}. Cooking start kijiye, main dekh raha hoon!`;
+        chef.greeting || `Namaste! Main hoon ${chef.name}. Pan ko center box mein rakhiye, main live dekh raha hoon!`;
       setLastFeedback(`${chef.name}: "${initialGreeting}"`);
       speak(initialGreeting);
-      toast.success(`${chef.name} is watching & listening with voice live! 🧑‍🍳🎙️`);
+      toast.success(`${chef.name} AR Vision + Optical Pan Sensor Active! 🧑‍🍳🎯`);
+
+      setTimeout(() => {
+        runVisionInspection(false);
+      }, 2800);
     } catch (error) {
       console.error('AR Setup Error:', error);
       toast.error('Camera/Mic permission needed. Please allow camera access in browser.');
@@ -445,19 +695,18 @@ export function useARChef({
       setIsThinking(false);
     }
   }, [
+    arPhase,
     cameraFacing,
-    captureFrame,
     chef.greeting,
     chef.name,
-    currentStepDescription,
     getCameraStream,
     isActive,
     language,
-    selectedChef,
+    runVisionInspection,
+    sampleOpticalTelemetry,
     speak,
     triggerVoicePrompt,
     videoRef,
-    arPhase,
   ]);
 
   // ─── Flip Camera (Front / Rear) ───────────────────────────
@@ -495,6 +744,10 @@ export function useARChef({
       clearInterval(visionIntervalRef.current);
       visionIntervalRef.current = null;
     }
+    if (sensorIntervalRef.current) {
+      clearInterval(sensorIntervalRef.current);
+      sensorIntervalRef.current = null;
+    }
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
     }
@@ -519,6 +772,7 @@ export function useARChef({
     setMicLevel(0);
     setIsSpeaking(false);
     setIsListening(false);
+    setIsRecordingWhisper(false);
     setArPhase('idle');
     setLastFeedback(null);
   }, [audioRef]);
@@ -544,14 +798,23 @@ export function useARChef({
     isThinking,
     isSpeaking,
     isListening,
+    isRecordingWhisper,
     arPhase,
     micLevel,
     lastFeedback:
       arPhase === 'connecting'
-        ? 'Connecting to live chef vision...'
+        ? 'Connecting to live chef vision & optical sensors...'
         : lastFeedback,
     speak,
     triggerVoicePrompt,
+    scanNow: () => runVisionInspection(true),
+    recordWhisperVoice,
+    browningIndex,
+    burnRisk,
+    stageStatus,
+    donenessPercent,
+    flameAdvice,
+    readyForNextStep,
     cameraFacing,
     toggleCameraFacing,
     soundEnabled,

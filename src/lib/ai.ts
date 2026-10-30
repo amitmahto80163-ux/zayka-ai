@@ -1,3 +1,4 @@
+import { getExactDishImage } from './dishImages';
 // ============================================
 // ZAYKA AI — Unified Free Market AI Client (Server-safe)
 // Multi-Provider: 12 Free Market AIs Auto-Rotating
@@ -10,8 +11,8 @@ export { callAI, getProviderStats, AI_PROVIDERS } from './providers';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 
-export const GEMINI_VISION_MODEL = 'gemini-3-flash-preview';
-export const GEMINI_FALLBACK_VISION_MODEL = 'gemini-3.1-flash-lite-preview';
+export const GEMINI_VISION_MODEL = 'gemini-2.5-flash';
+export const GEMINI_FALLBACK_VISION_MODEL = 'gemini-2.5-flash-lite';
 export const GROQ_FAST_MODEL = 'llama-3.1-8b-instant';
 
 // ─── Resilient JSON Parser ──────────────────────────────────
@@ -88,7 +89,7 @@ export async function callGroq(
   return callAI(prompt, { systemPrompt, jsonMode, fast: isFast });
 }
 
-// ─── VISION — Multi-provider Free Vision (Gemini -> Groq -> Mistral -> OpenRouter -> Smart AI Fallback) ───
+// ─── VISION — Multi-provider Free Vision (Groq Llama-4 LPU -> Gemini 2.5 -> Mistral Pixtral -> OpenRouter Qwen2.5-VL -> Pollinations Zero-Key Vision) ───
 export async function callGeminiVision(
   prompt: string,
   imageBase64: string,
@@ -102,17 +103,19 @@ export async function callGeminiVision(
     ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown, no extra text.'
     : prompt;
 
-  const modelsToTry = [GEMINI_VISION_MODEL, GEMINI_FALLBACK_VISION_MODEL];
+  const modelsToTry = [
+    GEMINI_VISION_MODEL,
+    GEMINI_FALLBACK_VISION_MODEL,
+    'gemini-3-flash-preview',
+    'gemini-2.0-flash',
+  ];
   let lastError = '';
 
   for (const model of modelsToTry) {
     try {
       const generationConfig: Record<string, unknown> = {
-        temperature: 0.4,
-        maxOutputTokens: 2048,
-        thinkingConfig: {
-          thinkingBudget: 0,
-        },
+        temperature: 0.35,
+        maxOutputTokens: 1024,
       };
       if (jsonMode) {
         generationConfig.responseMimeType = 'application/json';
@@ -132,7 +135,7 @@ export async function callGeminiVision(
             }],
             generationConfig,
           }),
-          signal: AbortSignal.timeout(12000),
+          signal: AbortSignal.timeout(8000),
         }
       );
 
@@ -162,26 +165,16 @@ export async function callVision(
     ? prompt + '\n\nIMPORTANT: Return ONLY valid JSON, no markdown.'
     : prompt;
 
-  // 1. Try Google Gemini Vision (Free Tier)
-  if (process.env.GEMINI_API_KEY || GEMINI_API_KEY) {
-    try {
-      return await callGeminiVision(prompt, imageBase64, jsonMode);
-    } catch (e) {
-      console.warn('Gemini vision failed, trying next free vision provider...');
-    }
-  }
-
-  // 2. Try Groq Llama-4 Scout Vision (Free Tier)
+  // 1. Try Groq Llama-4 Scout / Maverick Vision (Ultra-Fast ~300ms LPU Free Tier)
   if (process.env.GROQ_API_KEY) {
-    try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+    const groqVisionModels = [
+      'meta-llama/llama-4-scout-17b-16e-instruct',
+      'meta-llama/llama-4-maverick-17b-128e-instruct',
+    ];
+    for (const model of groqVisionModels) {
+      try {
+        const bodyPayload: Record<string, unknown> = {
+          model,
           messages: [{
             role: 'user',
             content: [
@@ -189,17 +182,38 @@ export async function callVision(
               { type: 'image_url', image_url: { url: imageUrl } },
             ],
           }],
-          max_tokens: 2048,
-        }),
-        signal: AbortSignal.timeout(12000),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const content = data.choices?.[0]?.message?.content;
-        if (content) return content;
+          temperature: 0.35,
+          max_tokens: 1024,
+        };
+        if (jsonMode) {
+          bodyPayload.response_format = { type: 'json_object' };
+        }
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bodyPayload),
+          signal: AbortSignal.timeout(7000),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const content = data.choices?.[0]?.message?.content;
+          if (content && content.trim()) return content.trim();
+        }
+      } catch {
+        console.warn(`Groq vision model ${model} failed, trying next...`);
       }
+    }
+  }
+
+  // 2. Try Google Gemini 2.5 Flash Vision (Free Tier — Spatial & Culinary Precision)
+  if (process.env.GEMINI_API_KEY || GEMINI_API_KEY) {
+    try {
+      return await callGeminiVision(prompt, imageBase64, jsonMode);
     } catch {
-      console.warn('Groq vision failed, trying next free vision provider...');
+      console.warn('Gemini vision failed, trying next free vision provider...');
     }
   }
 
@@ -221,9 +235,9 @@ export async function callVision(
               { type: 'image_url', image_url: { url: imageUrl } },
             ],
           }],
-          max_tokens: 2048,
+          max_tokens: 1024,
         }),
-        signal: AbortSignal.timeout(12000),
+        signal: AbortSignal.timeout(8000),
       });
       if (res.ok) {
         const data = await res.json();
@@ -235,10 +249,12 @@ export async function callVision(
     }
   }
 
-  // 4. Try OpenRouter Free Vision Models
+  // 4. Try OpenRouter Free Vision Models (Qwen 2.5 VL 72B/32B + Gemma 3 27B)
   const openRouterKey = process.env.OPENROUTER_API_KEY || OPENROUTER_API_KEY;
   if (openRouterKey) {
     const visionModels = [
+      'qwen/qwen2.5-vl-72b-instruct:free',
+      'qwen/qwen2.5-vl-32b-instruct:free',
       'google/gemma-3-27b-it:free',
       'meta-llama/llama-3.2-11b-vision-instruct:free',
     ];
@@ -262,9 +278,9 @@ export async function callVision(
                 { type: 'image_url', image_url: { url: imageUrl } },
               ],
             }],
-            max_tokens: 2048,
+            max_tokens: 1024,
           }),
-          signal: AbortSignal.timeout(12000),
+          signal: AbortSignal.timeout(9000),
         });
 
         if (res.ok) {
@@ -278,7 +294,34 @@ export async function callVision(
     }
   }
 
-  // 5. Smart Zero-Key Fallback: Rewrite vision instruction so keyless text models respond accurately without refusing
+  // 5. Try Pollinations OpenAI Multimodal Vision (100% Free, Zero API Key Required)
+  try {
+    const res = await fetch('https://text.pollinations.ai/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'openai',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: finalPrompt },
+            { type: 'image_url', image_url: { url: imageUrl } },
+          ],
+        }],
+        temperature: 0.4,
+      }),
+      signal: AbortSignal.timeout(9000),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (content && content.trim()) return content.trim();
+    }
+  } catch {
+    console.warn('Pollinations zero-key vision failed, falling back to smart text model...');
+  }
+
+  // 6. Smart Zero-Key Fallback: Rewrite vision instruction so keyless text models respond accurately without refusing
   const smartFallbackPrompt = prompt
     .replace(/Look at this image[^.]*\./gi, 'Assume a realistic, well-stocked Indian home kitchen photo was provided.')
     .replace(/Analyze this image[^.]*\./gi, 'Assume a freshly cooked homemade Indian dish photo was provided and evaluate it.')
@@ -289,6 +332,5 @@ export async function callVision(
 
 // ─── DISH IMAGE (Pollinations — unlimited, no key) ───────────
 export function getDishImageUrl(dishName: string): string {
-  const encoded = encodeURIComponent(dishName).replace(/%20/g, '+');
-  return `https://image.pollinations.ai/prompt/${encoded}+delicious+indian+food+photography+highly+detailed?width=800&height=800&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
+  return getExactDishImage(dishName);
 }
