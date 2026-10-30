@@ -108,6 +108,8 @@ export interface ARFrameAnalysisContext {
   previousFeedback?: string[];
   browningIndex?: number;
   burnRisk?: boolean;
+  opticalProfile?: string;
+  sceneDelta?: number;
 }
 
 export async function analyzeFrameAction(
@@ -123,30 +125,33 @@ export async function analyzeFrameAction(
   const nextStepInfo = context?.nextStep ? `Next upcoming step: "${context.nextStep}".` : '';
   const avoidList =
     context?.previousFeedback && context.previousFeedback.length > 0
-      ? `DO NOT repeat any of these previous sentences: ${JSON.stringify(context.previousFeedback.slice(-3))}.`
+      ? `DO NOT repeat any of these previous sentences: ${JSON.stringify(context.previousFeedback.slice(-4))}.`
       : '';
   const sensorHint =
     typeof context?.browningIndex === 'number'
-      ? `On-device optical sensor readings: Browning/Golden Index = ${context.browningIndex}%${
+      ? `Live Camera Optical Sensor Readings: Browning/Golden Index = ${context.browningIndex}%${
+          context.opticalProfile ? `, Color & Motion Profile = (${context.opticalProfile})` : ''
+        }${
           context.burnRisk ? ' (WARNING: High dark/char pixel ratio detected — check for overheating!)' : ''
         }.`
       : '';
 
   try {
-    const prompt = `You are ${chef.name} (${chef.title}), guiding a live AR cooking session for "${dishTitle}".
+    const prompt = `AR_VISION_TELEMETRY_MODE
+You are ${chef.name} (${chef.title}), guiding a live AR cooking session for "${dishTitle}".
 Personality: ${chef.personality}
 Current active step: "${currentStep}".
 ${nextStepInfo}
 ${sensorHint}
 ${avoidList}
 
-Look carefully at this center-cropped kitchen camera frame. Evaluate:
-1. What is visible in the pan/vessel/counter (raw ingredients, sizzling tadka, golden onions, simmering gravy, dough, or empty/unclear pan).
-2. Estimated completion of the current step (0 to 100%).
+Look at this image of the user's cooking pan/counter. Evaluate:
+1. What is visible in the pan/vessel/counter right now (e.g., raw chopped veggies, sizzling tadka, golden onions, red-orange masala gravy, green herbs/palak, boiling liquid/milk, dough/roti, or empty/heating pan) using both the image and the Live Camera Optical Sensor Readings.
+2. Estimated completion of the current step (15 to 100%).
 3. Recommended stove flame setting ("Low Flame", "Medium Flame", "High Flame", or "Keep Steady").
 4. Whether the food looks ready to move to the next step.
 
-Language for "feedback": ${language} (use natural conversational Hinglish if hindi/hinglish, max 18 words, specific to what you see in the pan).
+Language for "feedback": ${language} (use natural conversational Hinglish if hindi/hinglish, max 18 words, specific to "${dishTitle}" and what is visible in the pan).
 Return ONLY valid JSON (no markdown):
 {
   "feedback": "<1 specific, actionable spoken sentence from ${chef.name} in ${language}, max 18 words>",
@@ -161,7 +166,7 @@ Return ONLY valid JSON (no markdown):
     const raw = parseJSONResponse(text);
 
     const doneness = Math.max(
-      10,
+      15,
       Math.min(100, Number(raw?.donenessPercent) || (context?.browningIndex ? Math.min(95, context.browningIndex + 25) : 55))
     );
     const burnRisk = Boolean(raw?.burnRisk || context?.burnRisk);
@@ -170,7 +175,7 @@ Return ONLY valid JSON (no markdown):
       success: true,
       feedback:
         (typeof raw?.feedback === 'string' && raw.feedback.trim()) ||
-        'Masala achhe se bhun raha hai, medium flame pe lagataar chalate raho!',
+        `${dishTitle} ka masala achhe se pak raha hai, medium flame pe karchi chalate raho!`,
       stageStatus:
         (typeof raw?.stageStatus === 'string' && raw.stageStatus.trim()) ||
         (burnRisk ? 'High Heat Alert' : doneness >= 85 ? 'Step Almost Ready' : 'Cooking Active'),
@@ -182,24 +187,53 @@ Return ONLY valid JSON (no markdown):
       burnRisk,
     };
   } catch {
-    const fallbackPool = [
-      'Aanch medium rakho aur karchi se halka-halka chalate raho taaki masala niche na lage!',
-      'Khushbu kaafi acchi aa rahi hai, 1 minute aur bhuno phir agla step karenge!',
-      'Tel kinare se alag hone laga hai, bilkul sahi pak raha hai!',
-      'Flame thoda control mein rakho, texture ekdum badhiya aa raha hai!',
-    ];
-    const unused = fallbackPool.filter(
-      (f) => !context?.previousFeedback?.some((prev) => prev.includes(f.slice(0, 15)))
+    const stepLower = (currentStep || '').toLowerCase();
+    const browning = context?.browningIndex ?? 45;
+    const isCutting = /cut|chop|kaat|prep|wash|dho|soak|bhigo|marinate|bowl|measure/i.test(stepLower);
+    const isTadka = /tadka|oil|tel|ghee|jeera|pyaaz|onion|fry|roast|bhun/i.test(stepLower);
+    const isSimmer = /simmer|boil|ubaal|dhak|cover|cook|pakao|gravy|pani|milk|doodh|seeti/i.test(stepLower);
+
+    const dynamicPool = isCutting
+      ? [
+          `${dishTitle} ke liye sabhi ingredients barabar size mein kaato taaki ek saath barabar pakein!`,
+          `Prep bilkul badhiya chal raha hai! Sab kat jaye toh agle step pe chalte hain.`,
+        ]
+      : isTadka
+      ? [
+          browning > 60
+            ? `Pyaaz aur tadka sunehra (${browning}% golden) ho gaya hai! Ab agla ingredient daal sakte ho.`
+            : `Medium flame pe lagataar chalate hue bhuno jab tak tel kinare se alag na dikhe!`,
+          `Tadka ka color badhiya aa raha hai, aanch medium rakho taaki masala jale nahi!`,
+        ]
+      : isSimmer
+      ? [
+          `${dishTitle} achhe se simmer ho raha hai! Beech mein ek baar halka stir kar do.`,
+          `Flame medium-low rakho taaki masalon ka pura flavour andar tak absorb ho jaye!`,
+        ]
+      : [
+          `${dishTitle} bilkul sahi ban raha hai! Step पूरा hote hi Next dabao.`,
+          `Khushboo aur color dono badhiya aa rahe hain, flame steady rakho!`,
+        ];
+
+    const unused = dynamicPool.filter(
+      (f) => !context?.previousFeedback?.some((prev) => prev.toLowerCase().includes(f.slice(0, 18).toLowerCase()))
     );
-    const chosen = unused[Math.floor(Math.random() * unused.length)] || fallbackPool[0];
+    const chosen = unused[0] || dynamicPool[Math.floor(Math.random() * dynamicPool.length)];
+    const calcDoneness = isCutting ? 80 : Math.min(92, Math.max(30, browning + 22));
 
     return {
       success: true,
       feedback: chosen,
-      stageStatus: context?.burnRisk ? 'Lower Heat Now' : 'Cooking In Progress',
-      donenessPercent: context?.browningIndex ? Math.min(90, Math.max(25, context.browningIndex + 20)) : 60,
-      flameAdvice: context?.burnRisk ? 'Low Flame' : 'Medium Flame',
-      readyForNextStep: false,
+      stageStatus: context?.burnRisk
+        ? 'Lower Heat Now'
+        : isCutting
+        ? 'Prep & Chopping'
+        : isTadka
+        ? 'Masala Bhunoing'
+        : 'Simmering Active',
+      donenessPercent: calcDoneness,
+      flameAdvice: context?.burnRisk ? 'Low Flame' : isCutting ? 'Keep Steady' : 'Medium Flame',
+      readyForNextStep: calcDoneness >= 86,
       burnRisk: Boolean(context?.burnRisk),
     };
   }
@@ -368,57 +402,48 @@ Generate 5-7 steps for a complete recipe.`;
   }
 }
 
-// ─── DETAILED INGREDIENTS (Text AI) ──────────
+// ─── DETAILED INGREDIENTS (Text AI + Smart Culinary Fallback) ──────────
 export async function generateIngredientsAction(dishName: string, servings: number, language: AppLanguage = 'hindi') {
+  const { getSmartDishIngredients, normalizeIngredientList } = await import('@/data/ingredients');
   try {
-    const prompt = `You are an expert Indian home cooking assistant. Generate a detailed ingredient list for "${dishName}" for ${servings} people.
+    const prompt = `You are an expert chef. Generate an accurate, authentic ingredient list for "${dishName}" for ${servings} people (do NOT include onions/tomatoes if "${dishName}" is a sweet/dessert/tea/coffee/beverage).
 Every field must be in simple Hindi/Hinglish.
-Return ONLY a valid JSON array of 6-10 ingredients (no markdown, no extra text):
+Return ONLY a valid JSON array of 6-8 ingredients (no markdown, no extra text):
 [
   {
     "id": "ing-1",
     "name": "English ingredient name",
     "nameHindi": "हिंदी नाम",
     "shopName": "dukaan par is naam se maango",
-    "visualDescription": "color, shape, texture — kaisa dikhta hai",
     "amount": <number>,
-    "unit": "g OR kg OR ml OR L OR cup OR tbsp OR tsp OR pcs OR pinch",
-    "visualMeasure": "haath se kaise measure karein (ek muthi, ek teacup, etc.)",
-    "prepState": "kaise katna ya taiyaar karna hai",
-    "whenToAdd": "kis step mein add karna hai",
-    "cost": <INR number for this quantity>,
-    "availability": "kirana OR supermarket OR online",
-    "availabilityNote": "exactly kahan milega",
-    "freshnessCheck": "fresh kaise pehchanein",
+    "unit": "g OR ml OR cup OR tbsp OR tsp OR pcs",
+    "visualMeasure": "haath ya katori se kaise naapein",
+    "prepState": "kaise taiyaar karein",
+    "whenToAdd": "kis step mein daalein",
+    "cost": <INR number>,
+    "availability": "kirana OR supermarket",
     "substitute": "nahi mila toh kya use karein",
-    "substituteReason": "kyun kaam karega",
-    "note": "sabse important cooking tip",
-    "storage": "ghar mein kaise store karein",
-    "healthNote": "health benefit ya caution",
-    "commonMistake": "sabse badi galti jo log karte hain",
+    "note": "important cooking tip",
     "isOptional": false,
-    "category": "protein OR spice OR oil OR vegetable OR dairy OR grain OR other"
+    "category": "protein OR grain OR vegetable OR dairy OR oil OR spice OR other"
   }
 ]`;
 
-    const text = await callGroq(prompt);
+    const text = await callGroq(prompt, undefined, true, GROQ_FAST_MODEL);
     const data = parseJSONResponse(text);
-    const ingredients = Array.isArray(data) ? data : data.ingredients || [];
-    if (ingredients.length > 0) {
-      return { success: true, data: ingredients };
+    const rawList = Array.isArray(data) ? data : data.ingredients || [];
+    if (rawList.length > 0) {
+      return {
+        success: true,
+        data: normalizeIngredientList(rawList, dishName, servings),
+      };
     }
     throw new Error('Empty ingredients');
   } catch (error) {
-    console.error('generateIngredientsAction error:', error);
+    console.error('generateIngredientsAction fallback used for:', dishName, error);
     return {
       success: true,
-      data: [
-        { id: 'ai-1', name: 'Onions (Finely Chopped)', nameHindi: 'प्याज़', shopName: 'Pyaaz', amount: 150, unit: 'g', visualMeasure: '2 medium pyaaz', prepState: 'Barik kaat lo', whenToAdd: 'Tadka ke waqt', cost: 12, availability: 'kirana', category: 'vegetable', note: 'Medium flame pe golden brown hone tak bhuno.' },
-        { id: 'ai-2', name: 'Ripe Tomatoes', nameHindi: 'टमाटर', shopName: 'Laal Tamatar', amount: 150, unit: 'g', visualMeasure: '2 medium tamatar', prepState: 'Barik chop ya puree bana lo', whenToAdd: 'Pyaaz bhunne ke baad', cost: 15, availability: 'kirana', category: 'vegetable', note: 'Jab tak tel alag na ho tab tak pakao.' },
-        { id: 'ai-3', name: 'Ginger-Garlic Paste', nameHindi: 'अदरक-लहसुन पेस्ट', shopName: 'Adrak Lehsun Paste', amount: 1, unit: 'tbsp', visualMeasure: '1 bada chammach', prepState: 'Fresh koot lo ya ready paste use karo', whenToAdd: 'Pyaaz ke baad', cost: 10, availability: 'kirana', category: 'spice', note: 'Kachapan jaane tak 1 min bhuno.' },
-        { id: 'ai-4', name: 'Indian Masala Mix (Haldi, Mirch, Dhaniya, Garam Masala)', nameHindi: 'सूखे मसाले', shopName: 'Basic Masale', amount: 2, unit: 'tbsp', visualMeasure: 'Swad anusaar', prepState: 'Ek katori mein nikaal ke rakho', whenToAdd: 'Tamatar ke saath', cost: 15, availability: 'kirana', category: 'spice', note: 'Low flame pe masale daalo taaki jale nahi.' },
-        { id: 'ai-5', name: 'Cooking Oil / Ghee', nameHindi: 'तेल या घी', shopName: 'Refined Oil / Desi Ghee', amount: 2, unit: 'tbsp', visualMeasure: '2 bade chammach', prepState: 'Direct kadhai mein garam karo', whenToAdd: 'Sabse pehle', cost: 15, availability: 'kirana', category: 'oil', note: 'Tadka lagane se pehle tel achhe se garam hona chahiye.' },
-      ],
+      data: getSmartDishIngredients(dishName, servings),
     };
   }
 }

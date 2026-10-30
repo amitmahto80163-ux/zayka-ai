@@ -7,6 +7,8 @@
 // • Layer 4: Zayka Built-in Culinary Intelligence Engine (Instant 0ms dynamic synthesizer when keyless APIs are on 30s IP cooldown)
 // ============================================
 
+import { getSmartDishIngredients } from '@/data/ingredients';
+
 export interface AIProvider {
   id: string;
   name: string;
@@ -358,9 +360,118 @@ function synthesizeSmartCulinaryResponse(
 ): string {
   const lower = prompt.toLowerCase();
 
+  // 0. Live AR Vision Telemetry JSON (analyzeFrameAction)
+  if (
+    prompt.includes('AR_VISION_TELEMETRY_MODE') ||
+    (lower.includes('"stagestatus"') && lower.includes('"donenesspercent"') && lower.includes('"flameadvice"'))
+  ) {
+    const dishMatch = prompt.match(/session for "([^"]+)"/i);
+    const stepMatch = prompt.match(/Current active step:\s*"([^"]+)"/i);
+    const brownMatch = prompt.match(/Browning\/Golden Index\s*=\s*(\d+)%/i);
+    const profileMatch = prompt.match(/Color & Motion Profile\s*=\s*\(([^)]+)\)/i);
+    const burnWarn = prompt.includes('WARNING: High dark/char pixel ratio');
+
+    const dish = dishMatch?.[1] || 'Dish';
+    const stepText = stepMatch?.[1] || 'Cooking step';
+    const stepLower = stepText.toLowerCase();
+    const browning = brownMatch ? Number(brownMatch[1]) : 42;
+    const opticalProfile = profileMatch?.[1] || '';
+
+    const isPrep = /cut|chop|kaat|prep|wash|dho|soak|bhigo|marinate|bowl|measure|dough|goondh|roll|bel/i.test(stepLower);
+    const isTadka = /tadka|oil|tel|ghee|butter|jeera|rai|pyaaz|onion|garlic|lehsun|fry|roast|bhun/i.test(stepLower);
+    const isMasala = /masala|tamatar|tomato|haldi|mirch|paste|puree|sauce/i.test(stepLower);
+    const isSimmer = /simmer|boil|ubaal|dhak|cover|cook|pakao|gravy|pani|milk|doodh|seeti|dum/i.test(stepLower);
+    const isFinish = /garnish|serve|dhaniya|coriander|cream|kasuri|ready|band|off/i.test(stepLower);
+
+    if (burnWarn) {
+      return JSON.stringify({
+        feedback: `Aanch turant low karo! ${dish} ka masala zyada dark ho raha hai, lagataar karchi chalao aur 1 tbsp pani chhidko!`,
+        stageStatus: 'High Heat Alert',
+        donenessPercent: Math.min(95, Math.max(70, browning)),
+        flameAdvice: 'Low Flame',
+        readyForNextStep: true,
+        burnRisk: true,
+      });
+    }
+
+    if (isPrep) {
+      return JSON.stringify({
+        feedback: `${dish} ke ingredients barabar size mein taiyaar dikh rahe hain! Prep pura hote hi agle step pe chalo.`,
+        stageStatus: 'Prep & Mise en Place',
+        donenessPercent: 85,
+        flameAdvice: 'Keep Steady',
+        readyForNextStep: true,
+        burnRisk: false,
+      });
+    }
+
+    if (isFinish) {
+      return JSON.stringify({
+        feedback: `Wah! ${dish} ka color aur glaze ekdum restaurant jaisa aaya hai — gas band karke garma-garam serve karo!`,
+        stageStatus: 'Ready to Serve ✨',
+        donenessPercent: 96,
+        flameAdvice: 'Low Flame',
+        readyForNextStep: true,
+        burnRisk: false,
+      });
+    }
+
+    if (isTadka) {
+      const done = Math.min(92, Math.max(35, browning + 24));
+      return JSON.stringify({
+        feedback:
+          browning >= 55
+            ? `Tadka aur pyaaz badhiya sunehra (${browning}% golden) ho chuka hai! Ab agla ingredient daalne ka bilkul sahi waqt hai.`
+            : `Tel ka temperature sahi hai (${browning}% golden) — medium flame par halka chalate hue sunehra hone tak bhuno!`,
+        stageStatus: browning >= 55 ? 'Tadka Golden Ready' : 'Tadka Sizzling',
+        donenessPercent: done,
+        flameAdvice: browning >= 65 ? 'Low Flame' : 'Medium Flame',
+        readyForNextStep: done >= 82,
+        burnRisk: false,
+      });
+    }
+
+    if (isMasala) {
+      const hasRed = /red-masala:\s*([2-9]\d)%/i.test(opticalProfile);
+      const done = Math.min(94, Math.max(40, browning + (hasRed ? 28 : 18)));
+      return JSON.stringify({
+        feedback:
+          done >= 80
+            ? `Masala daane-daar bhun gaya hai aur kinare se tel alag dikh raha hai! Ab next step pe badho.`
+            : `${dish} ka masala medium flame pe bhun raha hai — karchi se niche scrape karte raho taaki chipke nahi!`,
+        stageStatus: done >= 80 ? 'Oil Separating' : 'Masala Bhunoing',
+        donenessPercent: done,
+        flameAdvice: 'Medium Flame',
+        readyForNextStep: done >= 84,
+        burnRisk: false,
+      });
+    }
+
+    if (isSimmer) {
+      const done = Math.min(92, Math.max(45, browning + 25));
+      return JSON.stringify({
+        feedback: `${dish} medium-low flame par badhiya simmer ho raha hai! Khushboo aur consistency ekdum sahi aa rahi hai.`,
+        stageStatus: 'Simmering Gently',
+        donenessPercent: done,
+        flameAdvice: 'Low Flame',
+        readyForNextStep: done >= 85,
+        burnRisk: false,
+      });
+    }
+
+    const defaultDone = Math.min(90, Math.max(40, browning + 22));
+    return JSON.stringify({
+      feedback: `${dish} ka yeh step bilkul sahi chal raha hai (${browning}% golden index) — medium flame pe aise hi pakao!`,
+      stageStatus: defaultDone >= 82 ? 'Step Almost Done' : 'Cooking Active',
+      donenessPercent: defaultDone,
+      flameAdvice: 'Medium Flame',
+      readyForNextStep: defaultDone >= 85,
+      burnRisk: false,
+    });
+  }
+
   // 1. Conversational Chat / Zayka Brain (jsonMode === false)
   if (!jsonMode) {
-    // Check if it's a single-sentence camera frame analysis
     if (lower.includes('cooking step:') && lower.includes('max 15 words')) {
       const stepMatch = prompt.match(/cooking step:\s*"([^"]+)"/i);
       const stepText = stepMatch?.[1] || 'cooking';
@@ -371,6 +482,15 @@ function synthesizeSmartCulinaryResponse(
     const lastUserMsg = (userLines[userLines.length - 1] || prompt).replace(/Chef:\s*$/i, '').replace(/Zayka Brain:\s*$/i, '').trim();
     const msgLower = lastUserMsg.toLowerCase();
 
+    if (msgLower.includes('flame') || msgLower.includes('gas') || msgLower.includes('aanch')) {
+      return 'Abhi flame **Medium** pe rakho 🔥! Pyaaz aur masale medium aanch pe bina jale andar tak bhunte hain. Agar masala chipakne lage toh flame low karke 1 tbsp gunguna pani chhidak do!';
+    }
+    if (msgLower.includes('masala') && (msgLower.includes('daal') || msgLower.includes('kaun'))) {
+      return 'Abhi 1/2 tsp Haldi, 1 tsp Kashmiri Lal Mirch aur 1.5 tsp Dhaniya Powder ko 2 tbsp pani mein ghol kar daalo 🌶️! Garam masala aur kasuri methi bilkul aakhir mein daalna.';
+    }
+    if (msgLower.includes('kitni der') || msgLower.includes('time') || msgLower.includes('pakau')) {
+      return 'Is step ko medium flame pe **3 se 4 minute** aur pakao ⏱️ jab tak kinare se halka tel (rogan) alag na dikhne lage aur kachi mehek chali na jaye!';
+    }
     if (msgLower.includes('namak') || msgLower.includes('salt')) {
       return 'Chef tip 💡: Agar sabzi ya dal mein namak zyada ho gaya ho, toh 1 ubla hua aloo (boiled potato) ya aate ki 2 chhoti goli daal ke 5 min ubaal lo — extra namak absorb ho jayega! Ek chammach fresh cream ya dahi bhi balance kar deta hai. 😊';
     }
@@ -392,7 +512,7 @@ function synthesizeSmartCulinaryResponse(
     if (msgLower.includes('biryani') || msgLower.includes('rice') || msgLower.includes('chawal')) {
       return 'Khile-khile Biryani chawal ka raaz: Basmati chawal ko 30 min soak karo, ubalte waqt pani mein 1 tsp nimbu ka ras aur 1 tsp ghee daalo, aur chawal ko sirf 75% cook karke dum pe lagao! 🍛✨';
     }
-    return `Arre wah! "${lastUserMsg.slice(0, 60)}" ke liye sabse zaroori tip hai ki tadka medium flame pe lagao jab tak pyaaz sunehra (golden) na ho aur tamatar se tel alag na dikhe! 👨‍🍳🔥 Batao, kya main iske exact ingredients aur step-by-step recipe bataun? 😊`;
+    return `Arre wah! "${lastUserMsg.slice(0, 60)}" ke liye sabse zaroori tip hai ki aanch medium rakho aur lagataar chalate raho jab tak achha color aur khushboo na aa jaye! 👨‍🍳🔥`;
   }
 
   // 2. Fridge Scan JSON ({ "ingredients": [...] })
@@ -540,7 +660,7 @@ function synthesizeSmartCulinaryResponse(
       steps: [
         'Step 1: Flame ko turant medium-low pe set karo taaki volatile aroma molecules burn na hon',
         'Step 2: 1 tbsp dairy fat (fresh cream/ghee) ya citrus acid (nimbu) add karke taste receptors ko balance karo',
-        'Step 3: 2 minute resting time do taaki starch aur masaleapas mein bind होकर restaurant-grade texture dein',
+        'Step 3: 2 minute resting time do taaki starch aur masale aapas mein bind hokar restaurant-grade texture dein',
       ],
       proTip: 'Maillard reaction (140°C-165°C) aur fat-emulsification se kisi bhi dish ka umami flavor 3x badh jata hai!',
     });
@@ -552,154 +672,7 @@ function synthesizeSmartCulinaryResponse(
     const servingsMatch = prompt.match(/for (\d+) people/i);
     const dish = dishMatch?.[1] || 'Special Dish';
     const servings = servingsMatch ? Number(servingsMatch[1]) : 2;
-    const scale = Math.max(0.5, servings / 2);
-
-    return JSON.stringify([
-      {
-        id: 'ing-1',
-        name: `${dish} Primary Base`,
-        nameHindi: `${dish} की मुख्य सामग्री`,
-        shopName: `${dish} ke liye fresh base`,
-        visualDescription: 'Taaza aur saaf tukde',
-        amount: Math.round(250 * scale),
-        unit: 'g',
-        visualMeasure: `${Math.round(2 * scale)} katori`,
-        prepState: 'Dho kar medium cubes mein kaat lo',
-        whenToAdd: 'Masala bhunne ke baad',
-        cost: Math.round(60 * scale),
-        availability: 'kirana',
-        availabilityNote: 'Har local market ya dairy pe mil jayega',
-        freshnessCheck: 'Soft aur bina kisi khatti smell ke hona chahiye',
-        substitute: 'Aloo, Soya Chunks ya Tofu',
-        substituteReason: 'Gravy ke masale ko barabar absorb karta hai',
-        note: 'Zyada overcook mat karna warna chewy ho jayega',
-        storage: 'Fridge mein airtight box mein rakhein',
-        healthNote: 'Rich in protein aur energy',
-        commonMistake: 'Thanda seedha kadhai mein daalna — pehle room temp pe laao',
-        isOptional: false,
-        category: 'protein',
-      },
-      {
-        id: 'ing-2',
-        name: 'Onions (Finely Chopped)',
-        nameHindi: 'प्याज़ (बारीक कटा)',
-        shopName: 'Lal Pyaaz',
-        visualDescription: 'Gulabi-laal chhilke wala medium pyaaz',
-        amount: Math.round(150 * scale),
-        unit: 'g',
-        visualMeasure: `${Math.round(2 * scale)} medium pyaaz`,
-        prepState: 'Ekdum barik chop kar lo',
-        whenToAdd: 'Jeera tadakne ke turant baad',
-        cost: Math.round(10 * scale),
-        availability: 'kirana',
-        availabilityNote: 'Ghar ya sabzi wale ke paas',
-        freshnessCheck: 'Hard aur dry chhilka hona chahiye',
-        substitute: '1 tsp Hing + Tomato-Cashew base (No-onion option)',
-        substituteReason: 'Gravy ko body aur sweetness deta hai',
-        note: 'Medium flame pe golden brown hone tak bhuno',
-        storage: 'Sukhi hawa-daar tokri mein rakhein',
-        healthNote: 'Antioxidants se bharpoor',
-        commonMistake: 'High flame pe bahar se jala dena aur andar se kacha chhodna',
-        isOptional: false,
-        category: 'vegetable',
-      },
-      {
-        id: 'ing-3',
-        name: 'Ripe Red Tomatoes',
-        nameHindi: 'लाल टमाटर',
-        shopName: 'Desi / Hybrid Lal Tamatar',
-        visualDescription: 'Chamakdar laal aur rasile tamatar',
-        amount: Math.round(150 * scale),
-        unit: 'g',
-        visualMeasure: `${Math.round(2 * scale)} medium tamatar`,
-        prepState: 'Barik kaat lo ya मिक्सी mein puree bana lo',
-        whenToAdd: 'Pyaaz aur adrak-lehsun bhunne ke baad',
-        cost: Math.round(12 * scale),
-        availability: 'kirana',
-        availabilityNote: 'Har sabzi dukan par',
-        freshnessCheck: 'Dabane par halka firm hona chahiye',
-        substitute: '2 tbsp Pheta hua Taza Dahi (whisked curd)',
-        substituteReason: 'Tanginess aur gravy thickness deta hai',
-        note: 'Tamatar dalne ke turant baad namak daalo taaki jaldi gal jaye',
-        storage: 'Fridge ke vegetable crisper mein',
-        healthNote: 'Vitamin C aur Lycopene ka best source',
-        commonMistake: 'Kacha tamatar chhod dena — tel alag hone tak zaroor bhuno',
-        isOptional: false,
-        category: 'vegetable',
-      },
-      {
-        id: 'ing-4',
-        name: 'Fresh Ginger-Garlic-Chilli Paste',
-        nameHindi: 'अदरक-लहसुन-हरी मिर्च पेस्ट',
-        shopName: 'Adrak, Lehsun aur Hari Mirch',
-        visualDescription: 'Taza kuta hua khushbudaar paste',
-        amount: Math.round(1.5 * scale * 10) / 10,
-        unit: 'tbsp',
-        visualMeasure: '1.5 bada chammach',
-        prepState: 'Imamdaste (mortar) mein dardara koot lo',
-        whenToAdd: 'Pyaaz sunehra hone ke baad',
-        cost: Math.round(8 * scale),
-        availability: 'kirana',
-        availabilityNote: 'Sabzi wale ke paas',
-        freshnessCheck: 'Taza adrak-lehsun ki tez khushboo aani chahiye',
-        substitute: 'Ready-made Ginger Garlic Paste',
-        substituteReason: 'Time bachata hai aur base flavor deta hai',
-        note: '1-2 minute bhuno jab tak kachi mehek chali na jaye',
-        storage: 'Fridge mein 1 hafte tak store kar sakte hain',
-        healthNote: 'Immunity aur digestion ke liye best',
-        commonMistake: 'Bina bhune pani ya tamatar daal dena',
-        isOptional: false,
-        category: 'spice',
-      },
-      {
-        id: 'ing-5',
-        name: 'Authentic Masala Mix (Haldi, Kashmiri Mirch, Dhaniya, Garam Masala)',
-        nameHindi: 'शाही मसाला मिक्स (हल्दी, कश्मीरी मिर्च, धनिया, गरम मसाला)',
-        shopName: 'Haldi, Kashmiri Lal Mirch, Dhaniya Powder, Garam Masala',
-        visualDescription: 'Rang-birange khushbudaar Indian masale',
-        amount: Math.round(2.5 * scale * 10) / 10,
-        unit: 'tsp',
-        visualMeasure: '2.5 chhote chammach',
-        prepState: '2 tbsp pani mein ghol kar paste bana lo',
-        whenToAdd: 'Tamatar ke sath',
-        cost: Math.round(12 * scale),
-        availability: 'kirana',
-        availabilityNote: 'Har kirana store par',
-        freshnessCheck: 'Airtight dabbe ke masale jinme khushboo barkarar ho',
-        substitute: '1.5 tbsp Kitchen King ya Sabzi Masala',
-        substituteReason: 'Sare zaroori spices ka balanced blend hota hai',
-        note: 'Masale ko pani mein ghol ke dalne se woh tel mein jalte nahi hain',
-        storage: 'Cool aur dry jagah par rakhein',
-        healthNote: 'Haldi aur dhaniya anti-inflammatory hote hain',
-        commonMistake: 'Tez aanch par sukhe masale daal kar jala dena',
-        isOptional: false,
-        category: 'spice',
-      },
-      {
-        id: 'ing-6',
-        name: 'Cooking Oil / Desi Ghee & Kasuri Methi',
-        nameHindi: 'देसी घी / तेल और कसूरी मेथी',
-        shopName: 'Desi Ghee / Refined Oil + Kasuri Methi',
-        visualDescription: 'Sunehra ghee aur sukhi methi ki pattiyan',
-        amount: Math.round(2 * scale),
-        unit: 'tbsp',
-        visualMeasure: '2 bade chammach',
-        prepState: 'Kasuri methi ko hatheli pe ragad ke crush kar lo',
-        whenToAdd: 'Oil shuru mein, Kasuri Methi sabse aakhir mein',
-        cost: Math.round(15 * scale),
-        availability: 'kirana',
-        availabilityNote: 'Har kirana dukan par',
-        freshnessCheck: 'Clean aroma',
-        substitute: 'Butter + Fresh Hara Dhaniya',
-        substituteReason: 'Richness aur fresh aroma deta hai',
-        note: 'Aakhir mein 1 tsp ghee/butter aur kasuri methi dalne se restaurant jaisa swad aata hai',
-        storage: 'Room temperature par',
-        healthNote: 'Healthy fats fat-soluble vitamins absorb karne mein madad karte hain',
-        commonMistake: 'Thande tel mein jeera daalna',
-        isOptional: false,
-        category: 'oil',
-      },
-    ]);
+    return JSON.stringify(getSmartDishIngredients(dish, servings));
   }
 
   // 9. Cooking Steps Array (generateStepsAction)
@@ -710,37 +683,37 @@ function synthesizeSmartCulinaryResponse(
       {
         stepNumber: 1,
         title: 'Mise en Place — Sab Taiyaar Rakho',
-        description: `${dish} banane ke liye sabse pehle pyaaz, tamatar, adrak, lehsun aur hara dhaniya dho kar barik kaat lo. Sukhe masalon ko ek chhoti katori mein 2 chammach pani ke sath ghol ke rakh lo taaki bhunte waqt jale nahi.`,
-        duration: 6,
-        tips: ['Pehle se sari cutting aur masale ready rakhne se cooking 2x fast aur stress-free hoti hai!'],
+        description: `${dish} banane ke liye sabhi मुख्य सामग्री (main ingredients) ko naap kar alag-alag katori mein rakh lo. Isse cooking ke waqt bilkul hadbadi nahi hogi.`,
+        duration: 5,
+        tips: ['Pehle se sari taiyari rakhne se cooking 2x fast aur stress-free hoti hai!'],
       },
       {
         stepNumber: 2,
-        title: 'Khushbudaar Tadka & Pyaaz Bhunai',
-        description: 'Kadhai mein 2 tbsp tel ya ghee medium flame par garam karo. 1 tsp jeera daalo — jab woh chatakne lage, tab barik kata pyaaz daal kar lagatar chalate hue sunehra (golden brown) hone tak bhuno.',
-        duration: 7,
-        tips: ['Pyaaz bhunte waqt 1 chutki namak daal doge toh pyaaz jaldi aur barabar brown hoga!'],
+        title: 'Base & Aroma Activation',
+        description: `Pan ya kadhai ko medium flame par garam karo. ${dish} ke base ingredients daal kar halka sunehra aur khushbudaar hone tak bhuno.`,
+        duration: 6,
+        tips: ['Medium flame par bhunai karne se flavour andar tak khul kar aata hai!'],
       },
       {
         stepNumber: 3,
-        title: 'Masala Bhuno Jab Tak Tel Chhoote',
-        description: 'Ab adrak-lehsun-hari mirch paste daal kar 1 minute bhuno. Phir kate hue tamatar aur ghola hua masala paste daalo. Medium flame par tab tak bhuno jab tak masala daane-daar na ho jaye aur kadhai ke kinare se tel alag na dikhne lage.',
-        duration: 8,
-        tips: ['Oil separation hi asli indicator hai ki masala 100% pak chuka hai!'],
+        title: 'Core Seasoning & Texture Building',
+        description: `Ab मुख्य मसाले या फ्लेवरिंग (spices/aromatics) daal kar lagataar chalate hue pakao jab tak ${dish} ka asli rang aur glaze na dikhne lage.`,
+        duration: 7,
+        tips: ['Lagataar karchi chalate rahein taaki base kadhai mein na lage!'],
       },
       {
         stepNumber: 4,
         title: `${dish} Main Cooking & Simmer`,
-        description: `Ab ${dish} ki main samagri kadhai mein daalo aur 2-3 minute masale ke sath halki aanch par coat karte hue bhuno. Zaroorat anusaar gunguna pani daalo aur dhakkan lagakar 8-10 minute medium-low flame par pakne do.`,
+        description: `Ab ${dish} ki main samagri mila kar medium-low flame par pakne do taaki saare flavours ek doosre mein achhe se rach-bas jayein.`,
         duration: 10,
-        tips: ['Hamesha gunguna (warm) pani hi gravy mein daalo — isse cooking process rukta nahi aur color lajawab aata hai!'],
+        tips: ['Sahi temperature control hi perfect texture ka sabse bada raaz hai!'],
       },
       {
         stepNumber: 5,
-        title: 'Shahi Finishing & Garma-Garam Serve',
-        description: `Gas band karne se 1 minute pehle hatheli par crush ki hui kasuri methi, chutki bhar garam masala aur fresh hara dhaniya daalo. 2 minute dhak kar resting time do, phir garma-garam ${dish} paroso!`,
+        title: 'Finishing Touch & Garma-Garam Serve',
+        description: `Gas band karne ke baad ताज़ा गार्निश (fresh garnish) upar se daalo. 2 minute dhak kar resting time do, phir garma-garam ${dish} paroso!`,
         duration: 2,
-        tips: ['Pakne ke baad 2 min dhak kar rakhne se saare flavours settle ho kar restaurant jaisa swad dete hain!'],
+        tips: ['Pakne ke baad 2 min resting dene se flavours settle ho kar restaurant jaisa swad dete hain!'],
       },
     ]);
   }
@@ -818,7 +791,6 @@ function synthesizeSmartCulinaryResponse(
   const servingsMatch = prompt.match(/for (?:exactly )?(\d+) servings/i);
   const dishName = dishMatch?.[1] || 'Special Shahi Dish';
   const servings = servingsMatch ? Number(servingsMatch[1]) : 4;
-  const scale = Math.max(0.5, servings / 4);
   const encoded = encodeURIComponent(dishName).replace(/%20/g, '+');
   const imageUrl = `https://image.pollinations.ai/prompt/${encoded}+delicious+indian+food+photography+highly+detailed?width=800&height=800&nologo=true`;
 
@@ -836,21 +808,13 @@ function synthesizeSmartCulinaryResponse(
     rating: 4.9,
     image: imageUrl,
     imageUrl,
-    ingredients: [
-      { id: '1', name: `${dishName} Main Ingredient`, nameHindi: 'मुख्य सामग्री', amount: Math.round(300 * scale), unit: 'g', optional: false, substitute: 'Paneer / Aloo / Seasonal Veggies' },
-      { id: '2', name: 'Onions (Finely Chopped)', nameHindi: 'बारीक कटा प्याज़', amount: Math.round(2 * scale), unit: 'pcs', optional: false, substitute: 'Tomato-Cashew paste' },
-      { id: '3', name: 'Ripe Tomatoes (Pureed)', nameHindi: 'टमाटर प्यूरी', amount: Math.round(2 * scale), unit: 'pcs', optional: false, substitute: '2 tbsp Fresh Curd' },
-      { id: '4', name: 'Ginger-Garlic-Green Chilli Paste', nameHindi: 'अदरक-लहसुन पेस्ट', amount: Math.round(1.5 * scale * 10) / 10, unit: 'tbsp', optional: false },
-      { id: '5', name: 'Kashmiri लाल Mirch, Haldi & Dhaniya Powder', nameHindi: 'मसाले (हल्दी, मिर्च, धनिया)', amount: Math.round(2.5 * scale * 10) / 10, unit: 'tsp', optional: false },
-      { id: '6', name: 'Desi Ghee / Butter & Cooking Oil', nameHindi: 'देसी घी / मक्खन और तेल', amount: Math.round(2 * scale), unit: 'tbsp', optional: false },
-      { id: '7', name: 'Kasuri Methi, Garam Masala & Fresh Coriander', nameHindi: 'कसूरी मेथी और हरा धनिया', amount: 1, unit: 'tbsp', optional: false },
-    ],
+    ingredients: getSmartDishIngredients(dishName, servings),
     steps: [
-      { id: '1', stepNumber: 1, title: 'Taiyari & Cutting (Mise en Place)', description: `${dishName} ke liye sabhi sabziyon aur main ingredient ko dho kar kaat lo. Sukhe masalon ko thode pani mein bhigo kar rakh lo.`, duration: 5, tips: ['Masale pani mein ghol kar dalne se woh tel mein jalte nahi aur rang shandaar aata hai'] },
-      { id: '2', stepNumber: 2, title: 'Khushbudaar Tadka Lagao', description: 'Kadhai mein tel aur thoda butter garam karo. Jeera daal kar chatkao, phir barik kata pyaaz daal kar sunehra (golden brown) hone tak medium flame par bhuno.', duration: 6, tips: ['Pyaaz ko lagatar chalate hue bhuno taaki ek jaisa golden color aaye'] },
-      { id: '3', stepNumber: 3, title: 'Masala Bhunai (Tel Chhootne Tak)', description: 'Adrak-lehsun paste daal kar 1 min bhuno. Ab tamatar puree aur bhige hue masale daal kar tab tak bhuno jab tak kinare se tel alag na dikhne lage.', duration: 7, tips: ['Jitna achha masala bhunega, swad utna hi restaurant jaisa aayega'] },
-      { id: '4', stepNumber: 4, title: `${dishName} Simmer & Cook`, description: `Ab main ingredient daal kar masale mein 3 min coat karo. Zaroorat anusaar gunguna pani daalo aur dhak kar 8-10 minute medium-low flame par pakne do.`, duration: 10, tips: ['Hamesha gunguna pani use karein taaki cooking temperature bana rahe'] },
-      { id: '5', stepNumber: 5, title: 'Kasuri Methi & Garnish', description: 'Gas band karo, upar se crushed kasuri methi, garam masala aur taza hara dhaniya daal kar 2 min dhak do. Garma-garam roti, naan ya chawal ke sath paroso!', duration: 2, tips: ['Serve karne se pehle 2 min resting dene se flavours double ho jate hain'] },
+      { id: '1', stepNumber: 1, title: 'Taiyari & Measuring (Mise en Place)', description: `${dishName} ke liye sabhi ingredients ko naap kar taiyaar rakh lo.`, duration: 5, tips: ['Pehle se sari taiyari rakhne se cooking smooth aur accurate hoti hai'] },
+      { id: '2', stepNumber: 2, title: 'Base & Aroma Activation', description: 'Pan ya kadhai ko medium flame par garam karo aur base ingredients ko sunehra/khushbudaar hone tak bhuno.', duration: 6, tips: ['Medium flame par bhunne se har ingredient ka flavour khul kar aata hai'] },
+      { id: '3', stepNumber: 3, title: 'Spices & Core Cooking', description: `Ab मुख्य फ्लेवरिंग और मसाले daal kar tab tak pakao jab tak ${dishName} ka rich color aur aroma na aa jaye.`, duration: 7, tips: ['Lagataar chalate rahein taaki masale barabar pakein'] },
+      { id: '4', stepNumber: 4, title: `${dishName} Simmer & Texture`, description: `Main samagri mila kar medium-low flame par pakne do taaki ${dishName} ka texture ekdum perfect ho jaye.`, duration: 10, tips: ['Sahi flame control se restaurant jaisa texture milta hai'] },
+      { id: '5', stepNumber: 5, title: 'Finishing & Garma-Garam Serve', description: `Gas band karo, taza garnish daal kar 2 min dhak do aur garma-garam ${dishName} serve karo!`, duration: 2, tips: ['Serve karne se pehle 2 min resting dene se swad double ho jata hai'] },
     ],
     nutrition: { calories: 340, protein: 16, carbs: 34, fat: 14, fiber: 6 },
     tags: ['homemade', 'indian', 'zayka-special'],

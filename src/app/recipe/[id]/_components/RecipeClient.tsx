@@ -9,7 +9,13 @@ import { ArrowLeft, Share2, Heart, Star, Clock, Play, Globe, MapPin, ChevronDown
 import { useZaykaStore } from '@/store';
 import toast from 'react-hot-toast';
 import ChefChat from '@/components/chat/ChefChat';
-import { DISH_INGREDIENTS } from '@/data/ingredients';
+import {
+  DISH_INGREDIENTS,
+  getSmartDishIngredients,
+  normalizeIngredientCategory,
+  normalizeIngredientList,
+  parseNumericAmount,
+} from '@/data/ingredients';
 import { generateIngredientsAction } from '@/lib/actions';
 import { ALL_DISHES } from '@/data/dishes';
 import { W } from '@/lib/theme';
@@ -20,16 +26,15 @@ const swipeVariants = {
   exit: (direction: number) => ({ x: direction < 0 ? 30 : -30, opacity: 0 })
 };
 
-
-
-
 function getCategoryEmoji(cat?: string) {
+  const normalized = normalizeIngredientCategory(cat);
   const map: Record<string, string> = { protein: '🍗', spice: '🌶️', oil: '🫙', vegetable: '🥦', dairy: '🥛', grain: '🌾', other: '🧂' };
-  return map[cat || 'other'] || '🧂';
+  return map[normalized] || '🧂';
 }
 function getCategoryLabel(cat?: string) {
-  const map: Record<string, string> = { protein: 'Main Protein', spice: 'Masale & Spices', oil: 'Oil & Fats', vegetable: 'Vegetables', dairy: 'Dairy', grain: 'Grains & Flour', other: 'Others' };
-  return map[cat || 'other'] || 'Others';
+  const normalized = normalizeIngredientCategory(cat);
+  const map: Record<string, string> = { protein: 'Main Protein & Dal', spice: 'Masale & Spices', oil: 'Oil, Ghee & Fats', vegetable: 'Vegetables & Herbs', dairy: 'Dairy & Cream', grain: 'Grains, Rice & Flour', other: 'Essential Extras' };
+  return map[normalized] || 'Essential Extras';
 }
 function groupByCategory(ingredients: any[]) {
   const order = ['protein', 'grain', 'vegetable', 'dairy', 'oil', 'spice', 'other'];
@@ -37,9 +42,9 @@ function groupByCategory(ingredients: any[]) {
   const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
   for (const ing of safeIngredients) {
     if (!ing) continue;
-    const cat = ing.category || 'other';
+    const cat = normalizeIngredientCategory(ing.category, `${ing.name || ''} ${ing.nameHindi || ''}`);
     if (!groups[cat]) groups[cat] = [];
-    groups[cat].push(ing);
+    groups[cat].push({ ...ing, category: cat });
   }
   return order.filter(k => groups[k]?.length > 0).map(k => ({ category: k, items: groups[k] }));
 }
@@ -162,9 +167,11 @@ const DUMMY_RECIPES: Record<string, any> = {
 
 function IngredientCard({ ing, servings, baseServings }: { ing: any, servings: number, baseServings: number }) {
   const [expanded, setExpanded] = useState(false);
-  const { fridgeIngredients } = useZaykaStore();
-  const displayAmount = Math.round(((ing.amount / baseServings) * servings) * 10) / 10;
-  const displayCost = ing.cost ? Math.round((ing.cost / baseServings) * servings) : null;
+  const safeBase = Math.max(1, parseNumericAmount(baseServings, 2));
+  const safeAmount = parseNumericAmount(ing.amount, 1);
+  const safeCost = ing.cost ? parseNumericAmount(ing.cost, 15) : null;
+  const displayAmount = Math.round(((safeAmount / safeBase) * servings) * 10) / 10;
+  const displayCost = safeCost ? Math.max(2, Math.round((safeCost / safeBase) * servings)) : null;
   const avBg = ing.availability === 'kirana' ? '#DCFCE7' : ing.availability === 'supermarket' ? '#DBEAFE' : '#F3E8FF';
   const avColor = ing.availability === 'kirana' ? '#166534' : ing.availability === 'supermarket' ? '#1D4ED8' : '#7E22CE';
   const avLabel = ing.availability === 'kirana' ? '✅ Kirana' : ing.availability === 'supermarket' ? '🏪 Supermarket' : '📦 Online';
@@ -402,21 +409,29 @@ export default function RecipeClient({ initialDish, recipeId }: { initialDish?: 
 
   if (!recipe) return <div style={{ background: W.bg, minHeight: '100vh' }} />;
 
-  const baseServings = recipe.servings || 2;
+  const baseServings = Math.max(1, parseNumericAmount(recipe.servings, 2));
   const displayedIngredients = (recipeVersion === 'authentic' ? (recipe.authenticIngredients || recipe.ingredients) : recipe.ingredients) || [];
   const displayedSteps = aiSteps || (recipeVersion === 'authentic' ? (recipe.authenticSteps || recipe.steps) : recipe.steps) || [];
 
-  // Enrich with static data if available
+  // Enrich with static data, AI data, or dish-specific smart culinary ingredients (never empty or NaN)
   const rawEnriched = DISH_INGREDIENTS[id]
     ? (recipeVersion === 'desi' || !recipe.isGlobalWithDesiOptions ? DISH_INGREDIENTS[id] : (recipe.authenticIngredients || DISH_INGREDIENTS[id]))
-    : (aiIngredients || displayedIngredients);
-    
-  const enrichedIngredients: any[] = Array.isArray(rawEnriched) ? rawEnriched : [];
+    : (aiIngredients && aiIngredients.length > 0
+        ? aiIngredients
+        : displayedIngredients.length > 0
+        ? displayedIngredients
+        : getSmartDishIngredients(recipe.name || id, baseServings));
+
+  const enrichedIngredients: any[] = normalizeIngredientList(
+    Array.isArray(rawEnriched) ? rawEnriched : [],
+    recipe.name || 'Dish',
+    baseServings
+  );
   const grouped = groupByCategory(enrichedIngredients);
 
-  const kiranaCost = Math.round(enrichedIngredients.filter(i => i?.availability === 'kirana').reduce((s: number, i: any) => s + ((i.cost || 0) / baseServings) * servings, 0));
-  const superCost = Math.round(enrichedIngredients.filter(i => i?.availability === 'supermarket').reduce((s: number, i: any) => s + ((i.cost || 0) / baseServings) * servings, 0));
-  const onlineCost = Math.round(enrichedIngredients.filter(i => i?.availability === 'online').reduce((s: number, i: any) => s + ((i.cost || 0) / baseServings) * servings, 0));
+  const kiranaCost = Math.round(enrichedIngredients.filter(i => i?.availability === 'kirana').reduce((s: number, i: any) => s + ((parseNumericAmount(i.cost, 12)) / baseServings) * servings, 0));
+  const superCost = Math.round(enrichedIngredients.filter(i => i?.availability === 'supermarket').reduce((s: number, i: any) => s + ((parseNumericAmount(i.cost, 20)) / baseServings) * servings, 0));
+  const onlineCost = Math.round(enrichedIngredients.filter(i => i?.availability === 'online').reduce((s: number, i: any) => s + ((parseNumericAmount(i.cost, 30)) / baseServings) * servings, 0));
   const totalCost = kiranaCost + superCost + onlineCost;
 
   const chefNote = memory?.allergies?.length
