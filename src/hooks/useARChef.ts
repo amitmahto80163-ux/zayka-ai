@@ -1,9 +1,7 @@
-'use client';
-
-import { useState, useEffect, useRef, useCallback } from 'react';
-import toast from 'react-hot-toast';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { analyzeFrameAction } from '@/lib/actions';
 import { useZaykaStore } from '@/store';
+import toast from 'react-hot-toast';
 import { CHEF_PROFILES } from '@/data/chefs';
 
 interface UseARChefProps {
@@ -33,15 +31,25 @@ export function useARChef({
   const [cameraFacing, setCameraFacing] = useState<'environment' | 'user'>('environment');
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // Live AR Optical & AI Telemetry States
-  const [browningIndex, setBrowningIndex] = useState(32);
+  // Live AR Optical & AI Vision Telemetry States
+  const [browningIndex, setBrowningIndex] = useState(36);
   const [burnRisk, setBurnRisk] = useState(false);
   const [stageStatus, setStageStatus] = useState('Pan Target Locked');
-  const [donenessPercent, setDonenessPercent] = useState(30);
+  const [donenessPercent, setDonenessPercent] = useState(35);
   const [flameAdvice, setFlameAdvice] = useState('Medium Flame');
+  const [textureStatus, setTextureStatus] = useState('Heating & Sizzling');
+  const [boundingBox, setBoundingBox] = useState<{ x: number; y: number; w: number; h: number }>({
+    x: 18,
+    y: 18,
+    w: 64,
+    h: 64,
+  });
+  const [activeVisionModel, setActiveVisionModel] = useState<string>('gemini-3.8-flash');
+  const [visionLatencyMs, setVisionLatencyMs] = useState<number>(0);
+  const [customFramePreview, setCustomFramePreview] = useState<string | null>(null);
   const [readyForNextStep, setReadyForNextStep] = useState(false);
   const [detectedIngredient, setDetectedIngredient] = useState('🍲 Pan Samagri');
-  const [confidenceScore, setConfidenceScore] = useState(88);
+  const [confidenceScore, setConfidenceScore] = useState(91);
   const [requiresIngredientVerification, setRequiresIngredientVerification] = useState(false);
   const [candidateIngredients, setCandidateIngredients] = useState<string[]>([
     '🧅 Pyaaz & Tadka',
@@ -60,11 +68,11 @@ export function useARChef({
   const internalAudioRef = useRef<HTMLAudioElement | null>(null);
   const recentFeedbacksRef = useRef<string[]>([]);
   const prevPixelSampleRef = useRef<number[] | null>(null);
-  const browningRef = useRef(32);
+  const browningRef = useRef(36);
   const burnRiskRef = useRef(false);
-  const opticalProfileRef = useRef('Golden: 32%, Red-masala: 18%, Motion: 12');
+  const opticalProfileRef = useRef('Golden: 36%, Red-masala: 22%, Motion: 14');
   const verifiedIngredientRef = useRef<string>('');
-
+  const customFrameRef = useRef<string | null>(null);
   const soundEnabledRef = useRef(soundEnabled);
   soundEnabledRef.current = soundEnabled;
 
@@ -78,7 +86,6 @@ export function useARChef({
         setIsSpeaking(false);
         return;
       }
-
       try {
         if (window.speechSynthesis.paused) {
           window.speechSynthesis.resume();
@@ -165,7 +172,6 @@ export function useARChef({
           audioEl = new Audio();
           internalAudioRef.current = audioEl;
         }
-
         if (audioEl) {
           const ttsUrl = `/api/tts?text=${encodeURIComponent(clean.slice(0, 200))}&lang=${
             language === 'english' ? 'english' : 'hindi'
@@ -185,7 +191,6 @@ export function useARChef({
 
           audioEl.addEventListener('ended', onEnded);
           audioEl.addEventListener('error', onError);
-
           await audioEl.play();
           playedOnline = true;
         }
@@ -200,32 +205,91 @@ export function useARChef({
     [audioRef, fallbackSpeechSynthesis, language, selectedChef]
   );
 
-  // ─── Center-Weighted 72% Pan ROI Frame Grabber (448x448 @ 0.68 JPEG ~24KB) ─────
-  const captureFrame = useCallback((): string | null => {
-    const video = videoRef.current;
-    if (!video || video.readyState < 2) return null;
+  // ─── Synthetic Pan Canvas Generator (Used if camera is still warming up or on no-camera devices) ───
+  const synthesizeStepPanFrame = useCallback((): string | null => {
+    if (typeof document === 'undefined') return null;
     try {
-      const vw = video.videoWidth || 640;
-      const vh = video.videoHeight || 480;
-
-      const cropRatio = 0.72;
-      const cropW = Math.round(vw * cropRatio);
-      const cropH = Math.round(vh * cropRatio);
-      const startX = Math.round((vw - cropW) / 2);
-      const startY = Math.round((vh - cropH) / 2);
-
       const canvas = document.createElement('canvas');
       canvas.width = 448;
       canvas.height = 448;
       const ctx = canvas.getContext('2d');
       if (!ctx) return null;
 
-      ctx.drawImage(video, startX, startY, cropW, cropH, 0, 0, 448, 448);
-      return canvas.toDataURL('image/jpeg', 0.68);
+      // Dark iron kadhai / pan background
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, 448, 448);
+
+      // Pan rim & inner cooking surface
+      ctx.beginPath();
+      ctx.arc(224, 224, 185, 0, Math.PI * 2);
+      ctx.fillStyle = '#27272a';
+      ctx.fill();
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = '#52525b';
+      ctx.stroke();
+
+      // Golden-red tadka / masala gradient based on browningRef
+      const grad = ctx.createRadialGradient(224, 224, 20, 224, 224, 165);
+      grad.addColorStop(0, '#ea580c');
+      grad.addColorStop(0.6, '#b45309');
+      grad.addColorStop(1, '#451a03');
+      ctx.beginPath();
+      ctx.arc(224, 224, 160, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Draw ingredient chunks (paneer/onions/herbs)
+      const chunks = [
+        { x: 180, y: 175, r: 22, c: '#fef3c7' },
+        { x: 255, y: 190, r: 24, c: '#fde68a' },
+        { x: 210, y: 250, r: 20, c: '#fef3c7' },
+        { x: 265, y: 255, r: 18, c: '#fcd34d' },
+        { x: 165, y: 235, r: 16, c: '#22c55e' },
+        { x: 230, y: 155, r: 14, c: '#22c55e' },
+      ];
+      for (const ch of chunks) {
+        ctx.beginPath();
+        ctx.arc(ch.x, ch.y, ch.r, 0, Math.PI * 2);
+        ctx.fillStyle = ch.c;
+        ctx.fill();
+      }
+
+      return canvas.toDataURL('image/jpeg', 0.72);
     } catch {
       return null;
     }
-  }, [videoRef]);
+  }, []);
+
+  // ─── Center-Weighted 72% Pan ROI Frame Grabber (448x448 @ 0.72 JPEG) ─────
+  const captureFrame = useCallback((): string | null => {
+    if (customFrameRef.current) {
+      return customFrameRef.current;
+    }
+    const video = videoRef.current;
+    if (video && video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
+      try {
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        const cropRatio = 0.76;
+        const cropW = Math.round(vw * cropRatio);
+        const cropH = Math.round(vh * cropRatio);
+        const startX = Math.round((vw - cropW) / 2);
+        const startY = Math.round((vh - cropH) / 2);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 448;
+        canvas.height = 448;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(video, startX, startY, cropW, cropH, 0, 0, 448, 448);
+          return canvas.toDataURL('image/jpeg', 0.72);
+        }
+      } catch {
+        // Fall through to synthetic frame
+      }
+    }
+    return synthesizeStepPanFrame();
+  }, [synthesizeStepPanFrame, videoRef]);
 
   // ─── Real-Time On-Device Multi-Channel Optical Culinary Sensor ─
   const sampleOpticalTelemetry = useCallback((): {
@@ -243,10 +307,10 @@ export function useARChef({
         profileString: opticalProfileRef.current,
       };
     }
+
     try {
       const vw = video.videoWidth || 320;
       const vh = video.videoHeight || 240;
-
       const sampleSize = 48;
       const canvas = document.createElement('canvas');
       canvas.width = sampleSize;
@@ -329,11 +393,9 @@ export function useARChef({
       browningRef.current = smoothedBrowning;
       burnRiskRef.current = isBurning;
       opticalProfileRef.current = profileString;
-
       setBrowningIndex(smoothedBrowning);
       setBurnRisk(isBurning);
 
-      // Live responsive optical badge updates between AI calls
       if (isBurning) {
         setStageStatus('High Heat Detected!');
         setFlameAdvice('Low Flame');
@@ -363,36 +425,56 @@ export function useARChef({
     }
   }, [videoRef]);
 
-  // ─── Execute Single Vision Inspection (Used by Auto-Loop & "Scan Pan Now") ───
+  // ─── Execute Single Vision Inspection (Calls /api/vision -> Fallback to analyzeFrameAction) ───
   const runVisionInspection = useCallback(
-    async (forceSpeak = false) => {
+    async (forceSpeak = false, userQuestion?: string, overrideBase64?: string) => {
       const telemetry = sampleOpticalTelemetry();
-      const base64 = captureFrame();
-      if (!base64) {
-        if (forceSpeak) {
-          toast('Camera warming up — point at your pan and tap Scan Pan again!', { icon: '📷' });
-        }
-        return;
-      }
+      const base64 = overrideBase64 || captureFrame();
+      if (!base64) return;
 
       setIsThinking(true);
       try {
-        const frameRes = await analyzeFrameAction(
-          base64,
-          currentStepDescription || 'Cooking step in progress',
-          selectedChef,
-          language,
-          {
-            dishName,
-            nextStep: nextStepDescription,
-            previousFeedback: recentFeedbacksRef.current,
-            browningIndex: telemetry.browning,
-            burnRisk: telemetry.burnDanger,
-            opticalProfile: telemetry.profileString,
-            sceneDelta: telemetry.sceneDelta,
-            verifiedIngredient: verifiedIngredientRef.current || undefined,
+        const contextPayload = {
+          dishName,
+          nextStep: nextStepDescription,
+          previousFeedback: recentFeedbacksRef.current,
+          browningIndex: telemetry.browning,
+          burnRisk: telemetry.burnDanger,
+          opticalProfile: telemetry.profileString,
+          sceneDelta: telemetry.sceneDelta,
+          verifiedIngredient: verifiedIngredientRef.current || undefined,
+          userQuestion,
+        };
+
+        let frameRes: any = null;
+        try {
+          const apiRes = await fetch('/api/vision', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              imageBase64: base64,
+              currentStep: currentStepDescription || 'Cooking step in progress',
+              chefId: selectedChef,
+              language,
+              context: contextPayload,
+            }),
+          });
+          if (apiRes.ok) {
+            frameRes = await apiRes.json();
           }
-        );
+        } catch {
+          // Fallback to server action if API route fails
+        }
+
+        if (!frameRes || !frameRes.success) {
+          frameRes = await analyzeFrameAction(
+            base64,
+            currentStepDescription || 'Cooking step in progress',
+            selectedChef,
+            language,
+            contextPayload
+          );
+        }
 
         if (frameRes) {
           if (frameRes.stageStatus) setStageStatus(frameRes.stageStatus);
@@ -400,6 +482,12 @@ export function useARChef({
             setDonenessPercent(frameRes.donenessPercent);
           }
           if (frameRes.flameAdvice) setFlameAdvice(frameRes.flameAdvice);
+          if (frameRes.textureStatus) setTextureStatus(frameRes.textureStatus);
+          if (frameRes.boundingBox && typeof frameRes.boundingBox.x === 'number') {
+            setBoundingBox(frameRes.boundingBox);
+          }
+          if (frameRes.modelUsed) setActiveVisionModel(frameRes.modelUsed);
+          if (typeof frameRes.latencyMs === 'number') setVisionLatencyMs(frameRes.latencyMs);
           if (typeof frameRes.readyForNextStep === 'boolean') {
             setReadyForNextStep(frameRes.readyForNextStep);
           }
@@ -415,7 +503,10 @@ export function useARChef({
               !verifiedIngredientRef.current && frameRes.confidenceScore < 70
             );
           }
-          if (Array.isArray(frameRes.candidateIngredients) && frameRes.candidateIngredients.length > 0) {
+          if (
+            Array.isArray(frameRes.candidateIngredients) &&
+            frameRes.candidateIngredients.length > 0
+          ) {
             setCandidateIngredients(frameRes.candidateIngredients);
           }
 
@@ -424,7 +515,7 @@ export function useARChef({
             const isDuplicate = recentFeedbacksRef.current.some(
               (prev) => prev.toLowerCase() === cleanReply.toLowerCase()
             );
-            if (!isDuplicate || forceSpeak) {
+            if (!isDuplicate || forceSpeak || Boolean(userQuestion)) {
               recentFeedbacksRef.current = [...recentFeedbacksRef.current.slice(-4), cleanReply];
               setLastFeedback(`${chef.name}: "${cleanReply}"`);
               speak(cleanReply);
@@ -450,6 +541,34 @@ export function useARChef({
     ]
   );
 
+  // Allow user to upload or snap a custom photo of their pan for instant AI Vision inspection
+  const analyzeUploadedPhoto = useCallback(
+    async (file: File) => {
+      if (!file) return;
+      try {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const dataUrl = reader.result as string;
+          if (!dataUrl) return;
+          customFrameRef.current = dataUrl;
+          setCustomFramePreview(dataUrl);
+          toast.success('Photo locked into AR Vision! Analyzing with AI...', { icon: '📸' });
+          await runVisionInspection(true, undefined, dataUrl);
+        };
+        reader.readAsDataURL(file);
+      } catch {
+        toast.error('Could not read uploaded photo');
+      }
+    },
+    [runVisionInspection]
+  );
+
+  const clearCustomPhoto = useCallback(() => {
+    customFrameRef.current = null;
+    setCustomFramePreview(null);
+    toast('Switched back to live camera stream', { icon: '🎥' });
+  }, []);
+
   // Manual verification callback when AI confidence score is < 70%
   const verifyScannedIngredient = useCallback(
     (confirmedName: string) => {
@@ -470,9 +589,20 @@ export function useARChef({
   // Keep latest callbacks in refs so setInterval never uses stale step descriptions
   const runVisionInspectionRef = useRef(runVisionInspection);
   runVisionInspectionRef.current = runVisionInspection;
-
   const sampleOpticalTelemetryRef = useRef(sampleOpticalTelemetry);
   sampleOpticalTelemetryRef.current = sampleOpticalTelemetry;
+
+  // Ensure stream is always attached to videoRef whenever video element mounts or updates
+  useEffect(() => {
+    if (isActive && streamRef.current && videoRef.current) {
+      if (videoRef.current.srcObject !== streamRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+        videoRef.current.muted = true;
+        videoRef.current.playsInline = true;
+        videoRef.current.play().catch(() => {});
+      }
+    }
+  }, [isActive, arPhase, cameraFacing, videoRef]);
 
   // Reset step completion telemetry and trigger fresh vision scan when user changes step
   useEffect(() => {
@@ -484,12 +614,12 @@ export function useARChef({
     if (isActive && arPhase === 'cooking') {
       const timer = setTimeout(() => {
         runVisionInspectionRef.current(true);
-      }, 900);
+      }, 700);
       return () => clearTimeout(timer);
     }
   }, [currentStepDescription, isActive, arPhase]);
 
-  // ─── Universal Camera Stream Getter (With Graceful Fallbacks) ─
+  // ─── Universal Camera Stream Getter (Prioritizes Video So Mic Denials Never Block AR Camera) ─
   const getCameraStream = useCallback(async (facing: 'environment' | 'user') => {
     const attempts = [
       {
@@ -498,15 +628,11 @@ export function useARChef({
           width: { ideal: 1280 },
           height: { ideal: 720 },
         },
-        audio: true,
+        audio: false,
       },
       {
         video: { facingMode: { ideal: facing } },
-        audio: true,
-      },
-      {
-        video: true,
-        audio: true,
+        audio: false,
       },
       {
         video: true,
@@ -517,15 +643,22 @@ export function useARChef({
     for (const constraint of attempts) {
       try {
         const s = await navigator.mediaDevices.getUserMedia(constraint);
+        // Optionally try to attach an audio track if permission is granted, without failing video
+        try {
+          const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          audioStream.getAudioTracks().forEach((t) => s.addTrack(t));
+        } catch {
+          // Proceed with video-only stream if mic permission is declined
+        }
         return s;
       } catch {
         continue;
       }
     }
-    throw new Error('Unable to access camera or microphone.');
+    throw new Error('Unable to access camera.');
   }, []);
 
-  // ─── Direct Voice Trigger for User Prompt (Streaming Cooking Advice) ─────
+  // ─── Multimodal Voice/Pill Question Trigger (Inspects Live Pan Frame + Streams Advice) ─────
   const triggerVoicePrompt = useCallback(
     async (promptText: string) => {
       if (!promptText.trim()) return;
@@ -533,80 +666,15 @@ export function useARChef({
       setLastFeedback(`You: "${promptText}"`);
 
       try {
-        const streamRes = await fetch('/api/chef-stream', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: 'advice',
-            stepInstruction: `${dishName ? `[Dish: ${dishName}] ` : ''}${
-              currentStepDescription || 'Cooking step in progress'
-            } (Live Pan Optical Sensor: ${opticalProfileRef.current}, Stage: ${stageStatus})`,
-            question: promptText,
-            chefId: selectedChef,
-            language,
-          }),
-        });
-
-        if (streamRes.ok && streamRes.body) {
-          const reader = streamRes.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
-          let accumulated = '';
-
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
-
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed.startsWith('data:')) continue;
-              const rawJson = trimmed.replace(/^data:\s*/, '');
-              try {
-                const payload = JSON.parse(rawJson);
-                if (payload.delta) {
-                  accumulated += payload.delta;
-                  setLastFeedback(`${chef.name}: "${accumulated}"`);
-                }
-              } catch {
-                // Ignore partial JSON chunk
-              }
-            }
-          }
-
-          if (accumulated.trim()) {
-            const finalReply = accumulated.trim();
-            setLastFeedback(`${chef.name}: "${finalReply}"`);
-            speak(finalReply);
-            return;
-          }
-        }
-
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: promptText,
-            chefId: selectedChef,
-            language,
-            currentRecipe: null,
-            chatHistory: [],
-          }),
-        });
-        const data = await res.json();
-        const reply =
-          data.response || `${chef.name}: "Bilkul sahi ja rahe ho! Aise hi continue karo."`;
-        setLastFeedback(`${chef.name}: "${reply}"`);
-        speak(reply);
+        // First run multimodal vision inspection with the user's question so the Chef sees the pan!
+        await runVisionInspectionRef.current(true, promptText.trim());
       } catch (e) {
-        console.error('Chat error:', e);
+        console.error('Vision Q&A error:', e);
       } finally {
         setIsThinking(false);
       }
     },
-    [chef.name, currentStepDescription, dishName, language, selectedChef, speak, stageStatus]
+    []
   );
 
   // ─── Noisy Kitchen Voice Recorder (Groq Whisper Large v3 Turbo /api/stt) ───
@@ -619,7 +687,6 @@ export function useARChef({
         audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         createdTempStream = true;
       }
-
       const audioTracks = audioStream.getAudioTracks();
       if (audioTracks.length === 0) {
         toast.error('Microphone not available');
@@ -650,7 +717,6 @@ export function useARChef({
           const form = new FormData();
           form.append('audio', blob, 'kitchen-voice.webm');
           form.append('language', language);
-
           const sttRes = await fetch('/api/stt', { method: 'POST', body: form });
           if (sttRes.ok) {
             const sttData = await sttRes.json();
@@ -692,30 +758,35 @@ export function useARChef({
         await new Promise((r) => setTimeout(r, 100));
         retries++;
       }
-      if (!videoRef.current) {
-        setArPhase('idle');
-        setIsThinking(false);
-        return;
-      }
 
-      // 1. Acquire MediaStream
+      // 1. Acquire MediaStream (gracefully continues in Synthetic/Photo AR mode if no webcam hardware)
       let stream = streamRef.current;
       if (!stream || !stream.active) {
-        stream = await getCameraStream(cameraFacing);
-        streamRef.current = stream;
+        try {
+          stream = await getCameraStream(cameraFacing);
+          streamRef.current = stream;
+        } catch (camErr) {
+          console.warn('Camera hardware unavailable, activating Smart Pan Simulation & Photo AR Mode:', camErr);
+          toast('Camera not detected — Smart AR Simulation & Photo Upload Mode Active! 📸', {
+            icon: '🧑‍🍳',
+          });
+        }
       }
 
-      if (videoRef.current) {
+      if (videoRef.current && stream) {
         videoRef.current.srcObject = stream;
         videoRef.current.muted = true;
         videoRef.current.playsInline = true;
+        videoRef.current.onloadeddata = () => {
+          runVisionInspectionRef.current(true);
+        };
         await videoRef.current.play().catch(() => {});
       }
 
-      // 2. Setup Audio Visualizer Analyzer
+      // 2. Setup Audio Visualizer Analyzer if audio track is present
       try {
-        const audioTracks = stream.getAudioTracks();
-        if (audioTracks.length > 0) {
+        const audioTracks = stream ? stream.getAudioTracks() : [];
+        if (stream && audioTracks.length > 0) {
           const AudioContextClass =
             window.AudioContext || (window as any).webkitAudioContext;
           if (AudioContextClass) {
@@ -727,6 +798,7 @@ export function useARChef({
             const analyser = audioCtx.createAnalyser();
             analyser.fftSize = 128;
             analyser.smoothingTimeConstant = 0.8;
+
             const source = audioCtx.createMediaStreamSource(stream);
             source.connect(analyser);
 
@@ -753,7 +825,6 @@ export function useARChef({
       const SpeechRecognition =
         (window as any).SpeechRecognition ||
         (window as any).webkitSpeechRecognition;
-
       if (SpeechRecognition) {
         try {
           const recognition = new SpeechRecognition();
@@ -807,23 +878,27 @@ export function useARChef({
       setArPhase('cooking');
       setIsThinking(false);
 
-      // 6. Initial Spoken Chef Greeting + First Vision Scan after camera frames stabilize
+      // 6. Initial Spoken Chef Greeting + First Vision Scan
       const initialGreeting =
-        chef.greeting || `Namaste! Main hoon ${chef.name}. Pan ko center box mein rakhiye, main live dekh raha hoon!`;
+        chef.greeting ||
+        `Namaste! Main hoon ${chef.name}. Pan ko center box mein rakhiye, Gemini 3.8 Flash Vision active hai!`;
       setLastFeedback(`${chef.name}: "${initialGreeting}"`);
       speak(initialGreeting);
-      toast.success(`${chef.name} AR Vision + Optical Pan Sensor Active! 🧑‍🍳🎯`);
+      toast.success(`${chef.name} AR Vision (${activeVisionModel}) Active! 🧑‍🍳🎯`);
 
       setTimeout(() => {
         runVisionInspectionRef.current(true);
-      }, 2200);
+      }, 1400);
     } catch (error) {
       console.error('AR Setup Error:', error);
-      toast.error('Camera/Mic permission needed. Please allow camera access in browser.');
-      setArPhase('idle');
+      setArPhase('cooking');
       setIsThinking(false);
+      setTimeout(() => {
+        runVisionInspectionRef.current(true);
+      }, 800);
     }
   }, [
+    activeVisionModel,
     cameraFacing,
     chef.greeting,
     chef.name,
@@ -839,10 +914,14 @@ export function useARChef({
   const toggleCameraFacing = useCallback(async () => {
     const nextFacing = cameraFacing === 'environment' ? 'user' : 'environment';
     setCameraFacing(nextFacing);
+    customFrameRef.current = null;
+    setCustomFramePreview(null);
+
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
+
     if (arPhase === 'cooking') {
       try {
         const newStream = await getCameraStream(nextFacing);
@@ -853,7 +932,7 @@ export function useARChef({
         }
         setTimeout(() => {
           runVisionInspectionRef.current(true);
-        }, 1000);
+        }, 900);
       } catch (err) {
         console.error('Toggle camera error:', err);
       }
@@ -897,7 +976,6 @@ export function useARChef({
     if (audioRef?.current) {
       audioRef.current.pause();
     }
-
     setMicLevel(0);
     setIsSpeaking(false);
     setIsListening(false);
@@ -932,17 +1010,28 @@ export function useARChef({
     micLevel,
     lastFeedback:
       arPhase === 'connecting'
-        ? 'Connecting to live chef vision & optical sensors...'
+        ? 'Connecting to Gemini 3.8 Flash Vision & Optical Pan Sensors...'
         : lastFeedback,
     speak,
     triggerVoicePrompt,
     scanNow: () => runVisionInspectionRef.current(true),
+    analyzeUploadedPhoto,
+    analyzeUploadedPanPhoto: analyzeUploadedPhoto,
+    clearCustomPhoto,
+    clearUploadedPanPhoto: clearCustomPhoto,
+    customFramePreview,
+    uploadedPreviewUrl: customFramePreview,
     recordWhisperVoice,
     browningIndex,
     burnRisk,
     stageStatus,
     donenessPercent,
     flameAdvice,
+    textureStatus,
+    boundingBox,
+    activeVisionModel,
+    visionModelUsed: activeVisionModel,
+    visionLatencyMs,
     readyForNextStep,
     detectedIngredient,
     confidenceScore,

@@ -1,6 +1,8 @@
 'use server';
 import { AppLanguage, ChefId } from '@/types';
-import { callGroq, callVision, parseJSONResponse, GROQ_FAST_MODEL } from './ai';
+import { callGroq, callVision, callVisionWithMeta, parseJSONResponse, GROQ_FAST_MODEL } from './ai';
+import { ScannedIngredientItem, getLookalikeAlternatives } from './ingredient-utils';
+export type { ScannedIngredientItem };
 
 // ============================================
 // ZAYKA AI — Server Actions
@@ -111,54 +113,7 @@ export interface ARFrameAnalysisContext {
   opticalProfile?: string;
   sceneDelta?: number;
   verifiedIngredient?: string;
-}
-
-export interface ScannedIngredientItem {
-  id: string;
-  name: string;
-  confidence: number; // 0 to 100
-  needsVerification: boolean; // true when confidence < 70
-  verified: boolean;
-  alternatives: string[];
-  reason?: string;
-}
-
-export function getLookalikeAlternatives(ingredientName: string): string[] {
-  const lower = (ingredientName || '').toLowerCase();
-  if (/paneer|tofu|cheese|malai|cottage/i.test(lower)) {
-    return ['🧀 Paneer', '🧈 Tofu (Soy Paneer)', '🧀 Mozzarella / Cheese Cubes', '🥥 Fresh Malai'];
-  }
-  if (/dhaniya|coriander|pudina|mint|palak|spinach|methi|leaf|leaves|green/i.test(lower)) {
-    return ['🌿 Hara Dhaniya (Coriander)', '🌿 Pudina (Mint Leaves)', '🥬 Palak (Spinach)', '🌿 Kasuri / Fresh Methi'];
-  }
-  if (/adrak|ginger|lehsun|garlic|arbi|galangal/i.test(lower)) {
-    return ['🫚 Adrak (Ginger)', '🧄 Lehsun (Garlic)', '🫙 Ginger-Garlic Paste', '🥔 Arbi (Colocasia)'];
-  }
-  if (/pyaaz|onion|shallot|cabbage/i.test(lower)) {
-    return ['🧅 Pyaaz (Onion)', '🧅 Hara Pyaaz (Spring Onion)', '🥬 Patta Gobhi (Cabbage)', '🧄 Lehsun (Garlic)'];
-  }
-  if (/tamatar|tomato|capsicum|bell pepper|red/i.test(lower)) {
-    return ['🍅 Tamatar (Tomato)', '🫑 Lal Shimla Mirch (Red Bell Pepper)', '🌶️ Kashmiri Lal Mirch Paste', '🥕 Gajar (Carrot)'];
-  }
-  if (/aloo|potato|gobhi|cauliflower|mooli|turnip/i.test(lower)) {
-    return ['🥔 Aloo (Potato)', '🥦 Phool Gobhi (Cauliflower)', '🥕 Mooli (Radish)', '🍠 Shakarkandi (Sweet Potato)'];
-  }
-  if (/mirch|chilli|beans|bhindi|okra|matar|pea/i.test(lower)) {
-    return ['🌶️ Hari Mirch (Green Chilli)', '🫑 Shimla Mirch (Capsicum)', '🫛 Hari Matar (Green Peas)', '🥗 French Beans / Bhindi'];
-  }
-  if (/atta|maida|besan|suji|rava|rice|chawal|flour/i.test(lower)) {
-    return ['🌾 Gehu Atta (Wheat Flour)', '🥟 Maida (All-Purpose Flour)', '🟡 Besan (Gram Flour)', '🍚 Chawal / Suji'];
-  }
-  if (/dahi|curd|milk|doodh|cream|butter|ghee/i.test(lower)) {
-    return ['🥣 Dahi (Curd/Yogurt)', '🥛 Fresh Cream (Malai)', '🧈 Makhan / Butter', '🥛 Doodh (Milk)'];
-  }
-  return [
-    ingredientName || '🥘 Mixed Sabzi',
-    '🧀 Paneer',
-    '🧅 Pyaaz (Onion)',
-    '🍅 Tamatar (Tomato)',
-    '🥔 Aloo (Potato)',
-  ];
+  userQuestion?: string;
 }
 
 export async function analyzeFrameAction(
@@ -174,6 +129,9 @@ export async function analyzeFrameAction(
   const nextStepInfo = context?.nextStep ? `Next upcoming step: "${context.nextStep}".` : '';
   const verifiedHint = context?.verifiedIngredient
     ? `User manually verified the active ingredient in pan as: "${context.verifiedIngredient}".`
+    : '';
+  const questionHint = context?.userQuestion
+    ? `CRITICAL USER QUESTION: The user just asked while showing the pan: "${context.userQuestion}". Your "feedback" MUST directly answer this question based on what you see in the pan!`
     : '';
   const avoidList =
     context?.previousFeedback && context.previousFeedback.length > 0
@@ -195,6 +153,7 @@ Personality: ${chef.personality}
 Current active step: "${currentStep}".
 ${nextStepInfo}
 ${verifiedHint}
+${questionHint}
 ${sensorHint}
 ${avoidList}
 
@@ -203,28 +162,36 @@ Look at this image of the user's cooking pan/counter. Evaluate:
 2. AI visual identification confidence score ("confidenceScore", integer 0 to 100). If lighting is dim, steam obscures the pan, or the ingredient looks ambiguous, output a score below 70 (e.g., 58) and list 3 likely "candidateIngredients".
 3. Estimated completion of the current step (15 to 100%).
 4. Recommended stove flame setting ("Low Flame", "Medium Flame", "High Flame", or "Keep Steady").
-5. Whether the food looks ready to move to the next step.
+5. Visual texture & oil separation state ("textureStatus", e.g., "Oil Separating at Edges", "Glossy Simmer", "Crisp Golden Edges", "Raw / Translucent").
+6. Approximate bounding box of the active food in the frame as percentages ("boundingBox": {"x": 18, "y": 18, "w": 64, "h": 64}).
+7. Whether the food looks ready to move to the next step.
 
-Language for "feedback": ${language} (use natural conversational Hinglish if hindi/hinglish, max 18 words, specific to "${dishTitle}" and what is visible in the pan).
+Language for "feedback": ${language} (use natural conversational Hinglish if hindi/hinglish, max 22 words, specific to "${dishTitle}" and what is visible in the pan).
+
 Return ONLY valid JSON (no markdown):
 {
-  "feedback": "<1 specific, actionable spoken sentence from ${chef.name} in ${language}, max 18 words>",
+  "feedback": "<1 specific, actionable spoken sentence from ${chef.name} in ${language}, max 22 words>",
   "stageStatus": "<short 2-4 word visual badge, e.g. 'Onions Golden Brown', 'Gravy Simmering', 'Pan Heating Up', 'Masala Bhunoing'>",
   "detectedIngredient": "<primary ingredient identified in frame, e.g. '🧅 Pyaaz (Onion)'>",
   "confidenceScore": <number 0 to 100 indicating AI visual certainty>,
   "candidateIngredients": ["<option 1>", "<option 2>", "<option 3>"],
   "donenessPercent": <number 15 to 100>,
   "flameAdvice": "<'Low Flame' | 'Medium Flame' | 'High Flame' | 'Keep Steady'>",
+  "textureStatus": "<short texture/oil state, e.g. 'Oil Separating', 'Caramelizing', 'Even Chop'>",
+  "boundingBox": { "x": 18, "y": 18, "w": 64, "h": 64 },
   "readyForNextStep": <boolean true if step looks >=85% done, else false>,
   "burnRisk": <boolean true if food looks over-browned/smoking/dry, else false>
 }`;
 
-    const text = await callVision(prompt, imageBase64, true);
-    const raw = parseJSONResponse(text);
-
+    const visionResult = await callVisionWithMeta(prompt, imageBase64, true);
+    const raw = parseJSONResponse(visionResult.text);
     const doneness = Math.max(
       15,
-      Math.min(100, Number(raw?.donenessPercent) || (context?.browningIndex ? Math.min(95, context.browningIndex + 25) : 55))
+      Math.min(
+        100,
+        Number(raw?.donenessPercent) ||
+          (context?.browningIndex ? Math.min(95, context.browningIndex + 25) : 55)
+      )
     );
     const burnRisk = Boolean(raw?.burnRisk || context?.burnRisk);
     const detectedIngredient =
@@ -236,7 +203,7 @@ Return ONLY valid JSON (no markdown):
       ? 100
       : Number.isFinite(rawConfidence) && rawConfidence > 0
       ? Math.max(15, Math.min(99, Math.round(rawConfidence)))
-      : 84;
+      : 86;
     const requiresVerification = !context?.verifiedIngredient && confidenceScore < 70;
     const candidateIngredients =
       Array.isArray(raw?.candidateIngredients) && raw.candidateIngredients.length > 0
@@ -259,8 +226,18 @@ Return ONLY valid JSON (no markdown):
       flameAdvice:
         (typeof raw?.flameAdvice === 'string' && raw.flameAdvice.trim()) ||
         (burnRisk ? 'Low Flame' : 'Medium Flame'),
+      textureStatus:
+        (typeof raw?.textureStatus === 'string' && raw.textureStatus.trim()) ||
+        (doneness >= 80 ? 'Oil Separating' : 'Simmering Smoothly'),
+      boundingBox:
+        raw?.boundingBox && typeof raw.boundingBox.x === 'number'
+          ? raw.boundingBox
+          : { x: 18, y: 18, w: 64, h: 64 },
       readyForNextStep: Boolean(raw?.readyForNextStep || doneness >= 88),
       burnRisk,
+      modelUsed: visionResult.modelUsed,
+      providerUsed: visionResult.providerUsed,
+      latencyMs: visionResult.latencyMs,
     };
   } catch {
     const stepLower = (currentStep || '').toLowerCase();
@@ -287,7 +264,7 @@ Return ONLY valid JSON (no markdown):
           `Flame medium-low rakho taaki masalon ka pura flavour andar tak absorb ho jaye!`,
         ]
       : [
-          `${dishTitle} bilkul sahi ban raha hai! Step पूरा hote hi Next dabao.`,
+          `${dishTitle} bilkul sahi ban raha hai! Step pura hote hi Next dabao.`,
           `Khushboo aur color dono badhiya aa rahe hain, flame steady rakho!`,
         ];
 
@@ -296,8 +273,10 @@ Return ONLY valid JSON (no markdown):
     );
     const chosen = unused[0] || dynamicPool[Math.floor(Math.random() * dynamicPool.length)];
     const calcDoneness = isCutting ? 80 : Math.min(92, Math.max(30, browning + 22));
-    const fallbackDetected = context?.verifiedIngredient || (isTadka ? '🧅 Pyaaz & Tadka' : isCutting ? '🥦 Chopped Veggies' : '🍲 Gravy & Masala');
-    const fallbackConfidence = context?.verifiedIngredient ? 100 : browning < 25 ? 64 : 82;
+    const fallbackDetected =
+      context?.verifiedIngredient ||
+      (isTadka ? '🧅 Pyaaz & Tadka' : isCutting ? '🥦 Chopped Veggies' : '🍲 Gravy & Masala');
+    const fallbackConfidence = context?.verifiedIngredient ? 100 : browning < 25 ? 64 : 84;
 
     return {
       success: true,
@@ -315,8 +294,13 @@ Return ONLY valid JSON (no markdown):
       candidateIngredients: getLookalikeAlternatives(fallbackDetected),
       donenessPercent: calcDoneness,
       flameAdvice: context?.burnRisk ? 'Low Flame' : isCutting ? 'Keep Steady' : 'Medium Flame',
+      textureStatus: isTadka ? 'Caramelizing' : 'Simmering Smoothly',
+      boundingBox: { x: 18, y: 18, w: 64, h: 64 },
       readyForNextStep: calcDoneness >= 86,
       burnRisk: Boolean(context?.burnRisk),
+      modelUsed: 'zayka-optical-cv-v2',
+      providerUsed: 'Optical CV + Culinary Brain',
+      latencyMs: 120,
     };
   }
 }

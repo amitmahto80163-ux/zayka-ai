@@ -79,6 +79,12 @@ export default function CookPage() {
     requiresIngredientVerification,
     candidateIngredients,
     verifyScannedIngredient,
+    visionModelUsed,
+    visionLatencyMs,
+    textureStatus,
+    analyzeUploadedPanPhoto,
+    clearUploadedPanPhoto,
+    uploadedPreviewUrl,
   } = useARChef({
     videoRef,
     audioRef,
@@ -291,9 +297,23 @@ export default function CookPage() {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                opacity: 0.92,
+                opacity: uploadedPreviewUrl ? 0.15 : 0.92,
               }}
             />
+            {uploadedPreviewUrl && (
+              <img
+                src={uploadedPreviewUrl}
+                alt="Uploaded Pan Frame"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  opacity: 0.92,
+                }}
+              />
+            )}
 
             {/* Top AR Controls (Facing, Sound, Live Status) */}
             <div
@@ -357,7 +377,7 @@ export default function CookPage() {
                     ? 'Scanning Pan...'
                     : isARSpeaking
                     ? `${chef.name} Speaking 🔊`
-                    : 'AR Vision · Locked'}
+                    : `AR Vision · ${visionModelUsed || 'gemini-3.8-flash'}${visionLatencyMs ? ` (${visionLatencyMs}ms)` : ''}`}
                 </span>
               </div>
 
@@ -387,6 +407,33 @@ export default function CookPage() {
                   <Sparkles size={13} />
                   <span>{isARThinking ? 'Scanning...' : 'Scan Pan 📸'}</span>
                 </button>
+                <label
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    borderRadius: 20,
+                    padding: '6px 10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    cursor: 'pointer',
+                    color: 'white',
+                    fontSize: 11,
+                    fontWeight: 800,
+                  }}
+                >
+                  <span>🖼️ Photo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) analyzeUploadedPanPhoto(f);
+                    }}
+                  />
+                </label>
 
                 {/* Sound Toggle */}
                 <button
@@ -470,7 +517,7 @@ export default function CookPage() {
                     color: '#FBBF24',
                   }}
                 >
-                  🍲 {stageStatus} · Golden {browningIndex}%
+                  🍲 {stageStatus} · {textureStatus} · Golden {browningIndex}%
                 </div>
 
                 <div

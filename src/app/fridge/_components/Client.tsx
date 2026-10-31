@@ -16,11 +16,8 @@ import {
   Plus,
   Sparkles,
 } from 'lucide-react';
-import {
-  scanFridgeAction,
-  ScannedIngredientItem,
-  getLookalikeAlternatives,
-} from '@/lib/actions';
+import { scanFridgeAction } from '@/lib/actions';
+import { ScannedIngredientItem, getLookalikeAlternatives } from '@/lib/ingredient-utils';
 import { useZaykaStore } from '@/store';
 import toast from 'react-hot-toast';
 import { W } from '@/lib/theme';
