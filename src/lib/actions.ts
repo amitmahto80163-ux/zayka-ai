@@ -652,7 +652,12 @@ Replace DISH+NAME with actual dish name (spaces as +).`;
 
     const text = await callGroq(prompt, undefined, true, GROQ_FAST_MODEL);
     const data = parseJSONResponse(text);
-    const dishes = Array.isArray(data) ? data : data.dishes || [];
+    const rawDishes = Array.isArray(data) ? data : data.dishes || [];
+    const { getExactDishImage } = await import('./dishImages');
+    const dishes = rawDishes.map((d: any) => ({
+      ...d,
+      image: getExactDishImage(d?.name, d?.image),
+    }));
     return { success: true, data: dishes };
   } catch (error) {
     console.error('generateMoreDishesAction error:', error);

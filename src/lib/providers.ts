@@ -8,6 +8,7 @@
 // ============================================
 
 import { getSmartDishIngredients } from '@/data/ingredients';
+import { getExactDishImage } from './dishImages';
 
 export interface AIProvider {
   id: string;
@@ -70,7 +71,7 @@ export const AI_PROVIDERS: AIProvider[] = [
     name: 'SambaNova Cloud (Free Tier)',
     baseUrl: 'https://api.sambanova.ai/v1',
     model: 'Meta-Llama-3.3-70B-Instruct',
-    fastModel: 'Meta-Llama-3.1-8B-Instruct',
+    fastModel: 'gemma-4-31B-it',
     apiKeyEnv: 'SAMBANOVA_API_KEY',
     requiresKey: true,
     maxDailyRequests: 1000,
@@ -285,10 +286,13 @@ async function callProvider(
   const model = fast ? provider.fastModel : provider.model;
   const isPollinations = provider.id.startsWith('pollinations');
 
+  const effectiveMaxTokens =
+    provider.id === 'sambanova' ? Math.min(maxTokens, 3072) : maxTokens;
+
   // Note: Pollinations /openai responds in ~650ms when max_tokens/temperature are omitted
   const body: Record<string, unknown> = isPollinations
     ? { model, messages }
-    : { model, messages, temperature: 0.7, max_tokens: maxTokens };
+    : { model, messages, temperature: 0.7, max_tokens: effectiveMaxTokens };
 
   if (jsonMode && provider.supportsJSON) {
     body.response_format = { type: 'json_object' };
@@ -843,7 +847,7 @@ function synthesizeSmartCulinaryResponse(
         calories: 340,
         rating: 4.9,
         tags: [cat, 'street'],
-        image: 'https://image.pollinations.ai/prompt/Amritsari+Paneer+Kulcha+delicious+food+photography?width=800&height=800&nologo=true',
+        image: getExactDishImage('Amritsari Paneer Kulcha'),
       },
       {
         id: `gen_${cat}_${seed}_2`,
@@ -854,7 +858,7 @@ function synthesizeSmartCulinaryResponse(
         calories: 260,
         rating: 4.8,
         tags: [cat, 'healthy'],
-        image: 'https://image.pollinations.ai/prompt/Lasooni+Dal+Palak+Tadka+delicious+food+photography?width=800&height=800&nologo=true',
+        image: getExactDishImage('Dal Palak'),
       },
       {
         id: `gen_${cat}_${seed}_3`,
@@ -865,7 +869,7 @@ function synthesizeSmartCulinaryResponse(
         calories: 310,
         rating: 4.9,
         tags: [cat, 'indian'],
-        image: 'https://image.pollinations.ai/prompt/Smoky+Tandoori+Soya+Chaap+delicious+food+photography?width=800&height=800&nologo=true',
+        image: getExactDishImage('Tandoori Soya Chaap'),
       },
       {
         id: `gen_${cat}_${seed}_4`,
@@ -876,7 +880,7 @@ function synthesizeSmartCulinaryResponse(
         calories: 280,
         rating: 4.7,
         tags: [cat, 'quick'],
-        image: 'https://image.pollinations.ai/prompt/Chilli+Garlic+Crispy+Corn+delicious+food+photography?width=800&height=800&nologo=true',
+        image: getExactDishImage('Crispy Corn'),
       },
     ]);
   }
@@ -886,8 +890,7 @@ function synthesizeSmartCulinaryResponse(
   const servingsMatch = prompt.match(/for (?:exactly )?(\d+) servings/i);
   const dishName = dishMatch?.[1] || 'Special Shahi Dish';
   const servings = servingsMatch ? Number(servingsMatch[1]) : 4;
-  const encoded = encodeURIComponent(dishName).replace(/%20/g, '+');
-  const imageUrl = `https://image.pollinations.ai/prompt/${encoded}+delicious+indian+food+photography+highly+detailed?width=800&height=800&nologo=true`;
+  const imageUrl = getExactDishImage(dishName);
 
   return JSON.stringify({
     name: dishName,

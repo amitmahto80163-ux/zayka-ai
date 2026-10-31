@@ -1050,18 +1050,9 @@ export default function CookPage() {
                     }}
                   >
                     <DishImage
-                      src={
-                        'https://image.pollinations.ai/prompt/' +
-                        encodeURIComponent(
-                          'cooking step realistic top down ' +
-                            (currentRecipe?.name || '') +
-                            ' ' +
-                            (step?.description || '')
-                        ) +
-                        '?width=600&height=400&nologo=true&seed=' +
-                        currentStep
-                      }
-                      alt="Step Visualization"
+                      src={currentRecipe?.imageUrl || currentRecipe?.image}
+                      dishName={currentRecipe?.name || 'Indian Dish'}
+                      alt={currentRecipe?.name || 'Step Visualization'}
                       fill
                       style={{ objectFit: 'cover' }}
                     />
