@@ -1,6 +1,5 @@
 'use client';
 import DishImage from '@/components/DishImage';
-import { getExactDishImage } from '@/lib/dishImages';
 import Image from 'next/image';
 
 import { useState } from 'react';
@@ -15,14 +14,14 @@ import { W } from '@/lib/theme';
 
 
 const FOOD_CARDS = [
-  { id: 'f1', name: 'Butter Chicken', cuisine: 'Indian 🇮🇳', emoji: '🥘', color: '#E85D04', img: getExactDishImage('Butter Chicken') },
-  { id: 'f2', name: 'Margherita Pizza', cuisine: 'Italian 🇮🇹', emoji: '🍕', color: '#D90429', img: getExactDishImage('Margherita Pizza') },
-  { id: 'f3', name: 'Ramen', cuisine: 'Japanese 🇯🇵', emoji: '🍜', color: '#FFB703', img: getExactDishImage('Ramen') },
-  { id: 'f4', name: 'Tacos', cuisine: 'Mexican 🇲🇽', emoji: '🌮', color: '#8CB369', img: getExactDishImage('Tacos') },
-  { id: 'f5', name: 'Pad Thai', cuisine: 'Thai 🇹🇭', emoji: '🥡', color: '#A51931', img: getExactDishImage('Pad Thai') },
-  { id: 'f6', name: 'Biryani', cuisine: 'Indian 🇮🇳', emoji: '🍛', color: '#FF6B35', img: getExactDishImage('Biryani') },
-  { id: 'f7', name: 'Sushi', cuisine: 'Japanese 🇯🇵', emoji: '🍣', color: '#BC002D', img: getExactDishImage('Sushi') },
-  { id: 'f8', name: 'Pasta Arrabbiata', cuisine: 'Italian 🇮🇹', emoji: '🍝', color: '#009246', img: getExactDishImage('Pasta Arrabbiata') },
+  { id: 'f1', name: 'Butter Chicken', cuisine: 'Indian 🇮🇳', emoji: '🥘', color: '#E85D04', img: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f2', name: 'Margherita Pizza', cuisine: 'Italian 🇮🇹', emoji: '🍕', color: '#D90429', img: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f3', name: 'Ramen', cuisine: 'Japanese 🇯🇵', emoji: '🍜', color: '#FFB703', img: 'https://images.unsplash.com/photo-1557872943-16a5ac26437e?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f4', name: 'Tacos', cuisine: 'Mexican 🇲🇽', emoji: '🌮', color: '#8CB369', img: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f5', name: 'Pad Thai', cuisine: 'Thai 🇹🇭', emoji: '🥡', color: '#A51931', img: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f6', name: 'Biryani', cuisine: 'Indian 🇮🇳', emoji: '🍛', color: '#FF6B35', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f7', name: 'Sushi', cuisine: 'Japanese 🇯🇵', emoji: '🍣', color: '#BC002D', img: 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=400&q=80' },
+  { id: 'f8', name: 'Pasta Arrabbiata', cuisine: 'Italian 🇮🇹', emoji: '🍝', color: '#009246', img: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=400&q=80' },
 ];
 
 export default function SwipePage() {

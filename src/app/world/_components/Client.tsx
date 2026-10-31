@@ -1,6 +1,5 @@
 'use client';
 import DishImage from '@/components/DishImage';
-import { getExactDishImage } from '@/lib/dishImages';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -17,40 +16,40 @@ const WORLD_CUISINES = [
     id: 'india', name: 'India', emoji: '🇮🇳', gradient: 'linear-gradient(135deg, #FF9933, #FFFFFF, #138808)',
     funFact: "India has over 7,500 unique recipes documented — more than any other country!",
     dishes: [
-      { name: 'Butter Chicken', type: 'Non-Veg', img: getExactDishImage('Butter Chicken'), funFact: 'Invented in the 1950s in Delhi by accident!', desiAlt: 'You are in India! Enjoy the original desi masterpiece.' },
-      { name: 'Dal Makhani', type: 'Veg', img: getExactDishImage('Dal Makhani'), funFact: 'Traditionally slow-cooked over coal overnight for 12 hours.', desiAlt: 'Skip the overnight wait, use a pressure cooker with extra cream!' },
-      { name: 'Biryani', type: 'Non-Veg', img: getExactDishImage('Biryani'), funFact: 'There are over 30 distinct types of Biryani in India.', desiAlt: 'Quick veg pulav in pressure cooker if you are short on time.' },
-      { name: 'Paneer Tikka', type: 'Veg', img: getExactDishImage('Paneer Tikka'), funFact: 'The perfect tandoor temperature for Tikka is around 400°C.', desiAlt: 'Make it on a regular tawa using a little ghee and besan coating.' },
+      { name: 'Butter Chicken', type: 'Non-Veg', img: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=300&q=80', funFact: 'Invented in the 1950s in Delhi by accident!', desiAlt: 'You are in India! Enjoy the original desi masterpiece.' },
+      { name: 'Dal Makhani', type: 'Veg', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=300&q=80', funFact: 'Traditionally slow-cooked over coal overnight for 12 hours.', desiAlt: 'Skip the overnight wait, use a pressure cooker with extra cream!' },
+      { name: 'Biryani', type: 'Non-Veg', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=300&q=80', funFact: 'There are over 30 distinct types of Biryani in India.', desiAlt: 'Quick veg pulav in pressure cooker if you are short on time.' },
+      { name: 'Paneer Tikka', type: 'Veg', img: 'https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&w=300&q=80', funFact: 'The perfect tandoor temperature for Tikka is around 400°C.', desiAlt: 'Make it on a regular tawa using a little ghee and besan coating.' },
     ]
   },
   {
     id: 'italy', name: 'Italy', emoji: '🇮🇹', gradient: 'linear-gradient(135deg, #009246, #FFFFFF, #CE2B37)',
     funFact: "Italians eat an average of 23kg of pasta per person every year!",
     dishes: [
-      { name: 'Margherita Pizza', type: 'Veg', img: getExactDishImage('Margherita Pizza'), funFact: 'Named after Queen Margherita in 1889, representing the colors of the Italian flag.', desiAlt: 'Tawa Pizza using a thick paratha base and Amul cheese!' },
-      { name: 'Pasta Arrabbiata', type: 'Veg', img: getExactDishImage('Pasta Arrabbiata'), funFact: 'Arrabbiata literally means "angry" in Italian due to the spicy chili!', desiAlt: 'Macaroni cooked in a spicy tomato and garlic tadka.' },
-      { name: 'Risotto', type: 'Veg', img: getExactDishImage('Risotto'), funFact: 'Risotto must be stirred constantly to release starch for creaminess.', desiAlt: 'Creamy garlic cheese Khichdi made with everyday short-grain rice.' },
-      { name: 'Tiramisu', type: 'Veg', img: getExactDishImage('Tiramisu'), funFact: 'Tiramisu translates to "pick me up" because of the coffee and cocoa.', desiAlt: 'Coffee-dipped Parle-G layered with sweet malai!' },
+      { name: 'Margherita Pizza', type: 'Veg', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=300&q=80', funFact: 'Named after Queen Margherita in 1889, representing the colors of the Italian flag.', desiAlt: 'Tawa Pizza using a thick paratha base and Amul cheese!' },
+      { name: 'Pasta Arrabbiata', type: 'Veg', img: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=300&q=80', funFact: 'Arrabbiata literally means "angry" in Italian due to the spicy chili!', desiAlt: 'Macaroni cooked in a spicy tomato and garlic tadka.' },
+      { name: 'Risotto', type: 'Veg', img: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=300&q=80', funFact: 'Risotto must be stirred constantly to release starch for creaminess.', desiAlt: 'Creamy garlic cheese Khichdi made with everyday short-grain rice.' },
+      { name: 'Tiramisu', type: 'Veg', img: 'https://images.unsplash.com/photo-1484723091791-cdd515f0d2d2?auto=format&fit=crop&w=300&q=80', funFact: 'Tiramisu translates to "pick me up" because of the coffee and cocoa.', desiAlt: 'Coffee-dipped Parle-G layered with sweet malai!' },
     ]
   },
   {
     id: 'japan', name: 'Japan', emoji: '🇯🇵', gradient: 'linear-gradient(135deg, #FFFFFF, #BC002D)',
     funFact: "Japan has the most 3-Michelin-star restaurants in the world!",
     dishes: [
-      { name: 'Sushi', type: 'Non-Veg', img: getExactDishImage('Sushi'), funFact: 'Sushi originally meant sour rice, and the fish was discarded!', desiAlt: 'Veggie Sushi Roll: Spinach paratha wrapped around sticky jeera rice.' },
-      { name: 'Ramen', type: 'Non-Veg', img: getExactDishImage('Ramen'), funFact: 'Ramen noodles are actually of Chinese origin.', desiAlt: 'Maggi upgraded with boiled egg, soy sauce, and burnt garlic.' },
-      { name: 'Tempura', type: 'Non-Veg', img: getExactDishImage('Tempura'), funFact: 'Tempura was introduced to Japan by Portuguese missionaries.', desiAlt: 'Crispy Veg Pakoras with a lighter, ice-cold besan batter.' },
-      { name: 'Miso Soup', type: 'Vegan', img: getExactDishImage('Miso Soup'), funFact: 'Over 75% of Japanese people consume miso soup at least once a day.', desiAlt: 'Clear Dal Ka Pani infused with garlic and spring onions.' },
+      { name: 'Sushi', type: 'Non-Veg', img: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=300&q=80', funFact: 'Sushi originally meant sour rice, and the fish was discarded!', desiAlt: 'Veggie Sushi Roll: Spinach paratha wrapped around sticky jeera rice.' },
+      { name: 'Ramen', type: 'Non-Veg', img: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=300&q=80', funFact: 'Ramen noodles are actually of Chinese origin.', desiAlt: 'Maggi upgraded with boiled egg, soy sauce, and burnt garlic.' },
+      { name: 'Tempura', type: 'Non-Veg', img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80', funFact: 'Tempura was introduced to Japan by Portuguese missionaries.', desiAlt: 'Crispy Veg Pakoras with a lighter, ice-cold besan batter.' },
+      { name: 'Miso Soup', type: 'Vegan', img: 'https://images.unsplash.com/photo-1484723091791-cdd515f0d2d2?auto=format&fit=crop&w=300&q=80', funFact: 'Over 75% of Japanese people consume miso soup at least once a day.', desiAlt: 'Clear Dal Ka Pani infused with garlic and spring onions.' },
     ]
   },
   {
     id: 'mexico', name: 'Mexico', emoji: '🇲🇽', gradient: 'linear-gradient(135deg, #006847, #FFFFFF, #CE1126)',
     funFact: "Tomatoes, avocados, and chocolate all originated in Mexico!",
     dishes: [
-      { name: 'Tacos al Pastor', type: 'Non-Veg', img: getExactDishImage('Tacos al Pastor'), funFact: 'Tacos were inspired by Lebanese shawarma brought to Mexico.', desiAlt: 'Crispy Roti folded with spicy Rajma filling and green chutney.' },
-      { name: 'Guacamole', type: 'Vegan', img: getExactDishImage('Guacamole'), funFact: 'Aztecs invented guacamole; the name means "avocado sauce".', desiAlt: 'Spiced Avocado mash with raw onions, green chilies, and lime (Avo-Chutney).' },
-      { name: 'Enchiladas', type: 'Non-Veg', img: getExactDishImage('Enchiladas'), funFact: 'Enchilada means "to decorate with chili".', desiAlt: 'Leftover rotis rolled with paneer, baked in spicy tomato puree.' },
-      { name: 'Churros', type: 'Veg', img: getExactDishImage('Churros'), funFact: 'Churros were actually invented by Spanish shepherds!', desiAlt: 'Crispy long jalebis coated in cinnamon and sugar instead of syrup.' },
+      { name: 'Tacos al Pastor', type: 'Non-Veg', img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=300&q=80', funFact: 'Tacos were inspired by Lebanese shawarma brought to Mexico.', desiAlt: 'Crispy Roti folded with spicy Rajma filling and green chutney.' },
+      { name: 'Guacamole', type: 'Vegan', img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80', funFact: 'Aztecs invented guacamole; the name means "avocado sauce".', desiAlt: 'Spiced Avocado mash with raw onions, green chilies, and lime (Avo-Chutney).' },
+      { name: 'Enchiladas', type: 'Non-Veg', img: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=300&q=80', funFact: 'Enchilada means "to decorate with chili".', desiAlt: 'Leftover rotis rolled with paneer, baked in spicy tomato puree.' },
+      { name: 'Churros', type: 'Veg', img: 'https://images.unsplash.com/photo-1484723091791-cdd515f0d2d2?auto=format&fit=crop&w=300&q=80', funFact: 'Churros were actually invented by Spanish shepherds!', desiAlt: 'Crispy long jalebis coated in cinnamon and sugar instead of syrup.' },
     ]
   }
 ];

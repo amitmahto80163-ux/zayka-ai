@@ -50,6 +50,8 @@ export default function CookPage() {
 
   const nextStepObj = steps[currentStep + 1];
 
+  const [manualIngredientInput, setManualIngredientInput] = useState('');
+
   // AR Chef Hook with Live Camera, Optical Pan Sensor, Vision Loop & Spoken Audio Output
   const {
     isThinking: isARThinking,
@@ -72,6 +74,11 @@ export default function CookPage() {
     donenessPercent,
     flameAdvice,
     readyForNextStep,
+    detectedIngredient,
+    confidenceScore,
+    requiresIngredientVerification,
+    candidateIngredients,
+    verifyScannedIngredient,
   } = useARChef({
     videoRef,
     audioRef,
@@ -468,6 +475,27 @@ export default function CookPage() {
 
                 <div
                   style={{
+                    background:
+                      confidenceScore < 70
+                        ? 'rgba(245, 158, 11, 0.92)'
+                        : 'rgba(15, 23, 42, 0.78)',
+                    backdropFilter: 'blur(10px)',
+                    padding: '4px 10px',
+                    borderRadius: 12,
+                    border:
+                      confidenceScore < 70
+                        ? '1px solid #FDE68A'
+                        : '1px solid rgba(255,255,255,0.12)',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: 'white',
+                  }}
+                >
+                  {confidenceScore < 70 ? '⚠️' : '🎯'} {detectedIngredient} ({confidenceScore}%)
+                </div>
+
+                <div
+                  style={{
                     background: burnRisk
                       ? 'rgba(239, 68, 68, 0.88)'
                       : 'rgba(15, 23, 42, 0.78)',
@@ -525,6 +553,110 @@ export default function CookPage() {
                   {donenessPercent}%
                 </span>
               </div>
+
+              {/* ⚠️ <70% AI Confidence Manual Ingredient Verification Fallback Card */}
+              {requiresIngredientVerification && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.94)',
+                    backdropFilter: 'blur(14px)',
+                    border: '1.5px solid #F59E0B',
+                    borderRadius: 16,
+                    padding: '10px 12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: '#FBBF24' }}>
+                      ⚠️ Low AI Confidence ({confidenceScore}% &lt; 70%): Verify Ingredient in Pan
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => verifyScannedIngredient(detectedIngredient)}
+                      style={{
+                        background: '#10B981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '3px 8px',
+                        fontSize: 10,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ✓ Yes, {detectedIngredient}
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {candidateIngredients.map((cand) => (
+                      <button
+                        key={cand}
+                        type="button"
+                        onClick={() => verifyScannedIngredient(cand)}
+                        style={{
+                          background: 'rgba(255,255,255,0.12)',
+                          color: 'white',
+                          border: '1px solid rgba(251,191,36,0.45)',
+                          borderRadius: 99,
+                          padding: '4px 10px',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {cand}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <input
+                      type="text"
+                      value={manualIngredientInput}
+                      onChange={(e) => setManualIngredientInput(e.target.value)}
+                      placeholder="Or type ingredient manually..."
+                      style={{
+                        flex: 1,
+                        background: 'rgba(255,255,255,0.1)',
+                        color: 'white',
+                        border: '1px solid rgba(255,255,255,0.24)',
+                        borderRadius: 10,
+                        padding: '5px 10px',
+                        fontSize: 11,
+                        fontWeight: 600,
+                        outline: 'none',
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (manualIngredientInput.trim()) {
+                          verifyScannedIngredient(manualIngredientInput.trim());
+                          setManualIngredientInput('');
+                        }
+                      }}
+                      style={{
+                        background: '#F97316',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 10,
+                        padding: '5px 12px',
+                        fontSize: 11,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Verify
+                    </button>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Center-Pan AR Targeting Reticle + Voice Visualizer */}

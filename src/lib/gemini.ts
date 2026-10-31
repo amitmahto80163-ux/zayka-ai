@@ -163,6 +163,14 @@ Generate 6-10 ingredients and 5-7 detailed cooking steps.`;
     const text = await callGroq(prompt, undefined, true, GROQ_FAST_MODEL);
     const recipe = parseJSONResponse(text);
 
+    const { getSmartDishIngredients, normalizeIngredientList } = await import('@/data/ingredients');
+    const targetServings = Number(recipe.servings) || preferences.servings || 4;
+    const normalizedIngredients = normalizeIngredientList(
+      Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
+      recipe.name || dishName,
+      targetServings
+    );
+
     const finalRecipe = {
       ...recipe,
       name: recipe.name || dishName,
@@ -171,15 +179,17 @@ Generate 6-10 ingredients and 5-7 detailed cooking steps.`;
       prepTime: Number(recipe.prepTime) || 15,
       cookTime: Number(recipe.cookTime) || 20,
       calories: Number(recipe.calories || recipe.nutrition?.calories) || 320,
-      servings: Number(recipe.servings) || preferences.servings || 4,
-      ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
+      servings: targetServings,
+      ingredients: normalizedIngredients,
       steps: Array.isArray(recipe.steps) ? recipe.steps : [],
     };
     await setCachedData(cacheKey, finalRecipe);
     return finalRecipe;
   } catch (error: unknown) {
     console.error('Recipe generation error:', error);
+    const { getSmartDishIngredients } = await import('@/data/ingredients');
     const imageUrl = getDishImageUrl(dishName);
+    const targetServings = preferences.servings || 4;
     return {
       id: `recipe-${Date.now()}`,
       name: dishName,
@@ -189,25 +199,18 @@ Generate 6-10 ingredients and 5-7 detailed cooking steps.`;
       difficulty: (preferences.difficulty as import('@/types').DifficultyLevel) || 'beginner',
       prepTime: 15,
       cookTime: 25,
-      servings: preferences.servings || 4,
-      isVeg: preferences.isVeg !== undefined ? preferences.isVeg : true,
+      servings: targetServings,
+      isVeg: preferences.isVeg !== undefined ? preferences.isVeg : !/chicken|mutton|fish|prawn|egg|keema/i.test(dishName),
       image: imageUrl,
       imageUrl: imageUrl,
       calories: 320,
-      ingredients: [
-        { id: '1', name: `${dishName} Main Samagri`, nameHindi: 'मुख्य सामग्री', amount: 250, unit: 'g', optional: false },
-        { id: '2', name: 'Onion (Finely Chopped)', nameHindi: 'प्याज़', amount: 2, unit: 'pcs', optional: false },
-        { id: '3', name: 'Tomatoes (Pureed/Chopped)', nameHindi: 'टमाटर', amount: 2, unit: 'pcs', optional: false },
-        { id: '4', name: 'Ginger-Garlic Paste', nameHindi: 'अदरक-लहसुन पेस्ट', amount: 1, unit: 'tbsp', optional: false },
-        { id: '5', name: 'Cooking Oil / Desi Ghee', nameHindi: 'तेल / घी', amount: 2, unit: 'tbsp', optional: false },
-        { id: '6', name: 'Haldi, Kashmiri Mirch, Garam Masala & Salt', nameHindi: 'मसाले और नमक', amount: 2, unit: 'tsp', optional: false },
-      ],
+      ingredients: getSmartDishIngredients(dishName, targetServings),
       steps: [
-        { id: '1', stepNumber: 1, title: 'Taiyari Karo (Mise en Place)', description: 'Sabhi ingredients measure karke ready kar lo. Pyaaz, tamatar aur hara dhaniya dho ke barik kaat lo.', duration: 5, tips: ['Pehle se sab ready rakhoge toh cooking smooth hogi'] },
-        { id: '2', stepNumber: 2, title: 'Khushbudaar Tadka Lagao', description: 'Kadhai mein tel/ghee medium flame pe garam karo. Jeera aur barik kata pyaaz daal ke sunehra (golden brown) hone tak bhuno.', duration: 6, tips: ['Medium flame pe bhuno — jaldi mat karo'] },
-        { id: '3', stepNumber: 3, title: 'Masala Bhuno Jab Tak Tel Chhoote', description: 'Adrak-lehsun paste, tamatar aur sukhe masale daalo. Medium flame pe tab tak bhuno jab tak sides se oil separate na dikhe.', duration: 7, tips: ['Masala achhe se bhunna hi asli swad ka raaz hai'] },
-        { id: '4', stepNumber: 4, title: `${dishName} Pakao`, description: 'Ab main samagri daalo, achhi tarah masala coat karo aur dhakkan lagakar medium-low flame pe pakne do.', duration: 12, tips: ['Beech-beech mein halka stir karte raho'] },
-        { id: '5', stepNumber: 5, title: 'Garnish Aur Garma-Garam Serve', description: 'Gas band karo, upar se kasuri methi, hara dhaniya aur thoda makkhan/nimbu daalkar garma-garam paroso!', duration: 2, tips: ['Garnish se aroma aur presentation 10x better hoti hai'] },
+        { id: '1', stepNumber: 1, title: 'Taiyari Karo (Mise en Place)', description: `${dishName} ke liye sabhi ingredients measure karke ready kar lo.`, duration: 5, tips: ['Pehle se sab ready rakhoge toh cooking smooth hogi'] },
+        { id: '2', stepNumber: 2, title: 'Base & Aroma Activation', description: 'Pan ya kadhai mein medium flame par base ingredients ko sunehra aur khushbudaar hone tak bhuno.', duration: 6, tips: ['Medium flame pe bhuno — jaldi mat karo'] },
+        { id: '3', stepNumber: 3, title: 'Core Spices & Flavouring', description: `Ab मुख्य मसाले और फ्लेवरिंग daalo aur tab tak pakao jab tak ${dishName} ka rich color na aa jaye.`, duration: 7, tips: ['Sahi bhunai hi asli swad ka raaz hai'] },
+        { id: '4', stepNumber: 4, title: `${dishName} Pakao`, description: 'Ab main samagri daalo, achhi tarah mix karo aur medium-low flame pe pakne do.', duration: 12, tips: ['Beech-beech mein halka stir karte raho'] },
+        { id: '5', stepNumber: 5, title: 'Garnish Aur Garma-Garam Serve', description: `Gas band karo, taza garnish daal kar garma-garam ${dishName} paroso!`, duration: 2, tips: ['Garnish se aroma aur presentation 10x better hoti hai'] },
       ],
       nutrition: { calories: 320, protein: 14, carbs: 35, fat: 12, fiber: 6 },
       tags: ['homemade', 'indian'],

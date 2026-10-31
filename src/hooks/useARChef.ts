@@ -40,6 +40,15 @@ export function useARChef({
   const [donenessPercent, setDonenessPercent] = useState(30);
   const [flameAdvice, setFlameAdvice] = useState('Medium Flame');
   const [readyForNextStep, setReadyForNextStep] = useState(false);
+  const [detectedIngredient, setDetectedIngredient] = useState('🍲 Pan Samagri');
+  const [confidenceScore, setConfidenceScore] = useState(88);
+  const [requiresIngredientVerification, setRequiresIngredientVerification] = useState(false);
+  const [candidateIngredients, setCandidateIngredients] = useState<string[]>([
+    '🧅 Pyaaz & Tadka',
+    '🍅 Tamatar Masala',
+    '🧀 Paneer Cubes',
+    '🥦 Chopped Sabzi',
+  ]);
 
   const recognitionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -54,6 +63,7 @@ export function useARChef({
   const browningRef = useRef(32);
   const burnRiskRef = useRef(false);
   const opticalProfileRef = useRef('Golden: 32%, Red-masala: 18%, Motion: 12');
+  const verifiedIngredientRef = useRef<string>('');
 
   const soundEnabledRef = useRef(soundEnabled);
   soundEnabledRef.current = soundEnabled;
@@ -380,6 +390,7 @@ export function useARChef({
             burnRisk: telemetry.burnDanger,
             opticalProfile: telemetry.profileString,
             sceneDelta: telemetry.sceneDelta,
+            verifiedIngredient: verifiedIngredientRef.current || undefined,
           }
         );
 
@@ -394,6 +405,18 @@ export function useARChef({
           }
           if (typeof frameRes.burnRisk === 'boolean') {
             setBurnRisk(frameRes.burnRisk);
+          }
+          if (frameRes.detectedIngredient) {
+            setDetectedIngredient(frameRes.detectedIngredient);
+          }
+          if (typeof frameRes.confidenceScore === 'number') {
+            setConfidenceScore(frameRes.confidenceScore);
+            setRequiresIngredientVerification(
+              !verifiedIngredientRef.current && frameRes.confidenceScore < 70
+            );
+          }
+          if (Array.isArray(frameRes.candidateIngredients) && frameRes.candidateIngredients.length > 0) {
+            setCandidateIngredients(frameRes.candidateIngredients);
           }
 
           if (frameRes.feedback) {
@@ -427,6 +450,23 @@ export function useARChef({
     ]
   );
 
+  // Manual verification callback when AI confidence score is < 70%
+  const verifyScannedIngredient = useCallback(
+    (confirmedName: string) => {
+      const clean = confirmedName.trim();
+      if (!clean) return;
+      verifiedIngredientRef.current = clean;
+      setDetectedIngredient(clean);
+      setConfidenceScore(100);
+      setRequiresIngredientVerification(false);
+      const confirmMsg = `Shukriya! ${clean} verify ho gaya — medium flame pe aise hi continue karo!`;
+      setLastFeedback(`${chef.name}: "${confirmMsg}"`);
+      toast.success(`Verified ingredient: ${clean} (100%)`);
+      speak(confirmMsg);
+    },
+    [chef.name, speak]
+  );
+
   // Keep latest callbacks in refs so setInterval never uses stale step descriptions
   const runVisionInspectionRef = useRef(runVisionInspection);
   runVisionInspectionRef.current = runVisionInspection;
@@ -436,6 +476,8 @@ export function useARChef({
 
   // Reset step completion telemetry and trigger fresh vision scan when user changes step
   useEffect(() => {
+    verifiedIngredientRef.current = '';
+    setRequiresIngredientVerification(false);
     setReadyForNextStep(false);
     setDonenessPercent(25);
     setStageStatus('Scanning New Step...');
@@ -902,6 +944,11 @@ export function useARChef({
     donenessPercent,
     flameAdvice,
     readyForNextStep,
+    detectedIngredient,
+    confidenceScore,
+    requiresIngredientVerification,
+    candidateIngredients,
+    verifyScannedIngredient,
     cameraFacing,
     toggleCameraFacing,
     soundEnabled,

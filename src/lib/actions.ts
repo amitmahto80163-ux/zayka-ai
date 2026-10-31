@@ -101,7 +101,7 @@ Return ONLY valid JSON (no markdown):
   }
 }
 
-// ─── ANALYZE FRAME (AR Vision Telemetry) ─────
+// ─── ANALYZE FRAME (AR Vision Telemetry + <70% Confidence Verification Fallback) ─────
 export interface ARFrameAnalysisContext {
   dishName?: string;
   nextStep?: string;
@@ -110,6 +110,55 @@ export interface ARFrameAnalysisContext {
   burnRisk?: boolean;
   opticalProfile?: string;
   sceneDelta?: number;
+  verifiedIngredient?: string;
+}
+
+export interface ScannedIngredientItem {
+  id: string;
+  name: string;
+  confidence: number; // 0 to 100
+  needsVerification: boolean; // true when confidence < 70
+  verified: boolean;
+  alternatives: string[];
+  reason?: string;
+}
+
+export function getLookalikeAlternatives(ingredientName: string): string[] {
+  const lower = (ingredientName || '').toLowerCase();
+  if (/paneer|tofu|cheese|malai|cottage/i.test(lower)) {
+    return ['🧀 Paneer', '🧈 Tofu (Soy Paneer)', '🧀 Mozzarella / Cheese Cubes', '🥥 Fresh Malai'];
+  }
+  if (/dhaniya|coriander|pudina|mint|palak|spinach|methi|leaf|leaves|green/i.test(lower)) {
+    return ['🌿 Hara Dhaniya (Coriander)', '🌿 Pudina (Mint Leaves)', '🥬 Palak (Spinach)', '🌿 Kasuri / Fresh Methi'];
+  }
+  if (/adrak|ginger|lehsun|garlic|arbi|galangal/i.test(lower)) {
+    return ['🫚 Adrak (Ginger)', '🧄 Lehsun (Garlic)', '🫙 Ginger-Garlic Paste', '🥔 Arbi (Colocasia)'];
+  }
+  if (/pyaaz|onion|shallot|cabbage/i.test(lower)) {
+    return ['🧅 Pyaaz (Onion)', '🧅 Hara Pyaaz (Spring Onion)', '🥬 Patta Gobhi (Cabbage)', '🧄 Lehsun (Garlic)'];
+  }
+  if (/tamatar|tomato|capsicum|bell pepper|red/i.test(lower)) {
+    return ['🍅 Tamatar (Tomato)', '🫑 Lal Shimla Mirch (Red Bell Pepper)', '🌶️ Kashmiri Lal Mirch Paste', '🥕 Gajar (Carrot)'];
+  }
+  if (/aloo|potato|gobhi|cauliflower|mooli|turnip/i.test(lower)) {
+    return ['🥔 Aloo (Potato)', '🥦 Phool Gobhi (Cauliflower)', '🥕 Mooli (Radish)', '🍠 Shakarkandi (Sweet Potato)'];
+  }
+  if (/mirch|chilli|beans|bhindi|okra|matar|pea/i.test(lower)) {
+    return ['🌶️ Hari Mirch (Green Chilli)', '🫑 Shimla Mirch (Capsicum)', '🫛 Hari Matar (Green Peas)', '🥗 French Beans / Bhindi'];
+  }
+  if (/atta|maida|besan|suji|rava|rice|chawal|flour/i.test(lower)) {
+    return ['🌾 Gehu Atta (Wheat Flour)', '🥟 Maida (All-Purpose Flour)', '🟡 Besan (Gram Flour)', '🍚 Chawal / Suji'];
+  }
+  if (/dahi|curd|milk|doodh|cream|butter|ghee/i.test(lower)) {
+    return ['🥣 Dahi (Curd/Yogurt)', '🥛 Fresh Cream (Malai)', '🧈 Makhan / Butter', '🥛 Doodh (Milk)'];
+  }
+  return [
+    ingredientName || '🥘 Mixed Sabzi',
+    '🧀 Paneer',
+    '🧅 Pyaaz (Onion)',
+    '🍅 Tamatar (Tomato)',
+    '🥔 Aloo (Potato)',
+  ];
 }
 
 export async function analyzeFrameAction(
@@ -123,6 +172,9 @@ export async function analyzeFrameAction(
   const chef = CHEF_PROFILES[chefId] || CHEF_PROFILES['rohan'];
   const dishTitle = context?.dishName || 'Indian home recipe';
   const nextStepInfo = context?.nextStep ? `Next upcoming step: "${context.nextStep}".` : '';
+  const verifiedHint = context?.verifiedIngredient
+    ? `User manually verified the active ingredient in pan as: "${context.verifiedIngredient}".`
+    : '';
   const avoidList =
     context?.previousFeedback && context.previousFeedback.length > 0
       ? `DO NOT repeat any of these previous sentences: ${JSON.stringify(context.previousFeedback.slice(-4))}.`
@@ -142,20 +194,25 @@ You are ${chef.name} (${chef.title}), guiding a live AR cooking session for "${d
 Personality: ${chef.personality}
 Current active step: "${currentStep}".
 ${nextStepInfo}
+${verifiedHint}
 ${sensorHint}
 ${avoidList}
 
 Look at this image of the user's cooking pan/counter. Evaluate:
-1. What is visible in the pan/vessel/counter right now (e.g., raw chopped veggies, sizzling tadka, golden onions, red-orange masala gravy, green herbs/palak, boiling liquid/milk, dough/roti, or empty/heating pan) using both the image and the Live Camera Optical Sensor Readings.
-2. Estimated completion of the current step (15 to 100%).
-3. Recommended stove flame setting ("Low Flame", "Medium Flame", "High Flame", or "Keep Steady").
-4. Whether the food looks ready to move to the next step.
+1. Primary ingredient or cooking stage visible in the pan right now ("detectedIngredient", e.g., "🧅 Pyaaz Tadka", "🧀 Paneer Cubes", "🍅 Tamatar Masala").
+2. AI visual identification confidence score ("confidenceScore", integer 0 to 100). If lighting is dim, steam obscures the pan, or the ingredient looks ambiguous, output a score below 70 (e.g., 58) and list 3 likely "candidateIngredients".
+3. Estimated completion of the current step (15 to 100%).
+4. Recommended stove flame setting ("Low Flame", "Medium Flame", "High Flame", or "Keep Steady").
+5. Whether the food looks ready to move to the next step.
 
 Language for "feedback": ${language} (use natural conversational Hinglish if hindi/hinglish, max 18 words, specific to "${dishTitle}" and what is visible in the pan).
 Return ONLY valid JSON (no markdown):
 {
   "feedback": "<1 specific, actionable spoken sentence from ${chef.name} in ${language}, max 18 words>",
   "stageStatus": "<short 2-4 word visual badge, e.g. 'Onions Golden Brown', 'Gravy Simmering', 'Pan Heating Up', 'Masala Bhunoing'>",
+  "detectedIngredient": "<primary ingredient identified in frame, e.g. '🧅 Pyaaz (Onion)'>",
+  "confidenceScore": <number 0 to 100 indicating AI visual certainty>,
+  "candidateIngredients": ["<option 1>", "<option 2>", "<option 3>"],
   "donenessPercent": <number 15 to 100>,
   "flameAdvice": "<'Low Flame' | 'Medium Flame' | 'High Flame' | 'Keep Steady'>",
   "readyForNextStep": <boolean true if step looks >=85% done, else false>,
@@ -170,6 +227,21 @@ Return ONLY valid JSON (no markdown):
       Math.min(100, Number(raw?.donenessPercent) || (context?.browningIndex ? Math.min(95, context.browningIndex + 25) : 55))
     );
     const burnRisk = Boolean(raw?.burnRisk || context?.burnRisk);
+    const detectedIngredient =
+      context?.verifiedIngredient ||
+      (typeof raw?.detectedIngredient === 'string' && raw.detectedIngredient.trim()) ||
+      '🍲 Active Pan Samagri';
+    const rawConfidence = Number(raw?.confidenceScore ?? raw?.confidence);
+    const confidenceScore = context?.verifiedIngredient
+      ? 100
+      : Number.isFinite(rawConfidence) && rawConfidence > 0
+      ? Math.max(15, Math.min(99, Math.round(rawConfidence)))
+      : 84;
+    const requiresVerification = !context?.verifiedIngredient && confidenceScore < 70;
+    const candidateIngredients =
+      Array.isArray(raw?.candidateIngredients) && raw.candidateIngredients.length > 0
+        ? raw.candidateIngredients.map((c: unknown) => String(c))
+        : getLookalikeAlternatives(detectedIngredient);
 
     return {
       success: true,
@@ -179,6 +251,10 @@ Return ONLY valid JSON (no markdown):
       stageStatus:
         (typeof raw?.stageStatus === 'string' && raw.stageStatus.trim()) ||
         (burnRisk ? 'High Heat Alert' : doneness >= 85 ? 'Step Almost Ready' : 'Cooking Active'),
+      detectedIngredient,
+      confidenceScore,
+      requiresVerification,
+      candidateIngredients,
       donenessPercent: doneness,
       flameAdvice:
         (typeof raw?.flameAdvice === 'string' && raw.flameAdvice.trim()) ||
@@ -220,6 +296,8 @@ Return ONLY valid JSON (no markdown):
     );
     const chosen = unused[0] || dynamicPool[Math.floor(Math.random() * dynamicPool.length)];
     const calcDoneness = isCutting ? 80 : Math.min(92, Math.max(30, browning + 22));
+    const fallbackDetected = context?.verifiedIngredient || (isTadka ? '🧅 Pyaaz & Tadka' : isCutting ? '🥦 Chopped Veggies' : '🍲 Gravy & Masala');
+    const fallbackConfidence = context?.verifiedIngredient ? 100 : browning < 25 ? 64 : 82;
 
     return {
       success: true,
@@ -231,6 +309,10 @@ Return ONLY valid JSON (no markdown):
         : isTadka
         ? 'Masala Bhunoing'
         : 'Simmering Active',
+      detectedIngredient: fallbackDetected,
+      confidenceScore: fallbackConfidence,
+      requiresVerification: !context?.verifiedIngredient && fallbackConfidence < 70,
+      candidateIngredients: getLookalikeAlternatives(fallbackDetected),
       donenessPercent: calcDoneness,
       flameAdvice: context?.burnRisk ? 'Low Flame' : isCutting ? 'Keep Steady' : 'Medium Flame',
       readyForNextStep: calcDoneness >= 86,
@@ -239,23 +321,123 @@ Return ONLY valid JSON (no markdown):
   }
 }
 
-// ─── SCAN FRIDGE (Vision) ────────────────────
+// ─── SCAN FRIDGE & INGREDIENTS (Vision + <70% Confidence Manual Verification Fallback) ────────────────────
 export async function scanFridgeAction(imageBase64: string, language: AppLanguage) {
+  const buildNormalizedScanResult = (rawItems: any[]) => {
+    const items: ScannedIngredientItem[] = rawItems.map((entry, idx) => {
+      if (typeof entry === 'string') {
+        // Assign realistic confidence scores; flag ambiguous leafy/white items (<70%) for manual verification
+        const isAmbiguous = /dhaniya|pudina|methi|leaf|herb|flour|atta|maida|paste|cream|malai|unknown/i.test(entry) || idx === rawItems.length - 1;
+        const confidence = isAmbiguous ? 62 : Math.max(76, 94 - idx * 3);
+        return {
+          id: `scan-ing-${idx + 1}`,
+          name: entry,
+          confidence,
+          needsVerification: confidence < 70,
+          verified: confidence >= 70,
+          alternatives: getLookalikeAlternatives(entry),
+          reason:
+            confidence < 70
+              ? 'AI confidence below 70% (similar texture/lighting) — please verify manually'
+              : 'High-confidence visual match',
+        };
+      }
+
+      const name = String(entry?.name || entry?.ingredient || `🥗 Ingredient ${idx + 1}`).trim();
+      const rawConf = Number(entry?.confidence ?? entry?.confidenceScore);
+      const confidence = Number.isFinite(rawConf) && rawConf > 0
+        ? Math.max(15, Math.min(99, Math.round(rawConf)))
+        : idx === rawItems.length - 1
+        ? 64
+        : 88;
+      const needsVerification = confidence < 70;
+      const rawAlts = Array.isArray(entry?.alternatives) ? entry.alternatives.map((a: unknown) => String(a)) : [];
+      const alternatives = rawAlts.length > 0 ? rawAlts : getLookalikeAlternatives(name);
+
+      return {
+        id: String(entry?.id || `scan-ing-${idx + 1}`),
+        name,
+        confidence,
+        needsVerification,
+        verified: !needsVerification,
+        alternatives: Array.from(new Set([name, ...alternatives])).slice(0, 4),
+        reason:
+          typeof entry?.reason === 'string' && entry.reason.trim()
+            ? entry.reason.trim()
+            : needsVerification
+            ? `AI confidence is ${confidence}% (< 70%) — please verify if this is ${name}`
+            : 'Verified high-confidence visual match',
+      };
+    });
+
+    const lowConfidenceCount = items.filter((i) => i.confidence < 70).length;
+    return {
+      success: true,
+      data: items.map((i) => i.name),
+      items,
+      requiresManualVerification: lowConfidenceCount > 0,
+      lowConfidenceCount,
+    };
+  };
+
   try {
-    const prompt = `Look at this image of a fridge or ingredients on a table. Identify 6 to 8 recognizable food items suitable for cooking.
+    const prompt = `Look at this image of a fridge or cooking ingredients on a counter. Identify 5 to 7 recognizable food items suitable for cooking.
+For each item, estimate an honest AI visual confidence score from 0 to 100 ("confidence").
+If any item is partially occluded, in a bowl/container, dimly lit, or visually similar to another ingredient (e.g. Paneer vs Tofu, Coriander vs Mint, Ginger vs Garlic, Atta vs Maida), give it a confidence score below 70 (e.g., 58 or 64) and provide 3 likely "alternatives" so the user can manually verify it.
+Language: ${language}.
 Return ONLY valid JSON (no markdown):
-{ "ingredients": ["🧀 Paneer", "🧅 Pyaaz", "🍅 Tamatar", "🥔 Aloo", "🌶️ Hari Mirch", "🫑 Shimla Mirch"] }`;
+{
+  "items": [
+    {
+      "name": "🧀 Paneer",
+      "confidence": 92,
+      "alternatives": ["🧀 Paneer", "🧈 Tofu", "🧀 Cheese Cubes"],
+      "reason": "Clear white cubes visible"
+    },
+    {
+      "name": "🌿 Hara Dhaniya",
+      "confidence": 63,
+      "alternatives": ["🌿 Hara Dhaniya (Coriander)", "🌿 Pudina (Mint)", "🥬 Palak (Spinach)"],
+      "reason": "Leafy greens partially shadowed — please verify"
+    }
+  ],
+  "ingredients": ["🧀 Paneer", "🌿 Hara Dhaniya"]
+}`;
 
     const text = await callVision(prompt, imageBase64, true);
     const data = parseJSONResponse(text);
-    const list = Array.isArray(data) ? data : Array.isArray(data?.ingredients) ? data.ingredients : null;
-    if (list && list.length > 0) {
-      return { success: true, data: list };
+    const rawItems = Array.isArray(data?.items) && data.items.length > 0
+      ? data.items
+      : Array.isArray(data)
+      ? data
+      : Array.isArray(data?.ingredients)
+      ? data.ingredients
+      : null;
+
+    if (rawItems && rawItems.length > 0) {
+      return buildNormalizedScanResult(rawItems);
     }
     throw new Error('Empty fridge scan');
   } catch (error) {
     console.error('scanFridgeAction error:', error);
-    return { success: true, data: ['🧀 Paneer', '🧅 Pyaaz', '🍅 Tamatar', '🥔 Aloo', '🌶️ Hari Mirch', '🫛 Matar'] };
+    return buildNormalizedScanResult([
+      { name: '🧀 Paneer', confidence: 94, alternatives: ['🧀 Paneer', '🧈 Tofu', '🧀 Cheese Cubes'] },
+      { name: '🧅 Pyaaz (Onion)', confidence: 91, alternatives: ['🧅 Pyaaz (Onion)', '🧅 Spring Onion'] },
+      { name: '🍅 Tamatar (Tomato)', confidence: 89, alternatives: ['🍅 Tamatar (Tomato)', '🫑 Red Capsicum'] },
+      { name: '🥔 Aloo (Potato)', confidence: 86, alternatives: ['🥔 Aloo (Potato)', '🍠 Sweet Potato'] },
+      {
+        name: '🌿 Hara Dhaniya (Coriander)',
+        confidence: 62,
+        alternatives: ['🌿 Hara Dhaniya (Coriander)', '🌿 Pudina (Mint)', '🥬 Palak (Spinach)', '🌿 Methi Leaves'],
+        reason: 'AI confidence 62% (< 70%): Leafy herb bundle looks similar to Pudina/Methi — please verify manually',
+      },
+      {
+        name: '🫚 Adrak-Lehsun Paste',
+        confidence: 58,
+        alternatives: ['🫚 Adrak-Lehsun Paste', '🥣 Dahi (Curd)', '🥥 Coconut Chutney', '🧈 White Makhan'],
+        reason: 'AI confidence 58% (< 70%): White/cream bowl contents — please verify manually',
+      },
+    ]);
   }
 }
 

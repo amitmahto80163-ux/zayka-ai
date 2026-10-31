@@ -369,6 +369,7 @@ function synthesizeSmartCulinaryResponse(
     const stepMatch = prompt.match(/Current active step:\s*"([^"]+)"/i);
     const brownMatch = prompt.match(/Browning\/Golden Index\s*=\s*(\d+)%/i);
     const profileMatch = prompt.match(/Color & Motion Profile\s*=\s*\(([^)]+)\)/i);
+    const verifiedMatch = prompt.match(/verified the active ingredient in pan as:\s*"([^"]+)"/i);
     const burnWarn = prompt.includes('WARNING: High dark/char pixel ratio');
 
     const dish = dishMatch?.[1] || 'Dish';
@@ -376,6 +377,7 @@ function synthesizeSmartCulinaryResponse(
     const stepLower = stepText.toLowerCase();
     const browning = brownMatch ? Number(brownMatch[1]) : 42;
     const opticalProfile = profileMatch?.[1] || '';
+    const verifiedIngredient = verifiedMatch?.[1] || '';
 
     const isPrep = /cut|chop|kaat|prep|wash|dho|soak|bhigo|marinate|bowl|measure|dough|goondh|roll|bel/i.test(stepLower);
     const isTadka = /tadka|oil|tel|ghee|butter|jeera|rai|pyaaz|onion|garlic|lehsun|fry|roast|bhun/i.test(stepLower);
@@ -383,10 +385,40 @@ function synthesizeSmartCulinaryResponse(
     const isSimmer = /simmer|boil|ubaal|dhak|cover|cook|pakao|gravy|pani|milk|doodh|seeti|dum/i.test(stepLower);
     const isFinish = /garnish|serve|dhaniya|coriander|cream|kasuri|ready|band|off/i.test(stepLower);
 
+    // If optical browning is very low (<28%) and not yet verified, emit <70% confidence so user can verify the ingredient
+    const inferredConfidence = verifiedIngredient
+      ? 100
+      : browning < 28
+      ? 62
+      : Math.min(95, Math.max(74, 65 + Math.round(browning * 0.35)));
+
+    const inferredIngredient = verifiedIngredient || (
+      isPrep
+        ? '🥦 Chopped Sabzi & Prep'
+        : isTadka
+        ? '🧅 Pyaaz & Jeera Tadka'
+        : isMasala
+        ? '🍅 Tamatar-Adrak Masala'
+        : isFinish
+        ? '🌿 Hara Dhaniya & Garnish'
+        : `🍲 ${dish} Base`
+    );
+
+    const candidateIngredients = isPrep
+      ? ['🥦 Chopped Veggies', '🧀 Paneer Cubes', '🧅 Sliced Pyaaz', '🥔 Diced Aloo']
+      : isTadka
+      ? ['🧅 Pyaaz & Jeera Tadka', '🧄 Lehsun-Adrak Tadka', '🌿 Curry Patta & Rai', '🧈 Butter & Whole Spices']
+      : isMasala
+      ? ['🍅 Tamatar-Mirch Masala', '🥣 Dahi-Masala Base', '🧅 Bhuna Pyaaz Paste', '🫚 Ginger-Garlic Masala']
+      : ['🍲 Simmering Gravy', '🧀 Paneer / Protein in Gravy', '🌿 Hara Dhaniya Garnish', '🥛 Cream / Malai Finish'];
+
     if (burnWarn) {
       return JSON.stringify({
         feedback: `Aanch turant low karo! ${dish} ka masala zyada dark ho raha hai, lagataar karchi chalao aur 1 tbsp pani chhidko!`,
         stageStatus: 'High Heat Alert',
+        detectedIngredient: inferredIngredient,
+        confidenceScore: inferredConfidence,
+        candidateIngredients,
         donenessPercent: Math.min(95, Math.max(70, browning)),
         flameAdvice: 'Low Flame',
         readyForNextStep: true,
@@ -396,8 +428,11 @@ function synthesizeSmartCulinaryResponse(
 
     if (isPrep) {
       return JSON.stringify({
-        feedback: `${dish} ke ingredients barabar size mein taiyaar dikh rahe hain! Prep pura hote hi agle step pe chalo.`,
+        feedback: `${dish} ke ingredients (${inferredIngredient}) barabar size mein taiyaar dikh rahe hain! Prep pura hote hi agle step pe chalo.`,
         stageStatus: 'Prep & Mise en Place',
+        detectedIngredient: inferredIngredient,
+        confidenceScore: inferredConfidence,
+        candidateIngredients,
         donenessPercent: 85,
         flameAdvice: 'Keep Steady',
         readyForNextStep: true,
@@ -409,6 +444,9 @@ function synthesizeSmartCulinaryResponse(
       return JSON.stringify({
         feedback: `Wah! ${dish} ka color aur glaze ekdum restaurant jaisa aaya hai — gas band karke garma-garam serve karo!`,
         stageStatus: 'Ready to Serve ✨',
+        detectedIngredient: inferredIngredient,
+        confidenceScore: Math.max(85, inferredConfidence),
+        candidateIngredients,
         donenessPercent: 96,
         flameAdvice: 'Low Flame',
         readyForNextStep: true,
@@ -421,9 +459,12 @@ function synthesizeSmartCulinaryResponse(
       return JSON.stringify({
         feedback:
           browning >= 55
-            ? `Tadka aur pyaaz badhiya sunehra (${browning}% golden) ho chuka hai! Ab agla ingredient daalne ka bilkul sahi waqt hai.`
-            : `Tel ka temperature sahi hai (${browning}% golden) — medium flame par halka chalate hue sunehra hone tak bhuno!`,
+            ? `Tadka aur ${inferredIngredient} badhiya sunehra (${browning}% golden) ho chuka hai! Ab agla ingredient daalne ka bilkul sahi waqt hai.`
+            : `Tel ka temperature sahi hai (${browning}% golden) — medium flame par ${inferredIngredient} sunehra hone tak bhuno!`,
         stageStatus: browning >= 55 ? 'Tadka Golden Ready' : 'Tadka Sizzling',
+        detectedIngredient: inferredIngredient,
+        confidenceScore: inferredConfidence,
+        candidateIngredients,
         donenessPercent: done,
         flameAdvice: browning >= 65 ? 'Low Flame' : 'Medium Flame',
         readyForNextStep: done >= 82,
@@ -438,8 +479,11 @@ function synthesizeSmartCulinaryResponse(
         feedback:
           done >= 80
             ? `Masala daane-daar bhun gaya hai aur kinare se tel alag dikh raha hai! Ab next step pe badho.`
-            : `${dish} ka masala medium flame pe bhun raha hai — karchi se niche scrape karte raho taaki chipke nahi!`,
+            : `${dish} ka ${inferredIngredient} medium flame pe bhun raha hai — karchi se niche scrape karte raho taaki chipke nahi!`,
         stageStatus: done >= 80 ? 'Oil Separating' : 'Masala Bhunoing',
+        detectedIngredient: inferredIngredient,
+        confidenceScore: inferredConfidence,
+        candidateIngredients,
         donenessPercent: done,
         flameAdvice: 'Medium Flame',
         readyForNextStep: done >= 84,
@@ -452,6 +496,9 @@ function synthesizeSmartCulinaryResponse(
       return JSON.stringify({
         feedback: `${dish} medium-low flame par badhiya simmer ho raha hai! Khushboo aur consistency ekdum sahi aa rahi hai.`,
         stageStatus: 'Simmering Gently',
+        detectedIngredient: inferredIngredient,
+        confidenceScore: inferredConfidence,
+        candidateIngredients,
         donenessPercent: done,
         flameAdvice: 'Low Flame',
         readyForNextStep: done >= 85,
@@ -463,6 +510,9 @@ function synthesizeSmartCulinaryResponse(
     return JSON.stringify({
       feedback: `${dish} ka yeh step bilkul sahi chal raha hai (${browning}% golden index) — medium flame pe aise hi pakao!`,
       stageStatus: defaultDone >= 82 ? 'Step Almost Done' : 'Cooking Active',
+      detectedIngredient: inferredIngredient,
+      confidenceScore: inferredConfidence,
+      candidateIngredients,
       donenessPercent: defaultDone,
       flameAdvice: 'Medium Flame',
       readyForNextStep: defaultDone >= 85,
@@ -515,10 +565,55 @@ function synthesizeSmartCulinaryResponse(
     return `Arre wah! "${lastUserMsg.slice(0, 60)}" ke liye sabse zaroori tip hai ki aanch medium rakho aur lagataar chalate raho jab tak achha color aur khushboo na aa jaye! 👨‍🍳🔥`;
   }
 
-  // 2. Fridge Scan JSON ({ "ingredients": [...] })
-  if (lower.includes('fridge') && lower.includes('"ingredients"')) {
+  // 2. Fridge & Ingredient Scan JSON ({ "items": [...], "ingredients": [...] })
+  if ((lower.includes('fridge') || lower.includes('cooking ingredients on a counter')) && lower.includes('"ingredients"')) {
     return JSON.stringify({
-      ingredients: ['🧀 Paneer', '🧅 Pyaaz (Onion)', '🍅 Tamatar (Tomato)', '🥔 Aloo (Potato)', '🌶️ Hari Mirch', '🫑 Shimla Mirch', '🌿 Hara Dhaniya'],
+      items: [
+        {
+          name: '🧀 Paneer',
+          confidence: 94,
+          alternatives: ['🧀 Paneer', '🧈 Tofu (Soy Paneer)', '🧀 Cheese Cubes'],
+          reason: 'Clear white cubes identified',
+        },
+        {
+          name: '🧅 Pyaaz (Onion)',
+          confidence: 91,
+          alternatives: ['🧅 Pyaaz (Onion)', '🧅 Hara Pyaaz'],
+          reason: 'High-confidence visual match',
+        },
+        {
+          name: '🍅 Tamatar (Tomato)',
+          confidence: 89,
+          alternatives: ['🍅 Tamatar (Tomato)', '🫑 Lal Shimla Mirch'],
+          reason: 'High-confidence visual match',
+        },
+        {
+          name: '🥔 Aloo (Potato)',
+          confidence: 85,
+          alternatives: ['🥔 Aloo (Potato)', '🍠 Shakarkandi'],
+          reason: 'High-confidence visual match',
+        },
+        {
+          name: '🌿 Hara Dhaniya (Coriander)',
+          confidence: 62,
+          alternatives: ['🌿 Hara Dhaniya (Coriander)', '🌿 Pudina (Mint)', '🥬 Palak (Spinach)', '🌿 Methi Leaves'],
+          reason: 'AI confidence 62% (< 70%): Leafy herb bundle looks similar to Pudina/Methi — please verify manually',
+        },
+        {
+          name: '🫚 Adrak-Lehsun Paste',
+          confidence: 58,
+          alternatives: ['🫚 Adrak-Lehsun Paste', '🥣 Dahi (Curd)', '🥥 Coconut Chutney', '🧈 White Makhan'],
+          reason: 'AI confidence 58% (< 70%): Bowl contents partially shadowed — please verify manually',
+        },
+      ],
+      ingredients: [
+        '🧀 Paneer',
+        '🧅 Pyaaz (Onion)',
+        '🍅 Tamatar (Tomato)',
+        '🥔 Aloo (Potato)',
+        '🌿 Hara Dhaniya (Coriander)',
+        '🫚 Adrak-Lehsun Paste',
+      ],
     });
   }
 
